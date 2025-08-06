@@ -26,6 +26,7 @@ interface EnhancedMindARViewerProps {
   onTargetLost?: (state?: MarkerDetectionState) => void
   onMarkerDetected?: (marker: MarkerConfig, state: MarkerDetectionState) => void
   onMarkerLost?: (marker: MarkerConfig, state: MarkerDetectionState) => void
+  onSceneSetup?: (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer) => void
   showStats?: boolean
   enableLighting?: boolean
   debugMode?: boolean
@@ -41,6 +42,7 @@ export const EnhancedMindARViewer: React.FC<EnhancedMindARViewerProps> = ({
   onTargetLost,
   onMarkerDetected,
   onMarkerLost,
+  onSceneSetup,
   showStats = false,
   enableLighting = true,
   debugMode = false,
@@ -81,6 +83,11 @@ export const EnhancedMindARViewer: React.FC<EnhancedMindARViewerProps> = ({
         directionalLight.position.set(10, 10, 10)
         sceneRef.current.add(ambientLight)
         sceneRef.current.add(directionalLight)
+      }
+
+      // Call onSceneSetup callback if provided
+      if (onSceneSetup && mindAR.scene && mindAR.camera && mindAR.renderer) {
+        onSceneSetup(mindAR.scene, mindAR.camera, mindAR.renderer)
       }
 
       const anchor = addAnchor(0)

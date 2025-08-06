@@ -25,6 +25,15 @@ const MaterialEditor = dynamic(() => import('./MaterialEditor'), {
   ),
 })
 
+const InteractionController = dynamic(() => import('./InteractionController').then(mod => ({ default: mod.InteractionController })), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
+      <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
+    </div>
+  ),
+})
+
 interface ARMarkerFormData {
   name: string
   description: string
@@ -45,6 +54,24 @@ interface ARMarkerFormData {
     loop: 'once' | 'repeat' | 'pingpong'
     speed: number
     selectedAnimation?: string
+  }
+  interactionSettings?: {
+    enableClick: boolean
+    enableHover: boolean
+    enableDrag: boolean
+    enablePinch: boolean
+    enableRotate: boolean
+    actions: {
+      url?: string
+      sound?: string
+      colorChange?: string
+      scaleChange?: number
+      animationTrigger?: string
+    }
+    animations: {
+      onClick?: string
+      onHover?: string
+    }
   }
   metadata?: any
 }
@@ -84,6 +111,15 @@ export function ARMarkerForm() {
       loop: 'repeat',
       speed: 1.0,
     },
+    interactionSettings: {
+      enableClick: true,
+      enableHover: true,
+      enableDrag: false,
+      enablePinch: false,
+      enableRotate: false,
+      actions: {},
+      animations: {},
+    },
   })
 
   const [modelPreview, setModelPreview] = useState<string | null>(null)
@@ -93,6 +129,7 @@ export function ARMarkerForm() {
   const [modelMaterial, setModelMaterial] = useState<any>(null)
 
   const [tagInput, setTagInput] = useState('')
+  const [availableAnimations, setAvailableAnimations] = useState<string[]>([])
 
   const handleModelChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -295,6 +332,9 @@ export function ARMarkerForm() {
             rotation: formData.modelRotation,
             enableAnimation: formData.enableAnimation,
             enableInteraction: formData.enableInteraction,
+            animationSettings: formData.animationSettings,
+            interactionSettings: formData.interactionSettings,
+            materialSettings: modelMaterial,
           } : null,
         },
       })
@@ -733,6 +773,22 @@ export function ARMarkerForm() {
                   <span className="text-sm text-gray-700">インタラクションを有効化</span>
                 </label>
               </div>
+
+              {/* インタラクション設定 */}
+              {formData.enableInteraction && (
+                <div className="col-span-2 mt-4">
+                  <InteractionController
+                    onSettingsChange={(settings) => 
+                      setFormData(prev => ({ 
+                        ...prev, 
+                        interactionSettings: settings 
+                      }))
+                    }
+                    availableAnimations={availableAnimations}
+                    className="bg-gray-50 rounded-lg p-4"
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

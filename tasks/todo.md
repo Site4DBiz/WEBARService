@@ -73,8 +73,8 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 
 ### 4.3 AR体験の拡張
 - [x] アニメーション制御
-- [ ] インタラクティブ要素の追加
-- [ ] 音声/効果音の統合
+- [x] インタラクティブ要素の追加
+- [x] 音声/効果音の統合
 - [x] マルチマーカー対応
 - [ ] 画像トラッキングの最適化
 
@@ -189,6 +189,16 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 最終更新日: 2025/08/06
 
 ## 📝 更新履歴
+
+### 2025/08/06 (5)
+- インタラクティブ要素の追加機能の実装完了
+  - InteractionManager: Three.jsのRaycasterを使用したインタラクション処理
+  - InteractionController: インタラクション設定UIコンポーネント
+  - クリック、ホバー、ドラッグ、ピンチ、回転のジェスチャー対応
+  - URL開く、効果音再生、色変更、スケール変更のアクション実装
+  - AudioManager: Web Audio APIを使用した音声管理システム
+  - ARMarkerFormへのインタラクション設定統合
+  - テストページの作成（/ar/test-interaction、/ar/test-ar-interaction）
 
 ### 2025/08/06 (4)
 - アニメーション制御機能の実装完了
