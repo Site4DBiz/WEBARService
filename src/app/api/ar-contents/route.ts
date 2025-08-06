@@ -16,15 +16,17 @@ export async function GET(request: NextRequest) {
     const sortOrder = searchParams.get('sortOrder') || 'desc'
 
     // ユーザー確認
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // クエリ構築
-    let query = supabase
-      .from('ar_contents')
-      .select(`
+    let query = supabase.from('ar_contents').select(
+      `
         *,
         profiles!ar_contents_user_id_fkey (
           id,
@@ -38,7 +40,9 @@ export async function GET(request: NextRequest) {
           marker_image_url,
           is_active
         )
-      `, { count: 'exact' })
+      `,
+      { count: 'exact' }
+    )
 
     // フィルタ条件適用
     if (search) {
@@ -75,7 +79,7 @@ export async function GET(request: NextRequest) {
       .not('category', 'is', null)
       .order('category')
 
-    const uniqueCategories = [...new Set(categories?.map(c => c.category) || [])]
+    const uniqueCategories = [...new Set(categories?.map((c) => c.category) || [])]
 
     return NextResponse.json({
       contents: data || [],
@@ -83,14 +87,11 @@ export async function GET(request: NextRequest) {
       page,
       limit,
       totalPages: Math.ceil((count || 0) / limit),
-      categories: uniqueCategories
+      categories: uniqueCategories,
     })
   } catch (error) {
     console.error('Error in AR contents API:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -105,7 +106,10 @@ export async function DELETE(request: NextRequest) {
     }
 
     // ユーザー確認
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -125,10 +129,7 @@ export async function DELETE(request: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error in delete AR contents:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }
 
@@ -147,7 +148,10 @@ export async function PATCH(request: NextRequest) {
     }
 
     // ユーザー確認
-    const { data: { user }, error: userError } = await supabase.auth.getUser()
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
     if (userError || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -172,9 +176,6 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error('Error in update AR contents:', error)
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
   }
 }

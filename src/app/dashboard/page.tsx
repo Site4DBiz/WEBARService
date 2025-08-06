@@ -167,7 +167,7 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                 </Link>
-                
+
                 <Link href="/admin/users" className="block">
                   <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
                     <div className="px-4 py-5 sm:p-6">

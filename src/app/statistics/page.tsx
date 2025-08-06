@@ -1,7 +1,17 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Users, FileText, Eye, Heart, TrendingUp, Package, Activity, BarChart3, Settings } from 'lucide-react'
+import {
+  Users,
+  FileText,
+  Eye,
+  Heart,
+  TrendingUp,
+  Package,
+  Activity,
+  BarChart3,
+  Settings,
+} from 'lucide-react'
 import { AnimatedStatCard } from '@/components/dashboard/AnimatedStatCard'
 import { ComparisonChart } from '@/components/dashboard/ComparisonChart'
 import { ActivityChart } from '@/components/dashboard/ActivityChart'
@@ -84,7 +94,7 @@ export default function StatisticsPage() {
       const metricsResponse = await fetch(`/api/statistics?type=dashboard&${params}`)
       if (metricsResponse.ok) {
         const metricsData = await metricsResponse.json()
-        
+
         // Add mock previous data for comparison if enabled
         if (filters.comparison) {
           metricsData.previous = {
@@ -98,7 +108,7 @@ export default function StatisticsPage() {
             content_likes: Math.floor(metricsData.content_likes * 0.78),
           }
         }
-        
+
         setMetrics(metricsData)
       }
 
@@ -114,7 +124,9 @@ export default function StatisticsPage() {
               day: 'numeric',
             }),
             current: item.active_users,
-            previous: filters.comparison ? Math.floor(item.active_users * (0.7 + Math.random() * 0.4)) : undefined,
+            previous: filters.comparison
+              ? Math.floor(item.active_users * (0.7 + Math.random() * 0.4))
+              : undefined,
           }))
         )
       }
@@ -147,7 +159,7 @@ export default function StatisticsPage() {
         { label: 'Peak Value', value: 1500, change: 8.2, icon: BarChart3 },
         { label: 'Average', value: 1150, change: -2.1, icon: Package },
       ],
-      chartData: trends.slice(0, 7).map(t => ({
+      chartData: trends.slice(0, 7).map((t) => ({
         name: t.name || t.date,
         current: Math.floor(Math.random() * 1000),
         previous: Math.floor(Math.random() * 800),
@@ -190,9 +202,7 @@ export default function StatisticsPage() {
         <div className="mb-8">
           <div className="flex justify-between items-start">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                Usage Statistics Dashboard
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">Usage Statistics Dashboard</h1>
               <p className="text-gray-600">
                 Monitor your WebAR platform performance and usage with interactive analytics
               </p>
@@ -214,10 +224,7 @@ export default function StatisticsPage() {
 
         {/* Interactive Filters */}
         <div className="mb-6">
-          <InteractiveFilters
-            onFilterChange={handleFilterChange}
-            initialFilters={filters}
-          />
+          <InteractiveFilters onFilterChange={handleFilterChange} initialFilters={filters} />
         </div>
 
         {/* Realtime Metrics */}
@@ -322,7 +329,11 @@ export default function StatisticsPage() {
               <AnimatedStatCard
                 title="Avg Session Duration"
                 value={Math.round(metrics.avg_session_duration / 60)}
-                previousValue={metrics.previous ? Math.round(metrics.previous.avg_session_duration / 60) : undefined}
+                previousValue={
+                  metrics.previous
+                    ? Math.round(metrics.previous.avg_session_duration / 60)
+                    : undefined
+                }
                 icon={TrendingUp}
                 color="purple"
                 format="duration"
@@ -345,7 +356,7 @@ export default function StatisticsPage() {
                 />
                 <ComparisonChart
                   title="Content Performance"
-                  data={trends.map(t => ({
+                  data={trends.map((t) => ({
                     name: t.name || t.date,
                     current: t.new_content,
                     previous: filters.comparison ? Math.floor(t.new_content * 0.8) : undefined,
@@ -387,7 +398,7 @@ export default function StatisticsPage() {
                 />
                 <ComparisonChart
                   title="Content & Sessions - Period Comparison"
-                  data={trends.map(t => ({
+                  data={trends.map((t) => ({
                     name: t.name || t.date,
                     current: t.sessions,
                     previous: filters.comparison ? Math.floor(t.sessions * 0.85) : undefined,

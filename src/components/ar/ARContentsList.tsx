@@ -1,12 +1,12 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { 
-  Search, 
-  Filter, 
-  Eye, 
-  Edit, 
-  Trash2, 
+import {
+  Search,
+  Filter,
+  Eye,
+  Edit,
+  Trash2,
   MoreVertical,
   ChevronLeft,
   ChevronRight,
@@ -17,7 +17,7 @@ import {
   Globe,
   Lock,
   Archive,
-  FileText
+  FileText,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -80,7 +80,7 @@ export default function ARContentsList() {
         status: statusFilter,
         category: categoryFilter,
         sortBy,
-        sortOrder
+        sortOrder,
       })
 
       const response = await fetch(`/api/ar-contents?${params}`)
@@ -107,7 +107,7 @@ export default function ARContentsList() {
     if (selectedIds.size === contents.length) {
       setSelectedIds(new Set())
     } else {
-      setSelectedIds(new Set(contents.map(c => c.id)))
+      setSelectedIds(new Set(contents.map((c) => c.id)))
     }
   }
 
@@ -129,7 +129,7 @@ export default function ARContentsList() {
   const confirmDelete = async () => {
     try {
       const response = await fetch(`/api/ar-contents?ids=${deleteTargetIds.join(',')}`, {
-        method: 'DELETE'
+        method: 'DELETE',
       })
 
       if (response.ok) {
@@ -149,7 +149,7 @@ export default function ARContentsList() {
       const response = await fetch('/api/ar-contents', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ids, status })
+        body: JSON.stringify({ ids, status }),
       })
 
       if (response.ok) {
@@ -166,12 +166,14 @@ export default function ARContentsList() {
       draft: { icon: FileText, label: '下書き', className: 'bg-gray-100 text-gray-700' },
       published: { icon: Globe, label: '公開中', className: 'bg-green-100 text-green-700' },
       archived: { icon: Archive, label: 'アーカイブ', className: 'bg-yellow-100 text-yellow-700' },
-      deleted: { icon: Trash2, label: '削除済み', className: 'bg-red-100 text-red-700' }
+      deleted: { icon: Trash2, label: '削除済み', className: 'bg-red-100 text-red-700' },
     }
     const badge = badges[status as keyof typeof badges] || badges.draft
     const Icon = badge.icon
     return (
-      <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${badge.className}`}>
+      <span
+        className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${badge.className}`}
+      >
         <Icon className="w-3 h-3" />
         {badge.label}
       </span>
@@ -182,11 +184,13 @@ export default function ARContentsList() {
     const types = {
       'image-target': { label: '画像認識', className: 'bg-blue-100 text-blue-700' },
       'marker-based': { label: 'マーカー', className: 'bg-purple-100 text-purple-700' },
-      'location-based': { label: '位置情報', className: 'bg-indigo-100 text-indigo-700' }
+      'location-based': { label: '位置情報', className: 'bg-indigo-100 text-indigo-700' },
     }
     const typeInfo = types[type as keyof typeof types] || types['marker-based']
     return (
-      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${typeInfo.className}`}>
+      <span
+        className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${typeInfo.className}`}
+      >
         {typeInfo.label}
       </span>
     )
@@ -231,8 +235,10 @@ export default function ARContentsList() {
               className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">すべてのカテゴリ</option>
-              {categories.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
               ))}
             </select>
           </div>
@@ -356,12 +362,8 @@ export default function ARContentsList() {
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      {getContentTypeBadge(content.content_type)}
-                    </td>
-                    <td className="px-6 py-4">
-                      {getStatusBadge(content.status)}
-                    </td>
+                    <td className="px-6 py-4">{getContentTypeBadge(content.content_type)}</td>
+                    <td className="px-6 py-4">{getStatusBadge(content.status)}</td>
                     <td className="px-6 py-4">
                       <span className="inline-flex items-center gap-1">
                         {content.is_public ? (
@@ -382,9 +384,9 @@ export default function ARContentsList() {
                     </td>
                     <td className="px-6 py-4">
                       <span className="text-sm text-gray-600">
-                        {formatDistanceToNow(new Date(content.updated_at), { 
+                        {formatDistanceToNow(new Date(content.updated_at), {
                           addSuffix: true,
-                          locale: ja 
+                          locale: ja,
                         })}
                       </span>
                     </td>
@@ -425,11 +427,12 @@ export default function ARContentsList() {
           <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-700">
-                全{total}件中 {((currentPage - 1) * limit) + 1}-{Math.min(currentPage * limit, total)}件を表示
+                全{total}件中 {(currentPage - 1) * limit + 1}-{Math.min(currentPage * limit, total)}
+                件を表示
               </p>
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
                   className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
@@ -439,7 +442,7 @@ export default function ARContentsList() {
                   {currentPage} / {totalPages}
                 </span>
                 <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
                   className="p-2 rounded-lg hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

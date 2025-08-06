@@ -21,7 +21,7 @@ import {
   Edit2,
   UserCheck,
   UserX,
-  RefreshCw
+  RefreshCw,
 } from 'lucide-react'
 
 interface UserProfile {
@@ -69,7 +69,9 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
   const [loading, setLoading] = useState(true)
   const [editing, setEditing] = useState(false)
   const [formData, setFormData] = useState<Partial<UserProfile>>({})
-  const [activeTab, setActiveTab] = useState<'profile' | 'activity' | 'contents' | 'settings'>('profile')
+  const [activeTab, setActiveTab] = useState<'profile' | 'activity' | 'contents' | 'settings'>(
+    'profile'
+  )
 
   useEffect(() => {
     fetchUserDetails()
@@ -105,7 +107,7 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
       const response = await fetch(`/api/users/${userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(formData),
       })
 
       if (response.ok) {
@@ -126,14 +128,14 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
 
     const newStatus = !user.is_verified
     const confirmMessage = `Are you sure you want to ${newStatus ? 'activate' : 'deactivate'} this user?`
-    
+
     if (!confirm(confirmMessage)) return
 
     try {
       const response = await fetch(`/api/users/${userId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_verified: newStatus })
+        body: JSON.stringify({ is_verified: newStatus }),
       })
 
       if (response.ok) {
@@ -257,7 +259,9 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                   <div className="bg-blue-50 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <FileText className="w-8 h-8 text-blue-600" />
-                      <span className="text-2xl font-bold text-blue-900">{stats.total_contents}</span>
+                      <span className="text-2xl font-bold text-blue-900">
+                        {stats.total_contents}
+                      </span>
                     </div>
                     <p className="mt-2 text-sm text-blue-700">Contents</p>
                   </div>
@@ -271,21 +275,27 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                   <div className="bg-yellow-50 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <Star className="w-8 h-8 text-yellow-600" />
-                      <span className="text-2xl font-bold text-yellow-900">{stats.total_likes}</span>
+                      <span className="text-2xl font-bold text-yellow-900">
+                        {stats.total_likes}
+                      </span>
                     </div>
                     <p className="mt-2 text-sm text-yellow-700">Total Likes</p>
                   </div>
                   <div className="bg-purple-50 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <User className="w-8 h-8 text-purple-600" />
-                      <span className="text-2xl font-bold text-purple-900">{stats.total_followers}</span>
+                      <span className="text-2xl font-bold text-purple-900">
+                        {stats.total_followers}
+                      </span>
                     </div>
                     <p className="mt-2 text-sm text-purple-700">Followers</p>
                   </div>
                   <div className="bg-pink-50 rounded-lg p-4">
                     <div className="flex items-center justify-between">
                       <User className="w-8 h-8 text-pink-600" />
-                      <span className="text-2xl font-bold text-pink-900">{stats.total_following}</span>
+                      <span className="text-2xl font-bold text-pink-900">
+                        {stats.total_following}
+                      </span>
                     </div>
                     <p className="mt-2 text-sm text-pink-700">Following</p>
                   </div>
@@ -309,9 +319,11 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                       <p className="text-gray-900">{user.username || 'Not set'}</p>
                     )}
                   </div>
-                  
+
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Full Name
+                    </label>
                     {editing ? (
                       <input
                         type="text"
@@ -418,12 +430,17 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                       </select>
                     ) : (
                       <p className="text-gray-900">
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          user.role === 'admin' ? 'bg-red-100 text-red-800' :
-                          user.role === 'creator' ? 'bg-green-100 text-green-800' :
-                          user.role === 'moderator' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                            user.role === 'admin'
+                              ? 'bg-red-100 text-red-800'
+                              : user.role === 'creator'
+                                ? 'bg-green-100 text-green-800'
+                                : user.role === 'moderator'
+                                  ? 'bg-yellow-100 text-yellow-800'
+                                  : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
                           {user.role}
                         </span>
                       </p>
@@ -476,9 +493,7 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                       <Calendar className="w-4 h-4 inline mr-1" />
                       Created At
                     </label>
-                    <p className="text-gray-900">
-                      {new Date(user.created_at).toLocaleString()}
-                    </p>
+                    <p className="text-gray-900">{new Date(user.created_at).toLocaleString()}</p>
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -486,10 +501,7 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                       Last Login
                     </label>
                     <p className="text-gray-900">
-                      {user.last_login_at 
-                        ? new Date(user.last_login_at).toLocaleString()
-                        : 'Never'
-                      }
+                      {user.last_login_at ? new Date(user.last_login_at).toLocaleString() : 'Never'}
                     </p>
                   </div>
                   <div>
@@ -503,11 +515,13 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                       Account Status
                     </label>
                     <p className="text-gray-900">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.is_verified 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          user.is_verified
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-red-100 text-red-800'
+                        }`}
+                      >
                         {user.is_verified ? 'Active' : 'Inactive'}
                       </span>
                     </p>
@@ -534,7 +548,8 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                               {activity.activity_type}
                             </p>
                             <p className="text-xs text-gray-500">
-                              {activity.resource_type} • {new Date(activity.created_at).toLocaleString()}
+                              {activity.resource_type} •{' '}
+                              {new Date(activity.created_at).toLocaleString()}
                             </p>
                           </div>
                         </div>
@@ -554,7 +569,10 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
               ) : (
                 <div className="grid grid-cols-1 gap-4">
                   {arContents.map((content) => (
-                    <div key={content.id} className="bg-white border border-gray-200 rounded-lg p-4">
+                    <div
+                      key={content.id}
+                      className="bg-white border border-gray-200 rounded-lg p-4"
+                    >
                       <div className="flex justify-between items-start">
                         <div>
                           <h4 className="font-medium text-gray-900">{content.title}</h4>
@@ -572,11 +590,13 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                             </span>
                           </div>
                         </div>
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          content.status === 'published' 
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                            content.status === 'published'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
                           {content.status}
                         </span>
                       </div>
@@ -602,18 +622,20 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
                           <div>
                             <p className="text-sm font-medium text-gray-900">{key.name}</p>
                             <p className="text-xs text-gray-500">
-                              Last used: {key.last_used_at 
+                              Last used:{' '}
+                              {key.last_used_at
                                 ? new Date(key.last_used_at).toLocaleString()
-                                : 'Never'
-                              }
+                                : 'Never'}
                             </p>
                           </div>
                         </div>
-                        <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                          key.is_active 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                            key.is_active
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
+                        >
                           {key.is_active ? 'Active' : 'Inactive'}
                         </span>
                       </div>

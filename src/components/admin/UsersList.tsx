@@ -19,7 +19,7 @@ import {
   Calendar,
   Mail,
   Globe,
-  Building
+  Building,
 } from 'lucide-react'
 
 interface User {
@@ -83,7 +83,7 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
         role: roleFilter,
         status: statusFilter,
         sortBy,
-        sortOrder
+        sortOrder,
       })
 
       const response = await fetch(`/api/users?${params}`)
@@ -115,7 +115,7 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
     try {
       if (action === 'delete') {
         const response = await fetch(`/api/users?ids=${selectedUsers.join(',')}`, {
-          method: 'DELETE'
+          method: 'DELETE',
         })
         if (response.ok) {
           await fetchUsers()
@@ -123,17 +123,17 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
         }
       } else {
         const updates = {
-          is_verified: action === 'activate'
+          is_verified: action === 'activate',
         }
-        
+
         for (const userId of selectedUsers) {
           await fetch('/api/users', {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId, updates })
+            body: JSON.stringify({ userId, updates }),
           })
         }
-        
+
         await fetchUsers()
         setSelectedUsers([])
       }
@@ -143,10 +143,8 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
   }
 
   function toggleUserSelection(userId: string) {
-    setSelectedUsers(prev =>
-      prev.includes(userId)
-        ? prev.filter(id => id !== userId)
-        : [...prev, userId]
+    setSelectedUsers((prev) =>
+      prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]
     )
   }
 
@@ -154,7 +152,7 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
     if (selectedUsers.length === users.length) {
       setSelectedUsers([])
     } else {
-      setSelectedUsers(users.map(user => user.id))
+      setSelectedUsers(users.map((user) => user.id))
     }
   }
 
@@ -175,7 +173,7 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
         status: statusFilter,
         sortBy,
         sortOrder,
-        limit: '10000'
+        limit: '10000',
       })
 
       const response = await fetch(`/api/users?${params}`)
@@ -191,8 +189,17 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
   }
 
   function convertToCSV(users: User[]) {
-    const headers = ['ID', 'Username', 'Full Name', 'Email', 'Role', 'Status', 'Created At', 'Last Login']
-    const rows = users.map(user => [
+    const headers = [
+      'ID',
+      'Username',
+      'Full Name',
+      'Email',
+      'Role',
+      'Status',
+      'Created At',
+      'Last Login',
+    ]
+    const rows = users.map((user) => [
       user.id,
       user.username || '',
       user.full_name || '',
@@ -200,10 +207,10 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
       user.role,
       user.is_verified ? 'Active' : 'Inactive',
       new Date(user.created_at).toLocaleDateString(),
-      user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never'
+      user.last_login_at ? new Date(user.last_login_at).toLocaleDateString() : 'Never',
     ])
 
-    return [headers, ...rows].map(row => row.join(',')).join('\n')
+    return [headers, ...rows].map((row) => row.join(',')).join('\n')
   }
 
   function downloadCSV(csv: string, filename: string) {
@@ -259,7 +266,7 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
               />
             </div>
           </div>
-          
+
           <select
             value={roleFilter}
             onChange={(e) => setRoleFilter(e.target.value)}
@@ -286,9 +293,7 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
         {/* Bulk Actions */}
         {selectedUsers.length > 0 && (
           <div className="mt-4 flex items-center space-x-2">
-            <span className="text-sm text-gray-600">
-              {selectedUsers.length} selected
-            </span>
+            <span className="text-sm text-gray-600">{selectedUsers.length} selected</span>
             <button
               onClick={() => handleBulkAction('activate')}
               className="px-3 py-1 text-sm bg-green-600 text-white rounded-md hover:bg-green-700"
@@ -327,13 +332,13 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
                   className="rounded border-gray-300"
                 />
               </th>
-              <th 
+              <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort('full_name')}
               >
                 User
               </th>
-              <th 
+              <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort('role')}
               >
@@ -342,13 +347,13 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Stats
               </th>
-              <th 
+              <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort('created_at')}
               >
                 Joined
               </th>
-              <th 
+              <th
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
                 onClick={() => handleSort('last_login_at')}
               >
@@ -406,17 +411,20 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
-                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        user.role === 'admin' ? 'bg-red-100 text-red-800' :
-                        user.role === 'creator' ? 'bg-green-100 text-green-800' :
-                        user.role === 'moderator' ? 'bg-yellow-100 text-yellow-800' :
-                        'bg-gray-100 text-gray-800'
-                      }`}>
+                      <span
+                        className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                          user.role === 'admin'
+                            ? 'bg-red-100 text-red-800'
+                            : user.role === 'creator'
+                              ? 'bg-green-100 text-green-800'
+                              : user.role === 'moderator'
+                                ? 'bg-yellow-100 text-yellow-800'
+                                : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
                         {user.role}
                       </span>
-                      {user.is_verified && (
-                        <UserCheck className="w-4 h-4 text-green-500" />
-                      )}
+                      {user.is_verified && <UserCheck className="w-4 h-4 text-green-500" />}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -439,10 +447,9 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
                     {new Date(user.created_at).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.last_login_at 
+                    {user.last_login_at
                       ? new Date(user.last_login_at).toLocaleDateString()
-                      : 'Never'
-                    }
+                      : 'Never'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <div className="flex space-x-2">
@@ -470,7 +477,8 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
       {/* Pagination */}
       <div className="px-6 py-4 border-t border-gray-200 flex justify-between items-center">
         <div className="text-sm text-gray-700">
-          Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, totalUsers)} of {totalUsers} users
+          Showing {(currentPage - 1) * limit + 1} to {Math.min(currentPage * limit, totalUsers)} of{' '}
+          {totalUsers} users
         </div>
         <div className="flex space-x-2">
           <button
