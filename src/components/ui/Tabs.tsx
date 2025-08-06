@@ -1,44 +1,94 @@
 'use client'
 
 import * as React from 'react'
-import * as TabsPrimitive from '@radix-ui/react-tabs'
 
-const Tabs = TabsPrimitive.Root
+interface TabsContextType {
+  value: string
+  onValueChange: (value: string) => void
+}
+
+const TabsContext = React.createContext<TabsContextType | undefined>(undefined)
+
+interface TabsProps extends React.HTMLAttributes<HTMLDivElement> {
+  value: string
+  onValueChange: (value: string) => void
+  children: React.ReactNode
+}
+
+const Tabs = React.forwardRef<HTMLDivElement, TabsProps>(
+  ({ value, onValueChange, children, className = '', ...props }, ref) => {
+    return (
+      <TabsContext.Provider value={{ value, onValueChange }}>
+        <div ref={ref} className={className} {...props}>
+          {children}
+        </div>
+      </TabsContext.Provider>
+    )
+  }
+)
+Tabs.displayName = 'Tabs'
 
 const TabsList = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.List
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
+>(({ className = '', ...props }, ref) => (
+  <div
     ref={ref}
-    className={`inline-flex h-12 items-center justify-center rounded-t-lg bg-gray-100 p-1 text-gray-600 ${className}`}
+    className={`inline-flex h-10 items-center justify-center rounded-md bg-gray-100 p-1 text-gray-500 ${className}`}
     {...props}
   />
 ))
-TabsList.displayName = TabsPrimitive.List.displayName
+TabsList.displayName = 'TabsList'
 
-const TabsTrigger = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Trigger
-    ref={ref}
-    className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-2 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 data-[state=active]:bg-white data-[state=active]:text-gray-900 data-[state=active]:shadow-sm ${className}`}
-    {...props}
-  />
-))
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
+interface TabsTriggerProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  value: string
+}
 
-const TabsContent = React.forwardRef<
-  React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
->(({ className, ...props }, ref) => (
-  <TabsPrimitive.Content
-    ref={ref}
-    className={`mt-2 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 ${className}`}
-    {...props}
-  />
-))
-TabsContent.displayName = TabsPrimitive.Content.displayName
+const TabsTrigger = React.forwardRef<HTMLButtonElement, TabsTriggerProps>(
+  ({ className = '', value, children, ...props }, ref) => {
+    const context = React.useContext(TabsContext)
+    if (!context) throw new Error('TabsTrigger must be used within Tabs')
+
+    const isActive = context.value === value
+
+    return (
+      <button
+        ref={ref}
+        className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium ring-offset-white transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ${
+          isActive
+            ? 'bg-white text-gray-950 shadow-sm'
+            : 'text-gray-500 hover:text-gray-900'
+        } ${className}`}
+        onClick={() => context.onValueChange(value)}
+        {...props}
+      >
+        {children}
+      </button>
+    )
+  }
+)
+TabsTrigger.displayName = 'TabsTrigger'
+
+interface TabsContentProps extends React.HTMLAttributes<HTMLDivElement> {
+  value: string
+}
+
+const TabsContent = React.forwardRef<HTMLDivElement, TabsContentProps>(
+  ({ className = '', value, ...props }, ref) => {
+    const context = React.useContext(TabsContext)
+    if (!context) throw new Error('TabsContent must be used within Tabs')
+
+    if (context.value !== value) return null
+
+    return (
+      <div
+        ref={ref}
+        className={`mt-2 ring-offset-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 ${className}`}
+        {...props}
+      />
+    )
+  }
+)
+TabsContent.displayName = 'TabsContent'
 
 export { Tabs, TabsList, TabsTrigger, TabsContent }

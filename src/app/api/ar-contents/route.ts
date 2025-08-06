@@ -133,6 +133,90 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
+export async function POST(request: NextRequest) {
+  try {
+    const supabase = createServerClient()
+    const body = await request.json()
+
+    // ユーザー確認
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser()
+    if (userError || !user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // 必須フィールドのバリデーション
+    if (!body.title) {
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 })
+    }
+
+    // ARコンテンツの作成データ
+    const contentData = {
+      title: body.title,
+      description: body.description || '',
+      category: body.category || 'Other',
+      status: body.status || 'draft',
+      thumbnail_url: body.thumbnail_url,
+      model_url: body.model_url,
+      marker_image_url: body.marker_image_url,
+      scale: body.scale || 1,
+      position: body.position || { x: 0, y: 0, z: 0 },
+      rotation: body.rotation || { x: 0, y: 0, z: 0 },
+      animation_settings: body.animation_settings,
+      interaction_settings: body.interaction_settings,
+      is_public: body.is_public || false,
+      tags: body.tags || [],
+      user_id: user.id,
+      view_count: 0,
+      like_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    }
+
+    // publishedの場合、published_atを設定
+    if (body.status === 'published') {
+      contentData.published_at = new Date().toISOString()
+    }
+
+    // ARコンテンツを作成
+    const { data, error } = await supabase
+      .from('ar_contents')
+      .insert([contentData])
+      .select()
+      .single()
+
+    if (error) {
+      console.error('Error creating AR content:', error)
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
+    // マーカー情報も作成（もし提供されていれば）
+    if (body.marker_image_url && data) {
+      const { error: markerError } = await supabase
+        .from('ar_markers')
+        .insert({
+          content_id: data.id,
+          marker_type: 'image',
+          marker_image_url: body.marker_image_url,
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        })
+
+      if (markerError) {
+        console.error('Error creating AR marker:', markerError)
+      }
+    }
+
+    return NextResponse.json(data, { status: 201 })
+  } catch (error) {
+    console.error('Error in AR content POST:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   try {
     const supabase = createServerClient()

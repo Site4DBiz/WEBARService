@@ -88,7 +88,7 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 - [x] システムステータス表示
 
 ### 5.2 コンテンツ管理
-- [ ] ARコンテンツCRUD操作
+- [x] ARコンテンツCRUD操作
 - [ ] バッチ処理機能
 - [ ] コンテンツ承認ワークフロー
 - [ ] タグ/カテゴリ管理
@@ -189,6 +189,19 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 最終更新日: 2025/08/06
 
 ## 📝 更新履歴
+
+### 2025/08/06 (12)
+- ARコンテンツCRUD操作の実装完了
+  - ARContentForm: 作成・編集用フォームコンポーネント
+  - ARContentDetail: 詳細表示コンポーネント（タブ形式）
+  - ARコンテンツ作成APIエンドポイント（POST /api/ar-contents）
+  - ARコンテンツ更新APIエンドポイント（PUT /api/ar-contents/[id]）
+  - ARコンテンツ個別取得APIエンドポイント（GET /api/ar-contents/[id]）
+  - ARContentsList統合: モーダルによる作成・編集・詳細表示
+  - UIコンポーネントライブラリの実装（button、input、card、badge等）
+  - トランスフォーム設定（スケール、位置、回転）
+  - ファイルアップロード機能（サムネイル、3Dモデル、マーカー画像）
+  - 公開/非公開設定とタグ管理
 
 ### 2025/08/06 (11)
 - システムステータス表示の実装完了

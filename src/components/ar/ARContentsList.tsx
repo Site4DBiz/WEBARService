@@ -18,11 +18,15 @@ import {
   Lock,
   Archive,
   FileText,
+  Plus,
+  X,
 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
+import ARContentForm from './ARContentForm'
+import ARContentDetail from './ARContentDetail'
 
 interface ARContent {
   id: string
@@ -68,6 +72,10 @@ export default function ARContentsList() {
   const [total, setTotal] = useState(0)
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [deleteTargetIds, setDeleteTargetIds] = useState<string[]>([])
+  const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showEditModal, setShowEditModal] = useState(false)
+  const [showDetailModal, setShowDetailModal] = useState(false)
+  const [selectedContentId, setSelectedContentId] = useState<string | null>(null)
   const limit = 10
 
   const fetchContents = useCallback(async () => {
@@ -161,6 +169,38 @@ export default function ARContentsList() {
     }
   }
 
+  const handleView = (contentId: string) => {
+    setSelectedContentId(contentId)
+    setShowDetailModal(true)
+  }
+
+  const handleEdit = (contentId: string) => {
+    setSelectedContentId(contentId)
+    setShowEditModal(true)
+  }
+
+  const handleCreateSave = () => {
+    setShowCreateModal(false)
+    fetchContents()
+  }
+
+  const handleEditSave = () => {
+    setShowEditModal(false)
+    setSelectedContentId(null)
+    fetchContents()
+  }
+
+  const handleDetailEdit = () => {
+    setShowDetailModal(false)
+    setShowEditModal(true)
+  }
+
+  const handleDetailDelete = () => {
+    setShowDetailModal(false)
+    setSelectedContentId(null)
+    fetchContents()
+  }
+
   const getStatusBadge = (status: string) => {
     const badges = {
       draft: { icon: FileText, label: '下書き', className: 'bg-gray-100 text-gray-700' },
@@ -198,9 +238,18 @@ export default function ARContentsList() {
 
   return (
     <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">ARコンテンツ一覧</h1>
-        <p className="text-gray-600">作成したARコンテンツを管理します</p>
+      <div className="mb-6 flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">ARコンテンツ一覧</h1>
+          <p className="text-gray-600">作成したARコンテンツを管理します</p>
+        </div>
+        <button
+          onClick={() => setShowCreateModal(true)}
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+        >
+          <Plus className="w-5 h-5" />
+          新規作成
+        </button>
       </div>
 
       {/* フィルターとアクション */}
@@ -392,20 +441,20 @@ export default function ARContentsList() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-2">
-                        <Link
-                          href={`/ar-content/${content.id}`}
+                        <button
+                          onClick={() => handleView(content.id)}
                           className="p-1 text-gray-400 hover:text-blue-600"
                           title="詳細"
                         >
                           <Eye className="w-4 h-4" />
-                        </Link>
-                        <Link
-                          href={`/ar-content/${content.id}/edit`}
+                        </button>
+                        <button
+                          onClick={() => handleEdit(content.id)}
                           className="p-1 text-gray-400 hover:text-green-600"
                           title="編集"
                         >
                           <Edit className="w-4 h-4" />
-                        </Link>
+                        </button>
                         <button
                           onClick={() => handleDelete([content.id])}
                           className="p-1 text-gray-400 hover:text-red-600"
@@ -476,6 +525,94 @@ export default function ARContentsList() {
               >
                 削除する
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 新規作成モーダル */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="relative bg-white rounded-lg w-full max-w-4xl mx-4 my-8">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">新規ARコンテンツ作成</h2>
+                <button
+                  onClick={() => setShowCreateModal(false)}
+                  className="p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <ARContentForm
+                mode="create"
+                onSave={handleCreateSave}
+                onCancel={() => setShowCreateModal(false)}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 編集モーダル */}
+      {showEditModal && selectedContentId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="relative bg-white rounded-lg w-full max-w-4xl mx-4 my-8">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">ARコンテンツ編集</h2>
+                <button
+                  onClick={() => {
+                    setShowEditModal(false)
+                    setSelectedContentId(null)
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <ARContentForm
+                contentId={selectedContentId}
+                mode="edit"
+                onSave={handleEditSave}
+                onCancel={() => {
+                  setShowEditModal(false)
+                  setSelectedContentId(null)
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 詳細表示モーダル */}
+      {showDetailModal && selectedContentId && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
+          <div className="relative bg-white rounded-lg w-full max-w-6xl mx-4 my-8">
+            <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 rounded-t-lg">
+              <div className="flex items-center justify-between">
+                <h2 className="text-xl font-semibold">ARコンテンツ詳細</h2>
+                <button
+                  onClick={() => {
+                    setShowDetailModal(false)
+                    setSelectedContentId(null)
+                  }}
+                  className="p-2 hover:bg-gray-100 rounded-lg"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+            </div>
+            <div className="p-6">
+              <ARContentDetail
+                contentId={selectedContentId}
+                onEdit={handleDetailEdit}
+                onDelete={handleDetailDelete}
+              />
             </div>
           </div>
         </div>
