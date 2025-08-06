@@ -1,3 +1,5 @@
+import Link from 'next/link';
+
 export default function HomePage() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
@@ -39,9 +41,9 @@ export default function HomePage() {
         </div>
 
         <div className="flex gap-4 justify-center">
-          <button className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transform transition hover:scale-105 shadow-lg">
+          <Link href="/ar" className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transform transition hover:scale-105 shadow-lg">
             Get Started
-          </button>
+          </Link>
           <button className="px-8 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transform transition hover:scale-105 shadow-lg">
             Learn More
           </button>
