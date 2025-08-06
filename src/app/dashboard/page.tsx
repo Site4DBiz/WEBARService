@@ -4,7 +4,7 @@ import Link from 'next/link'
 import UserProfile from '@/components/dashboard/UserProfile'
 import SignOutButton from '@/components/dashboard/SignOutButton'
 import { UserRole } from '@/types/database'
-import { Shield, Upload, Settings, Users } from 'lucide-react'
+import { Shield, Upload, Settings, Users, Activity, Eye } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -57,14 +57,81 @@ export default async function DashboardPage() {
             <SignOutButton />
           </div>
 
-          <div className="bg-white overflow-hidden shadow rounded-lg">
-            <div className="px-4 py-5 sm:p-6">
-              <h2 className="text-lg font-medium text-gray-900 mb-4">User Information</h2>
-              <UserProfile user={user} />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <div className="lg:col-span-2 bg-white overflow-hidden shadow rounded-lg">
+              <div className="px-4 py-5 sm:p-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-4">User Information</h2>
+                <UserProfile user={user} />
+              </div>
+            </div>
+            
+            <div className="bg-white overflow-hidden shadow rounded-lg">
+              <div className="px-4 py-5 sm:p-6">
+                <h2 className="text-lg font-medium text-gray-900 mb-4">Your Access Level</h2>
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm text-gray-600">Role:</span>
+                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(userRole as UserRole)}`}>
+                      {userRole.toUpperCase()}
+                    </span>
+                  </div>
+                  <div className="border-t pt-3">
+                    <h3 className="text-xs font-medium text-gray-500 uppercase mb-2">Permissions</h3>
+                    <ul className="space-y-1 text-sm">
+                      {userRole === 'admin' && (
+                        <>
+                          <li className="flex items-center text-green-600">
+                            <Shield className="w-4 h-4 mr-2" />
+                            Full system access
+                          </li>
+                          <li className="flex items-center text-green-600">
+                            <Users className="w-4 h-4 mr-2" />
+                            User management
+                          </li>
+                          <li className="flex items-center text-green-600">
+                            <Settings className="w-4 h-4 mr-2" />
+                            System settings
+                          </li>
+                        </>
+                      )}
+                      {userRole === 'moderator' && (
+                        <>
+                          <li className="flex items-center text-green-600">
+                            <Upload className="w-4 h-4 mr-2" />
+                            Content moderation
+                          </li>
+                          <li className="flex items-center text-green-600">
+                            <Activity className="w-4 h-4 mr-2" />
+                            Analytics access
+                          </li>
+                        </>
+                      )}
+                      {userRole === 'creator' && (
+                        <>
+                          <li className="flex items-center text-green-600">
+                            <Upload className="w-4 h-4 mr-2" />
+                            Create AR content
+                          </li>
+                          <li className="flex items-center text-green-600">
+                            <Settings className="w-4 h-4 mr-2" />
+                            Manage own content
+                          </li>
+                        </>
+                      )}
+                      {userRole === 'viewer' && (
+                        <li className="flex items-center text-gray-600">
+                          <Eye className="w-4 h-4 mr-2" />
+                          View public content
+                        </li>
+                      )}
+                    </ul>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {canCreateContent && (
               <Link href="/ar-content/upload" className="block">
                 <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
