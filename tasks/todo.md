@@ -99,9 +99,9 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 ### 6.1 フロントエンド最適化
 - [x] 画像最適化（next/image）
 - [x] コード分割とlazy loading
-- [ ] Service Workerの実装
-- [ ] PWA対応
-- [ ] キャッシュ戦略の実装
+- [x] Service Workerの実装
+- [x] PWA対応
+- [x] キャッシュ戦略の実装
 
 ### 6.2 AR最適化
 - [ ] 3Dモデルの圧縮とLOD
@@ -189,6 +189,31 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 最終更新日: 2025/08/06
 
 ## 📝 更新履歴
+
+### 2025/08/06 (16)
+- Service Workerの実装完了
+  - Service Worker本体の最適化（/public/sw.js v2.0.0）
+    - Next.js 14 App Router対応のキャッシュ戦略実装
+    - 5つのキャッシュストレージ（静的、ランタイム、画像、AR、Next.jsデータ）
+    - 4つのキャッシュ戦略（cacheFirst、networkFirst、staleWhileRevalidate、networkOnly）
+    - タイムアウト機能付きフェッチ処理
+    - バックグラウンド同期（ARコンテンツ、ユーザーデータ、アナリティクス）
+    - プッシュ通知のサポート
+  - PWAインストールプロンプトコンポーネント（PWAInstallPrompt.tsx）
+    - Android/Chrome用の自動インストールプロンプト
+    - iOS Safari用の手動インストール案内
+    - インストール状態の検出と管理
+    - セッション/ローカルストレージを使用した表示制御
+  - オフラインページの改善（/public/offline.html）
+    - モダンなUIデザイン
+    - キャッシュ状態のリアルタイム表示
+    - 接続再試行機能
+    - オフライン利用可能機能の案内
+  - ServiceWorkerProviderの更新
+    - PWAインストールプロンプトの統合
+  - 不足UIコンポーネントの修正
+    - select.tsx: SelectTrigger、SelectValue、SelectContent追加
+    - LoadingSpinner.tsx: PageLoader追加
 
 ### 2025/08/06 (15)
 - コード分割とlazy loadingの実装完了

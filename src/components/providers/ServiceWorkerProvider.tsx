@@ -2,6 +2,7 @@
 
 import { useEffect, useState, createContext, useContext, ReactNode } from 'react';
 import serviceWorkerManager from '@/lib/service-worker/register';
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
 
 interface ServiceWorkerContextType {
   isOnline: boolean;
@@ -88,6 +89,9 @@ export function ServiceWorkerProvider({ children }: ServiceWorkerProviderProps) 
       }}
     >
       {children}
+      
+      {/* PWAインストールプロンプト */}
+      <PWAInstallPrompt />
 
       {/* オフライン通知 */}
       {!isOnline && (
