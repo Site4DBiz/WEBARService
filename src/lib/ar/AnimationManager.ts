@@ -418,7 +418,8 @@ export class AnimationManager {
     const listeners = this.eventListeners.get(event.animation) || []
     const globalListeners = this.eventListeners.get('*') || []
     
-    [...listeners, ...globalListeners].forEach(callback => {
+    const allListeners = [...listeners, ...globalListeners]
+    allListeners.forEach(callback => {
       callback(event)
     })
   }

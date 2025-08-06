@@ -240,9 +240,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
         <select
           value={selectedAnimation}
           onChange={(e) => handleAnimationSelect(e.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md 
-                     bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100
-                     focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         >
           {animations.map((anim) => (
             <option key={anim.name} value={anim.name}>
@@ -256,8 +254,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
       <div className="flex items-center justify-center gap-2 mb-4">
         <button
           onClick={handleStop}
-          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 
-                     dark:hover:bg-gray-600 transition-colors"
+          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           title="Stop"
         >
           <StopIcon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
@@ -266,8 +263,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
         <button
           onClick={handlePlay}
           disabled={isPlaying && !isPaused}
-          className="p-3 rounded-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 
-                     transition-colors text-white"
+          className="p-3 rounded-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 transition-colors text-white"
           title={isPaused ? 'Resume' : 'Play'}
         >
           <PlayIcon className="w-6 h-6" />
@@ -276,8 +272,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
         <button
           onClick={handlePause}
           disabled={!isPlaying || isPaused}
-          className="p-3 rounded-full bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 
-                     transition-colors text-white"
+          className="p-3 rounded-full bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 transition-colors text-white"
           title="Pause"
         >
           <PauseIcon className="w-6 h-6" />
@@ -285,8 +280,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
 
         <button
           onClick={() => setIsMuted(!isMuted)}
-          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 
-                     dark:hover:bg-gray-600 transition-colors"
+          className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           title={isMuted ? 'Unmute' : 'Mute'}
         >
           {isMuted ? (
@@ -311,8 +305,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
             step="0.01"
             value={progress}
             onChange={(e) => handleProgressChange(parseFloat(e.target.value))}
-            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none 
-                       cursor-pointer slider"
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
           />
         </div>
       )}
@@ -364,8 +357,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
             step="0.1"
             value={speed}
             onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none 
-                       cursor-pointer"
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
           />
         </div>
       )}
@@ -425,8 +417,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
             step="0.01"
             value={weight}
             onChange={(e) => handleWeightChange(parseFloat(e.target.value))}
-            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none 
-                       cursor-pointer"
+            className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer"
           />
         </div>
       )}

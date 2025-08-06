@@ -6,6 +6,8 @@ import { Upload, Image, AlertCircle, Check, Loader2, Info, Cube, Eye, X, Palette
 import { validateImage, validateFile, generateUniqueFilename } from '@/utils/file-validation'
 import { createClient } from '@/lib/supabase/client'
 import dynamic from 'next/dynamic'
+import type { TrackingSettings } from '@/lib/ar/ImageTracker'
+import type { OptimizationConfig } from '@/lib/ar/TrackingOptimizer'
 
 const ModelViewer = dynamic(() => import('../3d/ModelViewer'), {
   ssr: false,
@@ -26,6 +28,15 @@ const MaterialEditor = dynamic(() => import('./MaterialEditor'), {
 })
 
 const InteractionController = dynamic(() => import('./InteractionController').then(mod => ({ default: mod.InteractionController })), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
+      <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
+    </div>
+  ),
+})
+
+const ImageTrackingSettings = dynamic(() => import('./ImageTrackingSettings').then(mod => ({ default: mod.ImageTrackingSettings })), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
@@ -73,6 +84,7 @@ interface ARMarkerFormData {
       onHover?: string
     }
   }
+  trackingSettings?: TrackingSettings & OptimizationConfig
   metadata?: any
 }
 
@@ -336,6 +348,7 @@ export function ARMarkerForm() {
             interactionSettings: formData.interactionSettings,
             materialSettings: modelMaterial,
           } : null,
+          trackingSettings: formData.trackingSettings,
         },
       })
 
@@ -835,6 +848,27 @@ export function ARMarkerForm() {
             />
           </div>
         </div>
+        
+        {/* 画像トラッキング最適化設定 */}
+        {imagePreview && (
+          <div className="mt-6">
+            <h4 className="text-md font-semibold mb-3 flex items-center">
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              画像トラッキング最適化
+            </h4>
+            <ImageTrackingSettings
+              imageUrl={imagePreview}
+              onSettingsChange={(settings) =>
+                setFormData((prev) => ({ ...prev, trackingSettings: settings }))
+              }
+              onImageOptimized={(optimizedUrl) => {
+                console.log('最適化済み画像URL:', optimizedUrl)
+              }}
+            />
+          </div>
+        )}
 
         <div className="mt-4">
           <label className="flex items-center">
