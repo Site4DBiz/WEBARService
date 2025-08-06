@@ -391,19 +391,39 @@ export class TextureAtlasGenerator {
 
 // メモリ管理付きテクスチャキャッシュ
 export class TextureCache {
-  private cache: Map<string, { texture: THREE.Texture; lastAccess: number; size: number }> =
+  private cache: Map<string, { texture: THREE.Texture; lastAccess: number; size: number; refCount: number }> =
     new Map()
   private maxCacheSize: number
   private currentSize: number = 0
+  private autoEvictThreshold: number = 0.9 // 90%で自動削除開始
+  private memoryWarningListeners: Set<(size: number) => void> = new Set()
 
   constructor(maxCacheSizeMB: number = 100) {
     this.maxCacheSize = maxCacheSizeMB * 1024 * 1024 // Convert to bytes
+    this.setupMemoryMonitoring()
+  }
+
+  private setupMemoryMonitoring(): void {
+    if (typeof window !== 'undefined') {
+      // メモリ警告イベントをリッスン
+      window.addEventListener('memoryWarning', () => {
+        this.performAggressiveCleanup()
+      })
+      
+      window.addEventListener('memoryCritical', () => {
+        this.emergencyCleanup()
+      })
+    }
   }
 
   set(key: string, texture: THREE.Texture, size: number): void {
     // Remove old entry if exists
     if (this.cache.has(key)) {
       const old = this.cache.get(key)!
+      if (old.refCount > 0) {
+        console.warn(`Texture ${key} is still in use (refCount: ${old.refCount})`)
+        return
+      }
       this.currentSize -= old.size
       old.texture.dispose()
     }
@@ -418,17 +438,29 @@ export class TextureCache {
       texture,
       lastAccess: Date.now(),
       size,
+      refCount: 0
     })
     this.currentSize += size
+
+    // Check memory threshold
+    this.checkMemoryThreshold()
   }
 
   get(key: string): THREE.Texture | null {
     const entry = this.cache.get(key)
     if (entry) {
       entry.lastAccess = Date.now()
+      entry.refCount++
       return entry.texture
     }
     return null
+  }
+
+  release(key: string): void {
+    const entry = this.cache.get(key)
+    if (entry && entry.refCount > 0) {
+      entry.refCount--
+    }
   }
 
   private evictLRU(): void {
@@ -436,6 +468,9 @@ export class TextureCache {
     let oldestTime = Infinity
 
     for (const [key, entry] of this.cache.entries()) {
+      // Skip textures that are still in use
+      if (entry.refCount > 0) continue
+      
       if (entry.lastAccess < oldestTime) {
         oldestTime = entry.lastAccess
         oldestKey = key
@@ -450,19 +485,104 @@ export class TextureCache {
     }
   }
 
+  private checkMemoryThreshold(): void {
+    const usageRatio = this.currentSize / this.maxCacheSize
+    
+    if (usageRatio > this.autoEvictThreshold) {
+      this.performAggressiveCleanup()
+    }
+    
+    // Notify listeners
+    if (usageRatio > 0.8) {
+      this.memoryWarningListeners.forEach(listener => listener(this.currentSize))
+    }
+  }
+
+  private performAggressiveCleanup(): void {
+    // Remove all textures not accessed in the last 30 seconds
+    const threshold = Date.now() - 30000
+    const toRemove: string[] = []
+    
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.refCount === 0 && entry.lastAccess < threshold) {
+        toRemove.push(key)
+      }
+    }
+    
+    toRemove.forEach(key => {
+      const entry = this.cache.get(key)!
+      this.currentSize -= entry.size
+      entry.texture.dispose()
+      this.cache.delete(key)
+    })
+  }
+
+  private emergencyCleanup(): void {
+    // Keep only actively used textures
+    const toRemove: string[] = []
+    
+    for (const [key, entry] of this.cache.entries()) {
+      if (entry.refCount === 0) {
+        toRemove.push(key)
+      }
+    }
+    
+    toRemove.forEach(key => {
+      const entry = this.cache.get(key)!
+      this.currentSize -= entry.size
+      entry.texture.dispose()
+      this.cache.delete(key)
+    })
+    
+    console.warn(`Emergency cleanup: removed ${toRemove.length} textures`)
+  }
+
+  addMemoryWarningListener(listener: (size: number) => void): void {
+    this.memoryWarningListeners.add(listener)
+  }
+
+  removeMemoryWarningListener(listener: (size: number) => void): void {
+    this.memoryWarningListeners.delete(listener)
+  }
+
   clear(): void {
     for (const entry of this.cache.values()) {
+      if (entry.refCount > 0) {
+        console.warn(`Clearing texture with active references (refCount: ${entry.refCount})`)
+      }
       entry.texture.dispose()
     }
     this.cache.clear()
     this.currentSize = 0
   }
 
-  getInfo(): { count: number; size: number; maxSize: number } {
+  getInfo(): { count: number; size: number; maxSize: number; usageRatio: number; activeTextures: number } {
+    let activeCount = 0
+    for (const entry of this.cache.values()) {
+      if (entry.refCount > 0) activeCount++
+    }
+    
     return {
       count: this.cache.size,
       size: this.currentSize,
       maxSize: this.maxCacheSize,
+      usageRatio: this.currentSize / this.maxCacheSize,
+      activeTextures: activeCount
     }
+  }
+
+  getDetailedInfo(): Array<{ key: string; size: number; lastAccess: Date; refCount: number }> {
+    const info: Array<{ key: string; size: number; lastAccess: Date; refCount: number }> = []
+    
+    for (const [key, entry] of this.cache.entries()) {
+      info.push({
+        key,
+        size: entry.size,
+        lastAccess: new Date(entry.lastAccess),
+        refCount: entry.refCount
+      })
+    }
+    
+    return info.sort((a, b) => b.size - a.size)
   }
 }

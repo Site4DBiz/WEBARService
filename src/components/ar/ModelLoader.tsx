@@ -14,7 +14,11 @@ import {
   TextureOptimizer,
   TextureOptimizationOptions,
   TextureStats,
+  TextureCache,
 } from '@/lib/ar/TextureOptimizer'
+import { ModelMemoryManager } from '@/lib/ar/ModelMemoryManager'
+import { MemoryProfiler } from '@/lib/ar/MemoryProfiler'
+import { GarbageCollectionManager } from '@/lib/ar/GarbageCollectionManager'
 
 export interface ModelConfig {
   url: string
@@ -60,6 +64,10 @@ export class ModelLoader {
   private modelCompressor: ModelCompressor
   private lodManager: LODManager
   private textureOptimizer: TextureOptimizer
+  private textureCache: TextureCache
+  private modelMemoryManager: ModelMemoryManager
+  private memoryProfiler: MemoryProfiler
+  private gcManager: GarbageCollectionManager
 
   constructor(renderer?: THREE.WebGLRenderer, camera?: THREE.Camera, scene?: THREE.Scene) {
     this.gltfLoader = new GLTFLoader()
@@ -70,6 +78,15 @@ export class ModelLoader {
     this.modelCompressor = new ModelCompressor()
     this.lodManager = new LODManager(camera, scene)
     this.textureOptimizer = new TextureOptimizer()
+    this.textureCache = new TextureCache(100) // 100MB texture cache
+    this.modelMemoryManager = new ModelMemoryManager({ maxCacheSizeMB: 200 })
+    this.memoryProfiler = new MemoryProfiler()
+    this.gcManager = new GarbageCollectionManager({ performanceMode: 'balanced' })
+    
+    if (renderer) {
+      this.memoryProfiler.setRenderer(renderer)
+      this.gcManager.setRenderer(renderer)
+    }
 
     // Setup DRACO loader for compressed GLTF models
     this.setupDracoLoader()
@@ -105,11 +122,22 @@ export class ModelLoader {
   }
 
   async loadModel(config: ModelConfig): Promise<THREE.Group | THREE.LOD> {
-    // Check cache first
+    // Check memory manager cache first
     const cacheKey = `${config.url}_${JSON.stringify(config)}`
-    if (this.modelCache.has(cacheKey) && !config.useLOD) {
-      const cachedModel = this.modelCache.get(cacheKey)!.clone()
+    
+    // Try to get from memory manager
+    const cachedModel = this.modelMemoryManager.getModel(cacheKey)
+    if (cachedModel && !config.useLOD) {
+      this.memoryProfiler.addCustomMetric('cache_hits', 1)
       return cachedModel
+    }
+    
+    // Fallback to local cache
+    if (this.modelCache.has(cacheKey) && !config.useLOD) {
+      const model = this.modelCache.get(cacheKey)!.clone()
+      // Add to memory manager for better management
+      this.modelMemoryManager.addModel(cacheKey, model)
+      return model
     }
 
     const extension = config.url.split('.').pop()?.toLowerCase()
