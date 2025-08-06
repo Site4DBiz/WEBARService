@@ -171,16 +171,16 @@ export class TextureManager {
     // タイプ別の特別な設定
     switch (config.type) {
       case 'normal':
-        texture.encoding = THREE.LinearEncoding
+        texture.colorSpace = THREE.LinearSRGBColorSpace
         break
       case 'diffuse':
       case 'emissive':
-        texture.encoding = config.encoding || THREE.sRGBEncoding
+        texture.colorSpace = config.colorSpace || THREE.SRGBColorSpace
         break
       case 'roughness':
       case 'metalness':
       case 'ao':
-        texture.encoding = THREE.LinearEncoding
+        texture.colorSpace = THREE.LinearSRGBColorSpace
         break
     }
 

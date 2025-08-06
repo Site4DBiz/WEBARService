@@ -584,7 +584,7 @@ export class MaterialPreviewGenerator {
 
     this.renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
     this.renderer.setSize(size, size)
-    this.renderer.outputEncoding = THREE.sRGBEncoding
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace
 
     this.scene = new THREE.Scene()
     this.scene.background = null

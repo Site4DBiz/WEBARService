@@ -319,6 +319,36 @@ export function getOptimizedMindARCompiler(): OptimizedMindARCompiler {
   return compilerInstance
 }
 
+// Helper function for batch processing
+export async function compileOptimizedMindAR(
+  imageDataUrl: string,
+  quality: 'low' | 'medium' | 'high' | 'auto' = 'auto',
+  options: {
+    algorithm?: 'fast' | 'harris' | 'orb' | 'hybrid'
+    performanceMode?: 'balanced' | 'fast' | 'quality'
+  } = {}
+): Promise<ArrayBuffer> {
+  const compiler = getOptimizedMindARCompiler()
+
+  // Convert data URL to blob
+  const response = await fetch(imageDataUrl)
+  const blob = await response.blob()
+  const file = new File([blob], 'image.jpg', { type: blob.type })
+
+  const result = await compiler.compile(file, {
+    quality,
+    algorithm: options.algorithm,
+    evaluateQuality: false,
+    optimizeForPerformance: options.performanceMode === 'fast',
+  })
+
+  if (!result.success || !result.data) {
+    throw new Error(result.error || 'Compilation failed')
+  }
+
+  return await result.data.arrayBuffer()
+}
+
 // Worker版の実装（非同期処理用）
 export function createOptimizedCompilerWorker(): Worker {
   const workerCode = `
