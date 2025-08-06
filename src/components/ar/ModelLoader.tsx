@@ -7,6 +7,7 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js'
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
+import { AnimationManager } from '@/lib/ar/AnimationManager'
 
 export interface ModelConfig {
   url: string
@@ -20,6 +21,11 @@ export interface ModelConfig {
   onProgress?: (progress: number) => void
   castShadow?: boolean
   receiveShadow?: boolean
+}
+
+export interface ModelLoadResult {
+  model: THREE.Group
+  animationManager?: AnimationManager
 }
 
 export class ModelLoader {
@@ -315,6 +321,58 @@ export class ModelLoader {
 
   getCacheSize(): number {
     return this.modelCache.size
+  }
+
+  async loadModelWithAnimations(config: ModelConfig): Promise<ModelLoadResult> {
+    const model = await this.loadModel(config)
+    
+    // Create animation manager if the model has animations
+    const extension = config.url.split('.').pop()?.toLowerCase()
+    let animationManager: AnimationManager | undefined
+    
+    if (extension === 'gltf' || extension === 'glb' || extension === 'fbx') {
+      animationManager = new AnimationManager(model)
+      
+      // Load animations based on format
+      if (extension === 'gltf' || extension === 'glb') {
+        // For GLTF, we need to reload to get animations
+        const gltf = await new Promise<any>((resolve, reject) => {
+          this.gltfLoader.load(
+            config.url,
+            (gltf) => resolve(gltf),
+            undefined,
+            (error) => reject(error)
+          )
+        })
+        
+        if (gltf.animations && gltf.animations.length > 0) {
+          animationManager.loadAnimations(gltf)
+        }
+      } else if (extension === 'fbx') {
+        // For FBX, animations are part of the model
+        const fbx = await new Promise<any>((resolve, reject) => {
+          this.fbxLoader.load(
+            config.url,
+            (fbx) => resolve(fbx),
+            undefined,
+            (error) => reject(error)
+          )
+        })
+        
+        if (fbx.animations && fbx.animations.length > 0) {
+          // Convert FBX animations to GLTF-like format
+          const gltfLike = {
+            animations: fbx.animations
+          }
+          animationManager.loadAnimations(gltfLike)
+        }
+      }
+    }
+    
+    return {
+      model,
+      animationManager
+    }
   }
 }
 

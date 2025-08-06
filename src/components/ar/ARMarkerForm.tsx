@@ -40,6 +40,12 @@ interface ARMarkerFormData {
   modelRotation: { x: number; y: number; z: number }
   enableAnimation: boolean
   enableInteraction: boolean
+  animationSettings?: {
+    autoPlay: boolean
+    loop: 'once' | 'repeat' | 'pingpong'
+    speed: number
+    selectedAnimation?: string
+  }
   metadata?: any
 }
 
@@ -73,6 +79,11 @@ export function ARMarkerForm() {
     modelRotation: { x: 0, y: 0, z: 0 },
     enableAnimation: true,
     enableInteraction: true,
+    animationSettings: {
+      autoPlay: true,
+      loop: 'repeat',
+      speed: 1.0,
+    },
   })
 
   const [modelPreview, setModelPreview] = useState<string | null>(null)
@@ -636,6 +647,78 @@ export function ARMarkerForm() {
                   <span className="text-sm text-gray-700">アニメーションを有効化</span>
                 </label>
               </div>
+
+              {/* アニメーション設定 */}
+              {formData.enableAnimation && (
+                <div className="col-span-2 mt-4 p-4 bg-gray-50 rounded-lg">
+                  <h4 className="text-sm font-medium text-gray-700 mb-3">アニメーション設定</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={formData.animationSettings?.autoPlay || false}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              animationSettings: {
+                                ...prev.animationSettings!,
+                                autoPlay: e.target.checked,
+                              },
+                            }))
+                          }
+                          className="mr-2"
+                        />
+                        <span className="text-sm text-gray-600">自動再生</span>
+                      </label>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm text-gray-600 mb-1">ループモード</label>
+                      <select
+                        value={formData.animationSettings?.loop || 'repeat'}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            animationSettings: {
+                              ...prev.animationSettings!,
+                              loop: e.target.value as 'once' | 'repeat' | 'pingpong',
+                            },
+                          }))
+                        }
+                        className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="once">1回のみ</option>
+                        <option value="repeat">リピート</option>
+                        <option value="pingpong">往復</option>
+                      </select>
+                    </div>
+
+                    <div className="col-span-2">
+                      <label className="block text-sm text-gray-600 mb-1">
+                        再生速度: {formData.animationSettings?.speed || 1}x
+                      </label>
+                      <input
+                        type="range"
+                        min="0.1"
+                        max="3"
+                        step="0.1"
+                        value={formData.animationSettings?.speed || 1}
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            animationSettings: {
+                              ...prev.animationSettings!,
+                              speed: parseFloat(e.target.value),
+                            },
+                          }))
+                        }
+                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <label className="flex items-center">
