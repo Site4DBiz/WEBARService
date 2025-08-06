@@ -124,9 +124,13 @@ export default function ModelViewer({
     // リサイズハンドラー
     const handleResize = () => {
       if (!containerRef.current || !cameraRef.current || !rendererRef.current) return
-      cameraRef.current.aspect = containerRef.current.clientWidth / containerRef.current.clientHeight
+      cameraRef.current.aspect =
+        containerRef.current.clientWidth / containerRef.current.clientHeight
       cameraRef.current.updateProjectionMatrix()
-      rendererRef.current.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight)
+      rendererRef.current.setSize(
+        containerRef.current.clientWidth,
+        containerRef.current.clientHeight
+      )
     }
     window.addEventListener('resize', handleResize)
 
@@ -320,7 +324,10 @@ export default function ModelViewer({
   }, [scale, position, rotation])
 
   return (
-    <div ref={containerRef} className="relative w-full h-full bg-gray-100 rounded-lg overflow-hidden">
+    <div
+      ref={containerRef}
+      className="relative w-full h-full bg-gray-100 rounded-lg overflow-hidden"
+    >
       {loading && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-white bg-opacity-90 z-10">
           <Loader2 className="animate-spin h-8 w-8 text-blue-600 mb-4" />

@@ -4,15 +4,15 @@ import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { AnimationManager, AnimationConfig, AnimationEvent } from '@/lib/ar/AnimationManager'
 import * as THREE from 'three'
 import {
-  PlayIcon,
-  PauseIcon,
-  StopIcon,
-  ArrowPathIcon,
-  ForwardIcon,
-  BackwardIcon,
-  SpeakerWaveIcon,
-  SpeakerXMarkIcon,
-} from '@heroicons/react/24/solid'
+  Play,
+  Pause,
+  Square,
+  RotateCw,
+  SkipForward,
+  SkipBack,
+  Volume2,
+  VolumeX,
+} from 'lucide-react'
 
 interface AnimationControllerProps {
   animationManager: AnimationManager | null
@@ -59,7 +59,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
     if (!animationManager) return
 
     const animationNames = animationManager.getAnimationNames()
-    const animationInfos: AnimationInfo[] = animationNames.map(name => {
+    const animationInfos: AnimationInfo[] = animationNames.map((name) => {
       const state = animationManager.getAnimationState(name)
       return {
         name,
@@ -159,56 +159,71 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
     setProgress(0)
   }, [animationManager, selectedAnimation])
 
-  const handleSpeedChange = useCallback((newSpeed: number) => {
-    setSpeed(newSpeed)
-    if (animationManager && selectedAnimation) {
-      animationManager.setSpeed(selectedAnimation, newSpeed)
-    }
-  }, [animationManager, selectedAnimation])
+  const handleSpeedChange = useCallback(
+    (newSpeed: number) => {
+      setSpeed(newSpeed)
+      if (animationManager && selectedAnimation) {
+        animationManager.setSpeed(selectedAnimation, newSpeed)
+      }
+    },
+    [animationManager, selectedAnimation]
+  )
 
-  const handleProgressChange = useCallback((newProgress: number) => {
-    setProgress(newProgress)
-    if (animationManager && selectedAnimation) {
-      animationManager.setProgress(selectedAnimation, newProgress)
-    }
-  }, [animationManager, selectedAnimation])
+  const handleProgressChange = useCallback(
+    (newProgress: number) => {
+      setProgress(newProgress)
+      if (animationManager && selectedAnimation) {
+        animationManager.setProgress(selectedAnimation, newProgress)
+      }
+    },
+    [animationManager, selectedAnimation]
+  )
 
-  const handleLoopModeChange = useCallback((mode: string) => {
-    let loopType: THREE.LoopRepeat | THREE.LoopOnce | THREE.LoopPingPong
-    switch (mode) {
-      case 'once':
-        loopType = THREE.LoopOnce
-        break
-      case 'pingpong':
-        loopType = THREE.LoopPingPong
-        break
-      default:
-        loopType = THREE.LoopRepeat
-    }
-    setLoopMode(loopType)
+  const handleLoopModeChange = useCallback(
+    (mode: string) => {
+      let loopType: THREE.LoopRepeat | THREE.LoopOnce | THREE.LoopPingPong
+      switch (mode) {
+        case 'once':
+          loopType = THREE.LoopOnce
+          break
+        case 'pingpong':
+          loopType = THREE.LoopPingPong
+          break
+        default:
+          loopType = THREE.LoopRepeat
+      }
+      setLoopMode(loopType)
 
-    if (animationManager && selectedAnimation) {
-      animationManager.updateAnimationConfig(selectedAnimation, { loop: loopType })
-    }
-  }, [animationManager, selectedAnimation])
+      if (animationManager && selectedAnimation) {
+        animationManager.updateAnimationConfig(selectedAnimation, { loop: loopType })
+      }
+    },
+    [animationManager, selectedAnimation]
+  )
 
-  const handleWeightChange = useCallback((newWeight: number) => {
-    setWeight(newWeight)
-    if (animationManager && selectedAnimation) {
-      animationManager.setWeight(selectedAnimation, newWeight)
-    }
-  }, [animationManager, selectedAnimation])
+  const handleWeightChange = useCallback(
+    (newWeight: number) => {
+      setWeight(newWeight)
+      if (animationManager && selectedAnimation) {
+        animationManager.setWeight(selectedAnimation, newWeight)
+      }
+    },
+    [animationManager, selectedAnimation]
+  )
 
-  const handleAnimationSelect = useCallback((animationName: string) => {
-    if (selectedAnimation && isPlaying && animationManager) {
-      animationManager.stop(selectedAnimation)
-    }
-    setSelectedAnimation(animationName)
-    setIsPlaying(false)
-    setIsPaused(false)
-    setProgress(0)
-    onAnimationChange?.(animationName)
-  }, [selectedAnimation, isPlaying, animationManager, onAnimationChange])
+  const handleAnimationSelect = useCallback(
+    (animationName: string) => {
+      if (selectedAnimation && isPlaying && animationManager) {
+        animationManager.stop(selectedAnimation)
+      }
+      setSelectedAnimation(animationName)
+      setIsPlaying(false)
+      setIsPaused(false)
+      setProgress(0)
+      onAnimationChange?.(animationName)
+    },
+    [selectedAnimation, isPlaying, animationManager, onAnimationChange]
+  )
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60)
@@ -219,14 +234,12 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
   if (!animationManager || animations.length === 0) {
     return (
       <div className={`bg-gray-100 dark:bg-gray-800 p-4 rounded-lg ${className}`}>
-        <p className="text-gray-500 dark:text-gray-400 text-center">
-          No animations available
-        </p>
+        <p className="text-gray-500 dark:text-gray-400 text-center">No animations available</p>
       </div>
     )
   }
 
-  const currentAnimation = animations.find(a => a.name === selectedAnimation)
+  const currentAnimation = animations.find((a) => a.name === selectedAnimation)
   const currentTime = currentAnimation ? currentAnimation.duration * progress : 0
   const totalTime = currentAnimation?.duration || 0
 
@@ -257,7 +270,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
           className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
           title="Stop"
         >
-          <StopIcon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+          <Square className="w-5 h-5 text-gray-700 dark:text-gray-300" />
         </button>
 
         <button
@@ -266,7 +279,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
           className="p-3 rounded-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 transition-colors text-white"
           title={isPaused ? 'Resume' : 'Play'}
         >
-          <PlayIcon className="w-6 h-6" />
+          <Play className="w-6 h-6" />
         </button>
 
         <button
@@ -275,7 +288,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
           className="p-3 rounded-full bg-yellow-500 hover:bg-yellow-600 disabled:bg-gray-400 transition-colors text-white"
           title="Pause"
         >
-          <PauseIcon className="w-6 h-6" />
+          <Pause className="w-6 h-6" />
         </button>
 
         <button
@@ -284,9 +297,9 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
           title={isMuted ? 'Unmute' : 'Mute'}
         >
           {isMuted ? (
-            <SpeakerXMarkIcon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            <VolumeX className="w-5 h-5 text-gray-700 dark:text-gray-300" />
           ) : (
-            <SpeakerWaveIcon className="w-5 h-5 text-gray-700 dark:text-gray-300" />
+            <Volume2 className="w-5 h-5 text-gray-700 dark:text-gray-300" />
           )}
         </button>
       </div>
@@ -387,7 +400,7 @@ export const AnimationController: React.FC<AnimationControllerProps> = ({
                   : 'bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
               }`}
             >
-              <ArrowPathIcon className="w-4 h-4 inline mr-1" />
+              <RotateCw className="w-4 h-4 inline mr-1" />
               Repeat
             </button>
             <button

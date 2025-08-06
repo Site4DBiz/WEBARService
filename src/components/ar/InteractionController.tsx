@@ -2,17 +2,17 @@
 
 import React, { useState, useEffect } from 'react'
 import { InteractionConfig } from '@/lib/ar/InteractionManager'
-import { 
-  MousePointer, 
-  Hand, 
-  Move3d, 
-  ZoomIn, 
+import {
+  MousePointer,
+  Hand,
+  Move3d,
+  ZoomIn,
   RotateCw,
   Volume2,
   Link,
   Palette,
   Maximize2,
-  Play
+  Play,
 } from 'lucide-react'
 
 export interface InteractionSettings {
@@ -43,7 +43,7 @@ interface InteractionControllerProps {
 export const InteractionController: React.FC<InteractionControllerProps> = ({
   onSettingsChange,
   availableAnimations = [],
-  className = ''
+  className = '',
 }) => {
   const [settings, setSettings] = useState<InteractionSettings>({
     enableClick: true,
@@ -52,7 +52,7 @@ export const InteractionController: React.FC<InteractionControllerProps> = ({
     enablePinch: false,
     enableRotate: false,
     actions: {},
-    animations: {}
+    animations: {},
   })
 
   const [showAdvanced, setShowAdvanced] = useState(false)
@@ -62,36 +62,36 @@ export const InteractionController: React.FC<InteractionControllerProps> = ({
   }, [settings, onSettingsChange])
 
   const updateSetting = (key: keyof InteractionSettings, value: any) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [key]: value
+      [key]: value,
     }))
   }
 
   const updateAction = (key: keyof InteractionSettings['actions'], value: any) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       actions: {
         ...prev.actions,
-        [key]: value || undefined
-      }
+        [key]: value || undefined,
+      },
     }))
   }
 
   const updateAnimation = (key: keyof InteractionSettings['animations'], value: string) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
       animations: {
         ...prev.animations,
-        [key]: value || undefined
-      }
+        [key]: value || undefined,
+      },
     }))
   }
 
   return (
     <div className={`bg-white rounded-lg shadow-sm p-6 ${className}`}>
       <h3 className="text-lg font-semibold mb-4 text-gray-900">インタラクション設定</h3>
-      
+
       {/* Basic Interactions */}
       <div className="space-y-4">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -163,7 +163,7 @@ export const InteractionController: React.FC<InteractionControllerProps> = ({
         {showAdvanced && (
           <div className="mt-4 space-y-4 pt-4 border-t border-gray-200">
             <h4 className="text-sm font-semibold text-gray-700">アクション設定</h4>
-            
+
             {/* URL Link */}
             <div className="space-y-2">
               <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
@@ -243,7 +243,7 @@ export const InteractionController: React.FC<InteractionControllerProps> = ({
             {availableAnimations.length > 0 && (
               <>
                 <h4 className="text-sm font-semibold text-gray-700 mt-6">アニメーショントリガー</h4>
-                
+
                 <div className="space-y-2">
                   <label className="flex items-center space-x-2 text-sm font-medium text-gray-700">
                     <Play className="w-4 h-4" />
@@ -255,8 +255,10 @@ export const InteractionController: React.FC<InteractionControllerProps> = ({
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">なし</option>
-                    {availableAnimations.map(anim => (
-                      <option key={anim} value={anim}>{anim}</option>
+                    {availableAnimations.map((anim) => (
+                      <option key={anim} value={anim}>
+                        {anim}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -272,8 +274,10 @@ export const InteractionController: React.FC<InteractionControllerProps> = ({
                     className="w-full px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="">なし</option>
-                    {availableAnimations.map(anim => (
-                      <option key={anim} value={anim}>{anim}</option>
+                    {availableAnimations.map((anim) => (
+                      <option key={anim} value={anim}>
+                        {anim}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -295,8 +299,9 @@ export const InteractionController: React.FC<InteractionControllerProps> = ({
           {settings.actions.url && <li>• クリックでURL開く</li>}
           {settings.actions.sound && <li>• クリックで音声再生</li>}
           {settings.actions.colorChange && <li>• クリックで色変更</li>}
-          {settings.actions.scaleChange && settings.actions.scaleChange !== 1 && 
-            <li>• クリックでサイズ変更</li>}
+          {settings.actions.scaleChange && settings.actions.scaleChange !== 1 && (
+            <li>• クリックでサイズ変更</li>
+          )}
         </ul>
       </div>
     </div>

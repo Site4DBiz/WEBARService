@@ -325,14 +325,14 @@ export class ModelLoader {
 
   async loadModelWithAnimations(config: ModelConfig): Promise<ModelLoadResult> {
     const model = await this.loadModel(config)
-    
+
     // Create animation manager if the model has animations
     const extension = config.url.split('.').pop()?.toLowerCase()
     let animationManager: AnimationManager | undefined
-    
+
     if (extension === 'gltf' || extension === 'glb' || extension === 'fbx') {
       animationManager = new AnimationManager(model)
-      
+
       // Load animations based on format
       if (extension === 'gltf' || extension === 'glb') {
         // For GLTF, we need to reload to get animations
@@ -344,7 +344,7 @@ export class ModelLoader {
             (error) => reject(error)
           )
         })
-        
+
         if (gltf.animations && gltf.animations.length > 0) {
           animationManager.loadAnimations(gltf)
         }
@@ -358,20 +358,20 @@ export class ModelLoader {
             (error) => reject(error)
           )
         })
-        
+
         if (fbx.animations && fbx.animations.length > 0) {
           // Convert FBX animations to GLTF-like format
           const gltfLike = {
-            animations: fbx.animations
+            animations: fbx.animations,
           }
           animationManager.loadAnimations(gltfLike)
         }
       }
     }
-    
+
     return {
       model,
-      animationManager
+      animationManager,
     }
   }
 }

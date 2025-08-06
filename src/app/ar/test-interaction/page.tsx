@@ -22,7 +22,7 @@ export default function TestInteractionPage() {
 
   // イベントログを追加
   const addEventLog = (event: string) => {
-    setInteractionEvents(prev => [...prev.slice(-4), event])
+    setInteractionEvents((prev) => [...prev.slice(-4), event])
   }
 
   useEffect(() => {
@@ -86,13 +86,13 @@ export default function TestInteractionPage() {
     // Animation loop
     const animate = () => {
       requestAnimationFrame(animate)
-      
+
       const delta = clockRef.current.getDelta()
-      
+
       if (animationMixerRef.current) {
         animationMixerRef.current.update(delta)
       }
-      
+
       controls.update()
       renderer.render(scene, camera)
     }
@@ -121,7 +121,7 @@ export default function TestInteractionPage() {
 
     // 既存のインタラクティブオブジェクトを削除
     interactionManagerRef.current.removeInteractable('test-object')
-    
+
     // 既存のメッシュを削除
     const existingObject = sceneRef.current.getObjectByName('test-object')
     if (existingObject) {
@@ -132,10 +132,10 @@ export default function TestInteractionPage() {
 
     if (type === 'cube') {
       const geometry = new THREE.BoxGeometry(1, 1, 1)
-      const material = new THREE.MeshStandardMaterial({ 
+      const material = new THREE.MeshStandardMaterial({
         color: 0x2196f3,
         metalness: 0.3,
-        roughness: 0.4
+        roughness: 0.4,
       })
       object = new THREE.Mesh(geometry, material)
       object.castShadow = true
@@ -143,10 +143,10 @@ export default function TestInteractionPage() {
       setAvailableAnimations([])
     } else if (type === 'sphere') {
       const geometry = new THREE.SphereGeometry(0.5, 32, 16)
-      const material = new THREE.MeshStandardMaterial({ 
+      const material = new THREE.MeshStandardMaterial({
         color: 0xff9800,
         metalness: 0.3,
-        roughness: 0.4
+        roughness: 0.4,
       })
       object = new THREE.Mesh(geometry, material)
       object.castShadow = true
@@ -166,27 +166,27 @@ export default function TestInteractionPage() {
               child.receiveShadow = true
             }
           })
-          
+
           // アニメーション設定
           if (gltf.animations && gltf.animations.length > 0) {
             const mixer = new THREE.AnimationMixer(object)
             animationMixerRef.current = mixer
             ;(object as any).mixer = mixer
             ;(object as any).animations = gltf.animations
-            
-            const animationNames = gltf.animations.map(clip => clip.name)
+
+            const animationNames = gltf.animations.map((clip) => clip.name)
             setAvailableAnimations(animationNames)
-            
+
             // デフォルトアニメーションを再生
             const action = mixer.clipAction(gltf.animations[0])
             action.play()
           }
-          
+
           setModelLoaded(true)
           sceneRef.current?.add(object)
         },
         (progress) => {
-          console.log('Loading:', (progress.loaded / progress.total * 100) + '%')
+          console.log('Loading:', (progress.loaded / progress.total) * 100 + '%')
         },
         (error) => {
           console.error('Error loading model:', error)
@@ -221,7 +221,9 @@ export default function TestInteractionPage() {
         enablePinch: settings.enablePinch,
         enableRotate: settings.enableRotate,
         onClick: (event) => {
-          addEventLog(`クリック: ${event.point ? `(${event.point.x.toFixed(2)}, ${event.point.y.toFixed(2)}, ${event.point.z.toFixed(2)})` : ''}`)
+          addEventLog(
+            `クリック: ${event.point ? `(${event.point.x.toFixed(2)}, ${event.point.y.toFixed(2)}, ${event.point.z.toFixed(2)})` : ''}`
+          )
         },
         onHover: (event) => {
           addEventLog('ホバー開始')
@@ -249,9 +251,11 @@ export default function TestInteractionPage() {
       actions: {
         url: settings.actions.url,
         sound: settings.actions.sound,
-        colorChange: settings.actions.colorChange ? parseInt(settings.actions.colorChange.replace('#', '0x')) : undefined,
+        colorChange: settings.actions.colorChange
+          ? parseInt(settings.actions.colorChange.replace('#', '0x'))
+          : undefined,
         scaleChange: settings.actions.scaleChange,
-      }
+      },
     }
 
     interactionManagerRef.current.removeInteractable('test-object')
@@ -268,7 +272,7 @@ export default function TestInteractionPage() {
         {/* 3D View */}
         <div className="flex-1 relative">
           <div ref={mountRef} className="w-full h-full" />
-          
+
           {/* Event Log */}
           <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-4 w-64">
             <h3 className="text-sm font-semibold mb-2">イベントログ</h3>
@@ -339,7 +343,7 @@ export default function TestInteractionPage() {
         <div className="w-96 bg-white shadow-lg overflow-y-auto">
           <div className="p-6">
             <h1 className="text-2xl font-bold mb-6">インタラクションテスト</h1>
-            
+
             <InteractionController
               onSettingsChange={handleSettingsChange}
               availableAnimations={availableAnimations}
@@ -370,7 +374,7 @@ export default function TestInteractionPage() {
             transform: translateY(0);
           }
         }
-        
+
         .animate-fade-in {
           animation: fade-in 0.3s ease-out;
         }

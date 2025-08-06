@@ -49,7 +49,7 @@ export class AudioManager {
 
       const arrayBuffer = await response.arrayBuffer()
       const audioBuffer = await this.audioContext.decodeAudioData(arrayBuffer)
-      
+
       this.audioBuffers.set(id, audioBuffer)
     } catch (error) {
       console.error(`Failed to load audio ${id}:`, error)
@@ -57,10 +57,7 @@ export class AudioManager {
     }
   }
 
-  public async playAudio(
-    id: string,
-    config?: Partial<AudioConfig>
-  ): Promise<void> {
+  public async playAudio(id: string, config?: Partial<AudioConfig>): Promise<void> {
     await this.initialize()
 
     if (!this.audioContext) {
@@ -144,7 +141,7 @@ export class AudioManager {
       gainNode.gain.cancelScheduledValues(currentTime)
       gainNode.gain.setValueAtTime(gainNode.gain.value, currentTime)
       gainNode.gain.linearRampToValueAtTime(0, currentTime + duration)
-      
+
       // Stop after fade out
       setTimeout(() => {
         this.stopAudio(id)
@@ -157,8 +154,8 @@ export class AudioManager {
   }
 
   public async preloadAudios(configs: Array<{ id: string; url: string }>): Promise<void> {
-    const loadPromises = configs.map(config => 
-      this.loadAudio(config.id, config.url).catch(error => {
+    const loadPromises = configs.map((config) =>
+      this.loadAudio(config.id, config.url).catch((error) => {
         console.warn(`Failed to preload audio ${config.id}:`, error)
       })
     )
@@ -168,33 +165,27 @@ export class AudioManager {
   public dispose(): void {
     // Stop all playing sounds
     this.sources.forEach((_, id) => this.stopAudio(id))
-    
+
     // Clear buffers
     this.audioBuffers.clear()
-    
+
     // Close audio context
     if (this.audioContext) {
       this.audioContext.close()
       this.audioContext = null
     }
-    
+
     this.isInitialized = false
   }
 
   // Helper method for playing sound effects
-  public async playSoundEffect(
-    url: string,
-    volume: number = 1.0
-  ): Promise<void> {
+  public async playSoundEffect(url: string, volume: number = 1.0): Promise<void> {
     const id = `effect-${Date.now()}-${Math.random()}`
     await this.playAudio(id, { url, volume, loop: false })
   }
 
   // Helper method for playing background music
-  public async playBackgroundMusic(
-    url: string,
-    volume: number = 0.5
-  ): Promise<void> {
+  public async playBackgroundMusic(url: string, volume: number = 0.5): Promise<void> {
     const id = 'background-music'
     await this.playAudio(id, { url, volume, loop: true })
   }

@@ -66,7 +66,7 @@ export class AnimationManager {
 
     gltf.animations.forEach((clip: THREE.AnimationClip) => {
       const action = this.mixer!.clipAction(clip)
-      
+
       // Configure action with default settings
       action.setLoop(this.defaultConfig.loop!, Infinity)
       action.setEffectiveWeight(this.defaultConfig.weight!)
@@ -121,7 +121,7 @@ export class AnimationManager {
    * Play multiple animations simultaneously
    */
   playMultiple(names: string[], config?: AnimationConfig): void {
-    names.forEach(name => this.play(name, config))
+    names.forEach((name) => this.play(name, config))
   }
 
   /**
@@ -158,7 +158,7 @@ export class AnimationManager {
    * Stop all animations
    */
   stopAll(fadeOut: boolean = true): void {
-    Array.from(this.activeAnimations).forEach(name => this.stop(name, fadeOut))
+    Array.from(this.activeAnimations).forEach((name) => this.stop(name, fadeOut))
   }
 
   /**
@@ -376,7 +376,7 @@ export class AnimationManager {
     this.animations.clear()
     this.eventListeners.clear()
     this.activeAnimations.clear()
-    
+
     if (this.mixer) {
       this.mixer.stopAllAction()
       this.mixer.uncacheRoot(this.mixer.getRoot())
@@ -417,9 +417,9 @@ export class AnimationManager {
   private emitEvent(event: AnimationEvent): void {
     const listeners = this.eventListeners.get(event.animation) || []
     const globalListeners = this.eventListeners.get('*') || []
-    
+
     const allListeners = [...listeners, ...globalListeners]
-    allListeners.forEach(callback => {
+    allListeners.forEach((callback) => {
       callback(event)
     })
   }

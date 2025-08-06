@@ -8,26 +8,32 @@ import * as THREE from 'three'
 import { InteractionManager, InteractableObject } from '@/lib/ar/InteractionManager'
 
 const EnhancedMindARViewer = dynamic(
-  () => import('@/components/ar/EnhancedMindARViewer').then(mod => ({ default: mod.EnhancedMindARViewer })),
-  { 
+  () =>
+    import('@/components/ar/EnhancedMindARViewer').then((mod) => ({
+      default: mod.EnhancedMindARViewer,
+    })),
+  {
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
       </div>
-    )
+    ),
   }
 )
 
 const InteractionController = dynamic(
-  () => import('@/components/ar/InteractionController').then(mod => ({ default: mod.InteractionController })),
-  { 
+  () =>
+    import('@/components/ar/InteractionController').then((mod) => ({
+      default: mod.InteractionController,
+    })),
+  {
     ssr: false,
     loading: () => (
       <div className="flex items-center justify-center h-64">
         <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
       </div>
-    )
+    ),
   }
 )
 
@@ -40,13 +46,17 @@ export default function TestARInteractionPage() {
     enablePinch: false,
     enableRotate: false,
     actions: {},
-    animations: {}
+    animations: {},
   })
   const [detectionStatus, setDetectionStatus] = useState<string>('準備中...')
   const interactionManagerRef = useRef<InteractionManager | null>(null)
   const sceneRef = useRef<THREE.Scene | null>(null)
 
-  const handleARSetup = (scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer) => {
+  const handleARSetup = (
+    scene: THREE.Scene,
+    camera: THREE.Camera,
+    renderer: THREE.WebGLRenderer
+  ) => {
     sceneRef.current = scene
 
     // InteractionManagerを初期化
@@ -55,14 +65,14 @@ export default function TestARInteractionPage() {
 
     // テスト用のインタラクティブオブジェクトを追加
     const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
-    const material = new THREE.MeshStandardMaterial({ 
+    const material = new THREE.MeshStandardMaterial({
       color: 0x00ff00,
       metalness: 0.3,
-      roughness: 0.4
+      roughness: 0.4,
     })
     const cube = new THREE.Mesh(geometry, material)
     cube.position.set(0, 0, -0.5)
-    
+
     // インタラクティブオブジェクトとして登録
     const interactableObject: InteractableObject = {
       object: cube,
@@ -86,10 +96,10 @@ export default function TestARInteractionPage() {
           if (event.point) {
             cube.position.copy(event.point)
           }
-        }
+        },
       },
       actions: interactionSettings.actions,
-      animations: interactionSettings.animations
+      animations: interactionSettings.animations,
     }
 
     interactionManager.addInteractable('test-cube', interactableObject)
@@ -110,7 +120,7 @@ export default function TestARInteractionPage() {
       const cube = sceneRef.current.getObjectByName('test-cube')
       if (cube) {
         interactionManagerRef.current.removeInteractable('test-cube')
-        
+
         const interactableObject: InteractableObject = {
           object: cube,
           config: {
@@ -134,10 +144,10 @@ export default function TestARInteractionPage() {
               if (event.point) {
                 cube.position.copy(event.point)
               }
-            }
+            },
           },
           actions: interactionSettings.actions,
-          animations: interactionSettings.animations
+          animations: interactionSettings.animations,
         }
 
         interactionManagerRef.current.addInteractable('test-cube', interactableObject)
@@ -165,9 +175,11 @@ export default function TestARInteractionPage() {
               <div className="p-4 bg-gray-100 border-b">
                 <div className="flex items-center justify-between">
                   <h2 className="text-lg font-semibold">ARビュー</h2>
-                  <span className={`px-3 py-1 rounded-full text-sm ${
-                    isARActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'
-                  }`}>
+                  <span
+                    className={`px-3 py-1 rounded-full text-sm ${
+                      isARActive ? 'bg-green-100 text-green-800' : 'bg-gray-200 text-gray-600'
+                    }`}
+                  >
                     {detectionStatus}
                   </span>
                 </div>
@@ -187,9 +199,9 @@ export default function TestARInteractionPage() {
                   <EnhancedMindARViewer
                     type="image"
                     targetUrl="/hiro.png"
-                    content={{ 
+                    content={{
                       type: 'basic-cube',
-                      color: 0x00ff00
+                      color: 0x00ff00,
                     }}
                     onTargetFound={handleTargetFound}
                     onTargetLost={handleTargetLost}
@@ -224,7 +236,17 @@ export default function TestARInteractionPage() {
               <h3 className="text-lg font-semibold mb-4">使い方</h3>
               <ol className="space-y-2 text-sm text-gray-600">
                 <li>1. 「ARを開始」ボタンをクリックしてカメラを起動</li>
-                <li>2. Hiroマーカーをカメラに向ける（<a href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png" target="_blank" className="text-blue-500 underline">ダウンロード</a>）</li>
+                <li>
+                  2. Hiroマーカーをカメラに向ける（
+                  <a
+                    href="https://raw.githubusercontent.com/AR-js-org/AR.js/master/data/images/hiro.png"
+                    target="_blank"
+                    className="text-blue-500 underline"
+                  >
+                    ダウンロード
+                  </a>
+                  ）
+                </li>
                 <li>3. 緑色のキューブが表示されます</li>
                 <li>4. 右側のコントロールパネルでインタラクション設定を変更</li>
                 <li>5. オブジェクトをクリック、ドラッグ、ピンチなどで操作</li>
@@ -238,7 +260,7 @@ export default function TestARInteractionPage() {
               <div className="p-4 bg-gray-100 border-b">
                 <h2 className="text-lg font-semibold">インタラクション設定</h2>
               </div>
-              
+
               <div className="p-4">
                 <InteractionController
                   onSettingsChange={setInteractionSettings}

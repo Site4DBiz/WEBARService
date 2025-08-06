@@ -71,18 +71,18 @@ export function ARContentPreview({
       if (containerRef.current.requestFullscreen) {
         containerRef.current.requestFullscreen()
       } else if ((containerRef.current as any).webkitRequestFullscreen) {
-        (containerRef.current as any).webkitRequestFullscreen()
+        ;(containerRef.current as any).webkitRequestFullscreen()
       } else if ((containerRef.current as any).mozRequestFullScreen) {
-        (containerRef.current as any).mozRequestFullScreen()
+        ;(containerRef.current as any).mozRequestFullScreen()
       }
       setIsFullscreen(true)
     } else {
       if (document.exitFullscreen) {
         document.exitFullscreen()
       } else if ((document as any).webkitExitFullscreen) {
-        (document as any).webkitExitFullscreen()
+        ;(document as any).webkitExitFullscreen()
       } else if ((document as any).mozCancelFullScreen) {
-        (document as any).mozCancelFullScreen()
+        ;(document as any).mozCancelFullScreen()
       }
       setIsFullscreen(false)
     }
@@ -110,9 +110,7 @@ export function ARContentPreview({
                 <button
                   onClick={() => setViewMode('model')}
                   className={`px-3 py-1 rounded text-sm transition-colors ${
-                    viewMode === 'model'
-                      ? 'bg-white text-black'
-                      : 'text-white hover:bg-white/20'
+                    viewMode === 'model' ? 'bg-white text-black' : 'text-white hover:bg-white/20'
                   }`}
                 >
                   3Dモデル
@@ -120,9 +118,7 @@ export function ARContentPreview({
                 <button
                   onClick={() => setViewMode('ar')}
                   className={`px-3 py-1 rounded text-sm transition-colors ${
-                    viewMode === 'ar'
-                      ? 'bg-white text-black'
-                      : 'text-white hover:bg-white/20'
+                    viewMode === 'ar' ? 'bg-white text-black' : 'text-white hover:bg-white/20'
                   }`}
                 >
                   ARビュー
@@ -151,22 +147,14 @@ export function ARContentPreview({
               className="p-2 bg-black/50 rounded-lg text-white hover:bg-black/70 transition-colors"
               title={isPlaying ? '一時停止' : '再生'}
             >
-              {isPlaying ? (
-                <Pause className="h-5 w-5" />
-              ) : (
-                <Play className="h-5 w-5" />
-              )}
+              {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
             </button>
             <button
               onClick={toggleFullscreen}
               className="p-2 bg-black/50 rounded-lg text-white hover:bg-black/70 transition-colors"
               title={isFullscreen ? '全画面を終了' : '全画面表示'}
             >
-              {isFullscreen ? (
-                <Minimize className="h-5 w-5" />
-              ) : (
-                <Maximize className="h-5 w-5" />
-              )}
+              {isFullscreen ? <Minimize className="h-5 w-5" /> : <Maximize className="h-5 w-5" />}
             </button>
           </div>
         </div>

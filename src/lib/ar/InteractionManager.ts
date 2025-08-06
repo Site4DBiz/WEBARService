@@ -62,11 +62,7 @@ export class InteractionManager {
   private enabled = true
   private audioManager: AudioManager
 
-  constructor(
-    scene: THREE.Scene,
-    camera: THREE.Camera,
-    renderer: THREE.WebGLRenderer
-  ) {
+  constructor(scene: THREE.Scene, camera: THREE.Camera, renderer: THREE.WebGLRenderer) {
     this.scene = scene
     this.camera = camera
     this.renderer = renderer
@@ -103,11 +99,11 @@ export class InteractionManager {
     if (!this.scene.children.includes(interactable.object)) {
       this.scene.add(interactable.object)
     }
-    
+
     // Set userData for identification
     interactable.object.userData.interactableId = id
     interactable.object.userData.interactive = true
-    
+
     this.interactables.set(id, interactable)
   }
 
@@ -138,8 +134,8 @@ export class InteractionManager {
     )
 
     this.raycaster.setFromCamera(mouse, this.camera)
-    
-    const interactableObjects = Array.from(this.interactables.values()).map(i => i.object)
+
+    const interactableObjects = Array.from(this.interactables.values()).map((i) => i.object)
     const intersects = this.raycaster.intersectObjects(interactableObjects, true)
 
     if (intersects.length > 0) {
@@ -161,15 +157,15 @@ export class InteractionManager {
     if (object) {
       const id = object.userData.interactableId
       const interactable = this.interactables.get(id)
-      
+
       if (interactable?.config.enableClick) {
         const intersectionPoint = this.raycaster.intersectObject(object, true)[0]?.point
-        
+
         const interactionEvent: InteractionEvent = {
           type: 'click',
           object,
           point: intersectionPoint,
-          originalEvent: event
+          originalEvent: event,
         }
 
         // Execute actions
@@ -178,7 +174,7 @@ export class InteractionManager {
         }
 
         if (interactable.actions?.sound) {
-          this.audioManager.playSoundEffect(interactable.actions.sound).catch(error => {
+          this.audioManager.playSoundEffect(interactable.actions.sound).catch((error) => {
             console.error('Failed to play sound:', error)
           })
         }
@@ -221,11 +217,11 @@ export class InteractionManager {
     if (object) {
       const id = object.userData.interactableId
       const interactable = this.interactables.get(id)
-      
+
       if (interactable?.config.enableDrag) {
         this.isDragging = true
         this.draggedObject = object
-        
+
         const intersectionPoint = this.raycaster.intersectObject(object, true)[0]?.point
         if (intersectionPoint) {
           this.plane.setFromNormalAndCoplanarPoint(
@@ -239,7 +235,7 @@ export class InteractionManager {
           type: 'drag',
           object,
           point: intersectionPoint,
-          originalEvent: event
+          originalEvent: event,
         }
 
         interactable.config.onDragStart?.(interactionEvent)
@@ -252,18 +248,18 @@ export class InteractionManager {
 
     // Handle hover
     const object = this.getIntersectedObject(event)
-    
+
     if (object !== this.hoveredObject) {
       // Handle hover end
       if (this.hoveredObject) {
         const prevId = this.hoveredObject.userData.interactableId
         const prevInteractable = this.interactables.get(prevId)
-        
+
         if (prevInteractable?.config.enableHover) {
           const interactionEvent: InteractionEvent = {
             type: 'hover',
             object: this.hoveredObject,
-            originalEvent: event
+            originalEvent: event,
           }
           prevInteractable.config.onHoverEnd?.(interactionEvent)
         }
@@ -275,12 +271,12 @@ export class InteractionManager {
       if (object) {
         const id = object.userData.interactableId
         const interactable = this.interactables.get(id)
-        
+
         if (interactable?.config.enableHover) {
           const interactionEvent: InteractionEvent = {
             type: 'hover',
             object,
-            originalEvent: event
+            originalEvent: event,
           }
           interactable.config.onHover?.(interactionEvent)
 
@@ -314,19 +310,19 @@ export class InteractionManager {
       )
 
       this.raycaster.setFromCamera(mouse, this.camera)
-      
+
       if (this.raycaster.ray.intersectPlane(this.plane, this.intersection)) {
         this.draggedObject.position.copy(this.intersection.sub(this.offset))
-        
+
         const id = this.draggedObject.userData.interactableId
         const interactable = this.interactables.get(id)
-        
+
         if (interactable) {
           const interactionEvent: InteractionEvent = {
             type: 'drag',
             object: this.draggedObject,
             point: this.intersection.clone(),
-            originalEvent: event
+            originalEvent: event,
           }
           interactable.config.onDragMove?.(interactionEvent)
         }
@@ -340,12 +336,12 @@ export class InteractionManager {
     if (this.isDragging && this.draggedObject) {
       const id = this.draggedObject.userData.interactableId
       const interactable = this.interactables.get(id)
-      
+
       if (interactable) {
         const interactionEvent: InteractionEvent = {
           type: 'drag',
           object: this.draggedObject,
-          originalEvent: event
+          originalEvent: event,
         }
         interactable.config.onDragEnd?.(interactionEvent)
       }
@@ -364,7 +360,7 @@ export class InteractionManager {
       const touch = event.touches[i]
       this.lastTouchPositions[touch.identifier] = {
         x: touch.clientX,
-        y: touch.clientY
+        y: touch.clientY,
       }
     }
 
@@ -376,12 +372,12 @@ export class InteractionManager {
       // Two touches - prepare for pinch/rotate
       const touch1 = event.touches[0]
       const touch2 = event.touches[1]
-      
+
       this.touchStartDistance = Math.hypot(
         touch2.clientX - touch1.clientX,
         touch2.clientY - touch1.clientY
       )
-      
+
       this.touchStartRotation = Math.atan2(
         touch2.clientY - touch1.clientY,
         touch2.clientX - touch1.clientX
@@ -401,55 +397,55 @@ export class InteractionManager {
       // Two touches - handle pinch/rotate
       const touch1 = event.touches[0]
       const touch2 = event.touches[1]
-      
+
       const currentDistance = Math.hypot(
         touch2.clientX - touch1.clientX,
         touch2.clientY - touch1.clientY
       )
-      
+
       const currentRotation = Math.atan2(
         touch2.clientY - touch1.clientY,
         touch2.clientX - touch1.clientX
       )
-      
+
       // Calculate scale and rotation deltas
       const scale = currentDistance / this.touchStartDistance
       const rotation = currentRotation - this.touchStartRotation
-      
+
       // Find object at midpoint
       const midX = (touch1.clientX + touch2.clientX) / 2
       const midY = (touch1.clientY + touch2.clientY) / 2
       const midPoint = { clientX: midX, clientY: midY } as Touch
-      
+
       const object = this.getIntersectedObject(midPoint)
       if (object) {
         const id = object.userData.interactableId
         const interactable = this.interactables.get(id)
-        
+
         if (interactable) {
           if (interactable.config.enablePinch && Math.abs(scale - 1) > 0.01) {
             const interactionEvent: InteractionEvent = {
               type: 'pinch',
               object,
               scale,
-              originalEvent: event
+              originalEvent: event,
             }
             interactable.config.onPinch?.(interactionEvent)
-            
+
             // Apply scale
             object.scale.multiplyScalar(scale)
             this.touchStartDistance = currentDistance
           }
-          
+
           if (interactable.config.enableRotate && Math.abs(rotation) > 0.01) {
             const interactionEvent: InteractionEvent = {
               type: 'rotate',
               object,
               rotation,
-              originalEvent: event
+              originalEvent: event,
             }
             interactable.config.onRotate?.(interactionEvent)
-            
+
             // Apply rotation
             object.rotateZ(rotation)
             this.touchStartRotation = currentRotation
@@ -463,7 +459,7 @@ export class InteractionManager {
       const touch = event.touches[i]
       this.lastTouchPositions[touch.identifier] = {
         x: touch.clientX,
-        y: touch.clientY
+        y: touch.clientY,
       }
     }
   }
@@ -486,7 +482,7 @@ export class InteractionManager {
         // Check for tap
         this.onClick(event.changedTouches[0] as any)
       }
-      
+
       this.lastTouchPositions = {}
     }
   }
@@ -497,7 +493,7 @@ export class InteractionManager {
 
   public dispose(): void {
     const domElement = this.renderer.domElement
-    
+
     // Remove all event listeners
     domElement.removeEventListener('mousedown', this.onMouseDown.bind(this))
     domElement.removeEventListener('mousemove', this.onMouseMove.bind(this))
@@ -506,13 +502,13 @@ export class InteractionManager {
     domElement.removeEventListener('touchstart', this.onTouchStart.bind(this))
     domElement.removeEventListener('touchmove', this.onTouchMove.bind(this))
     domElement.removeEventListener('touchend', this.onTouchEnd.bind(this))
-    
+
     // Clear all interactables
     this.interactables.clear()
-    
+
     // Dispose audio manager
     this.audioManager.dispose()
-    
+
     // Reset state
     this.hoveredObject = null
     this.draggedObject = null

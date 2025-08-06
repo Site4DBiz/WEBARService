@@ -96,7 +96,8 @@ export default function TestAnimationPage() {
     const handleResize = () => {
       if (!containerRef.current || !cameraRef.current || !rendererRef.current) return
 
-      cameraRef.current.aspect = containerRef.current.clientWidth / containerRef.current.clientHeight
+      cameraRef.current.aspect =
+        containerRef.current.clientWidth / containerRef.current.clientHeight
       cameraRef.current.updateProjectionMatrix()
       rendererRef.current.setSize(
         containerRef.current.clientWidth,
@@ -110,13 +111,13 @@ export default function TestAnimationPage() {
         cancelAnimationFrame(frameRef.current)
       }
       window.removeEventListener('resize', handleResize)
-      
+
       if (containerRef.current && rendererRef.current) {
         containerRef.current.removeChild(rendererRef.current.domElement)
       }
-      
+
       rendererRef.current?.dispose()
-      
+
       if (animationManagerRef.current) {
         animationManagerRef.current.dispose()
       }
@@ -164,7 +165,7 @@ export default function TestAnimationPage() {
         animationManagerRef.current = result.animationManager
         const animations = result.animationManager.getAnimationNames()
         setHasAnimations(animations.length > 0)
-        
+
         if (animations.length > 0) {
           console.log('Available animations:', animations)
         }
@@ -175,7 +176,7 @@ export default function TestAnimationPage() {
       const center = box.getCenter(new THREE.Vector3())
       const size = box.getSize(new THREE.Vector3())
       const maxDim = Math.max(size.x, size.y, size.z)
-      
+
       cameraRef.current!.position.set(maxDim * 1.5, maxDim * 1.5, maxDim * 1.5)
       cameraRef.current!.lookAt(center)
       controlsRef.current!.target.copy(center)
@@ -243,11 +244,7 @@ export default function TestAnimationPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow-md overflow-hidden">
-              <div 
-                ref={containerRef} 
-                className="w-full"
-                style={{ height: '600px' }}
-              />
+              <div ref={containerRef} className="w-full" style={{ height: '600px' }} />
             </div>
           </div>
 
@@ -265,8 +262,8 @@ export default function TestAnimationPage() {
               <div className="bg-white rounded-lg shadow-md p-6">
                 <h3 className="text-lg font-semibold mb-2">アニメーションコントロール</h3>
                 <p className="text-gray-500">
-                  {isLoading 
-                    ? 'モデルを読み込み中...' 
+                  {isLoading
+                    ? 'モデルを読み込み中...'
                     : 'アニメーション付きのモデルを読み込んでください'}
                 </p>
               </div>
@@ -279,8 +276,12 @@ export default function TestAnimationPage() {
           <ol className="list-decimal list-inside space-y-2 text-gray-700">
             <li>URLフィールドにGLB/GLTF/FBX形式の3Dモデルファイルへのリンクを入力します</li>
             <li>「モデルを読み込む」ボタンをクリックして3Dモデルを読み込みます</li>
-            <li>または「サンプルモデルを読み込む」ボタンでアニメーション付きのサンプルモデルを読み込めます</li>
-            <li>モデルにアニメーションが含まれている場合、右側のコントロールパネルが有効になります</li>
+            <li>
+              または「サンプルモデルを読み込む」ボタンでアニメーション付きのサンプルモデルを読み込めます
+            </li>
+            <li>
+              モデルにアニメーションが含まれている場合、右側のコントロールパネルが有効になります
+            </li>
             <li>アニメーションの再生、停止、速度調整、ループモードの変更などが可能です</li>
             <li>マウスでドラッグして3Dモデルを回転、スクロールでズームができます</li>
           </ol>

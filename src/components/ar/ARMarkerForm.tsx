@@ -2,7 +2,18 @@
 
 import React, { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, Image, AlertCircle, Check, Loader2, Info, Cube, Eye, X, Palette } from 'lucide-react'
+import {
+  Upload,
+  Image,
+  AlertCircle,
+  Check,
+  Loader2,
+  Info,
+  Cube,
+  Eye,
+  X,
+  Palette,
+} from 'lucide-react'
 import { validateImage, validateFile, generateUniqueFilename } from '@/utils/file-validation'
 import { createClient } from '@/lib/supabase/client'
 import dynamic from 'next/dynamic'
@@ -27,23 +38,29 @@ const MaterialEditor = dynamic(() => import('./MaterialEditor'), {
   ),
 })
 
-const InteractionController = dynamic(() => import('./InteractionController').then(mod => ({ default: mod.InteractionController })), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
-      <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
-    </div>
-  ),
-})
+const InteractionController = dynamic(
+  () => import('./InteractionController').then((mod) => ({ default: mod.InteractionController })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
+        <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
+      </div>
+    ),
+  }
+)
 
-const ImageTrackingSettings = dynamic(() => import('./ImageTrackingSettings').then(mod => ({ default: mod.ImageTrackingSettings })), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
-      <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
-    </div>
-  ),
-})
+const ImageTrackingSettings = dynamic(
+  () => import('./ImageTrackingSettings').then((mod) => ({ default: mod.ImageTrackingSettings })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
+        <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
+      </div>
+    ),
+  }
+)
 
 interface ARMarkerFormData {
   name: string
@@ -338,16 +355,18 @@ export function ARMarkerForm() {
           mimeType: formData.markerImage.type,
           uploadedAt: new Date().toISOString(),
           modelUrl: modelUrl,
-          modelSettings: formData.modelFile ? {
-            scale: formData.modelScale,
-            position: formData.modelPosition,
-            rotation: formData.modelRotation,
-            enableAnimation: formData.enableAnimation,
-            enableInteraction: formData.enableInteraction,
-            animationSettings: formData.animationSettings,
-            interactionSettings: formData.interactionSettings,
-            materialSettings: modelMaterial,
-          } : null,
+          modelSettings: formData.modelFile
+            ? {
+                scale: formData.modelScale,
+                position: formData.modelPosition,
+                rotation: formData.modelRotation,
+                enableAnimation: formData.enableAnimation,
+                enableInteraction: formData.enableInteraction,
+                animationSettings: formData.animationSettings,
+                interactionSettings: formData.interactionSettings,
+                materialSettings: modelMaterial,
+              }
+            : null,
           trackingSettings: formData.trackingSettings,
         },
       })
@@ -645,9 +664,7 @@ export function ARMarkerForm() {
           {formData.modelFile && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  スケール
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">スケール</label>
                 <input
                   type="number"
                   value={formData.modelScale}
@@ -665,9 +682,7 @@ export function ARMarkerForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  位置 (Y軸)
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">位置 (Y軸)</label>
                 <input
                   type="number"
                   value={formData.modelPosition.y}
@@ -791,10 +806,10 @@ export function ARMarkerForm() {
               {formData.enableInteraction && (
                 <div className="col-span-2 mt-4">
                   <InteractionController
-                    onSettingsChange={(settings) => 
-                      setFormData(prev => ({ 
-                        ...prev, 
-                        interactionSettings: settings 
+                    onSettingsChange={(settings) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        interactionSettings: settings,
                       }))
                     }
                     availableAnimations={availableAnimations}
@@ -848,13 +863,18 @@ export function ARMarkerForm() {
             />
           </div>
         </div>
-        
+
         {/* 画像トラッキング最適化設定 */}
         {imagePreview && (
           <div className="mt-6">
             <h4 className="text-md font-semibold mb-3 flex items-center">
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M13 10V3L4 14h7v7l9-11h-7z"
+                />
               </svg>
               画像トラッキング最適化
             </h4>
@@ -946,12 +966,12 @@ export function ARMarkerForm() {
                 onMaterialChange={(material) => {
                   setModelMaterial(material)
                   // マテリアル設定をformDataに保存
-                  setFormData(prev => ({
+                  setFormData((prev) => ({
                     ...prev,
                     metadata: {
                       ...prev.metadata,
-                      material: material
-                    }
+                      material: material,
+                    },
                   }))
                 }}
               />

@@ -7,12 +7,18 @@ import { TrackingOptimizer, TrackingState } from '@/lib/ar/TrackingOptimizer'
 import * as THREE from 'three'
 
 const EnhancedMindARViewer = dynamic(
-  () => import('@/components/ar/EnhancedMindARViewer').then(mod => ({ default: mod.EnhancedMindARViewer })),
+  () =>
+    import('@/components/ar/EnhancedMindARViewer').then((mod) => ({
+      default: mod.EnhancedMindARViewer,
+    })),
   { ssr: false }
 )
 
 const ImageTrackingSettings = dynamic(
-  () => import('@/components/ar/ImageTrackingSettings').then(mod => ({ default: mod.ImageTrackingSettings })),
+  () =>
+    import('@/components/ar/ImageTrackingSettings').then((mod) => ({
+      default: mod.ImageTrackingSettings,
+    })),
   { ssr: false }
 )
 
@@ -24,7 +30,7 @@ export default function TestTrackingPage() {
   const [trackingSettings, setTrackingSettings] = useState<any>(null)
   const [showAR, setShowAR] = useState(false)
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
-  
+
   // ファイルアップロード処理
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
@@ -34,11 +40,11 @@ export default function TestTrackingPage() {
       setImageUrl(url)
     }
   }
-  
+
   // トラッキング状態の更新処理
   const handleTargetFound = () => {
     console.log('Target Found')
-    
+
     // トラッキング状態を作成
     const state: TrackingState = {
       position: new THREE.Vector3(0, 0, 0),
@@ -46,35 +52,35 @@ export default function TestTrackingPage() {
       scale: new THREE.Vector3(1, 1, 1),
       confidence: 0.9,
       timestamp: Date.now(),
-      isVisible: true
+      isVisible: true,
     }
-    
+
     // 最適化処理
     const optimizedState = trackingOptimizer.updateTracking(state, null)
-    
+
     // メトリクスの更新
     const metrics = trackingOptimizer.getMetrics()
     setTrackingMetrics(metrics)
   }
-  
+
   const handleTargetLost = () => {
     console.log('Target Lost')
-    
+
     const state: TrackingState = {
       position: new THREE.Vector3(0, 0, 0),
       rotation: new THREE.Euler(0, 0, 0),
       scale: new THREE.Vector3(1, 1, 1),
       confidence: 0,
       timestamp: Date.now(),
-      isVisible: false
+      isVisible: false,
     }
-    
+
     trackingOptimizer.updateTracking(state, null)
-    
+
     const metrics = trackingOptimizer.getMetrics()
     setTrackingMetrics(metrics)
   }
-  
+
   // クリーンアップ
   useEffect(() => {
     return () => {
@@ -84,17 +90,17 @@ export default function TestTrackingPage() {
       trackingOptimizer.dispose()
     }
   }, [uploadedImage, trackingOptimizer])
-  
+
   return (
     <div className="min-h-screen bg-gray-900">
       {!showAR ? (
         <div className="container mx-auto py-8 px-4">
           <h1 className="text-3xl font-bold text-white mb-8">画像トラッキング最適化テスト</h1>
-          
+
           {/* 画像アップロード */}
           <div className="bg-gray-800 rounded-lg p-6 mb-8">
             <h2 className="text-xl font-semibold text-white mb-4">マーカー画像の選択</h2>
-            
+
             <div className="mb-4">
               <label className="block">
                 <span className="sr-only">画像を選択</span>
@@ -111,7 +117,7 @@ export default function TestTrackingPage() {
                 />
               </label>
             </div>
-            
+
             {uploadedImage && (
               <div className="mt-4">
                 <img
@@ -122,7 +128,7 @@ export default function TestTrackingPage() {
               </div>
             )}
           </div>
-          
+
           {/* トラッキング設定 */}
           {uploadedImage && (
             <div className="mb-8">
@@ -133,12 +139,12 @@ export default function TestTrackingPage() {
               />
             </div>
           )}
-          
+
           {/* メトリクス表示 */}
           {trackingMetrics && (
             <div className="bg-gray-800 rounded-lg p-6 mb-8">
               <h2 className="text-xl font-semibold text-white mb-4">トラッキングメトリクス</h2>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-gray-700 rounded-lg p-4">
                   <p className="text-sm text-gray-400">安定性</p>
@@ -146,21 +152,21 @@ export default function TestTrackingPage() {
                     {trackingMetrics.stability.toFixed(1)}%
                   </p>
                 </div>
-                
+
                 <div className="bg-gray-700 rounded-lg p-4">
                   <p className="text-sm text-gray-400">精度</p>
                   <p className="text-2xl font-bold text-white">
                     {trackingMetrics.accuracy.toFixed(1)}%
                   </p>
                 </div>
-                
+
                 <div className="bg-gray-700 rounded-lg p-4">
                   <p className="text-sm text-gray-400">レイテンシ</p>
                   <p className="text-2xl font-bold text-white">
                     {trackingMetrics.latency.toFixed(0)}ms
                   </p>
                 </div>
-                
+
                 <div className="bg-gray-700 rounded-lg p-4">
                   <p className="text-sm text-gray-400">ロストフレーム</p>
                   <p className="text-2xl font-bold text-white">
@@ -170,7 +176,7 @@ export default function TestTrackingPage() {
               </div>
             </div>
           )}
-          
+
           {/* ARビューアー起動ボタン */}
           {uploadedImage && (
             <div className="text-center">
@@ -182,7 +188,7 @@ export default function TestTrackingPage() {
               </button>
             </div>
           )}
-          
+
           {/* デフォルトマーカーを使用 */}
           {!uploadedImage && (
             <div className="bg-gray-800 rounded-lg p-6">
@@ -212,7 +218,7 @@ export default function TestTrackingPage() {
             showStats={true}
             debugMode={true}
           />
-          
+
           {/* メトリクスオーバーレイ */}
           {trackingMetrics && (
             <div className="absolute top-20 left-4 bg-black bg-opacity-70 rounded-lg p-4 text-white">
@@ -225,7 +231,7 @@ export default function TestTrackingPage() {
               </div>
             </div>
           )}
-          
+
           {/* 戻るボタン */}
           <button
             onClick={() => setShowAR(false)}
