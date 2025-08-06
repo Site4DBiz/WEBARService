@@ -1314,3 +1314,75 @@ ARコンテンツとマーカー画像の大量処理を効率的に行うバッ
 3. お気に入り機能の実装
 4. アクティビティログの表示
 5. ~~アバター画像のアップロード機能~~ ✅ 実装完了（2025-01-08）
+
+---
+
+# Service Workerの実装（2025-08-06）
+
+## 計画
+WebARアプリケーションにService Workerを実装し、PWA機能を追加
+
+### タスクリスト
+- [x] Service Workerの要件定義
+- [x] 既存のコードベースの調査（Service Worker関連）
+- [x] Service Worker本体の実装
+- [x] Service Worker登録スクリプトの実装
+- [x] オフライン対応機能の実装
+- [x] プッシュ通知機能の実装
+- [x] バックグラウンド同期機能の実装
+- [x] 動作確認とテスト
+- [x] todo.mdの更新
+- [x] Gitへのコミットとプッシュ
+
+## 実装詳細
+
+### 作成ファイル
+1. **Service Worker本体**
+   - `/public/sw.js` - メインのService Worker
+   - `/public/offline.html` - オフラインページ
+   - `/public/manifest.json` - PWAマニフェスト
+
+2. **Service Worker管理**
+   - `/src/lib/service-worker/register.ts` - 登録マネージャー
+   - `/src/components/providers/ServiceWorkerProvider.tsx` - Reactプロバイダー
+
+3. **オフライン機能**
+   - `/src/lib/offline/indexed-db.ts` - IndexedDBヘルパー
+   - `/src/hooks/use-background-sync.ts` - バックグラウンド同期フック
+
+4. **プッシュ通知**
+   - `/src/lib/push-notifications/manager.ts` - 通知マネージャー
+
+5. **PWAアイコン**
+   - `/scripts/generate-icons.js` - アイコン生成スクリプト
+   - 各サイズのPWAアイコン生成完了
+
+### 実装された機能
+- ✅ キャッシュ戦略（Cache First、Network First、Stale While Revalidate）
+- ✅ オフラインページ表示
+- ✅ IndexedDBによるオフラインデータ管理
+- ✅ バックグラウンド同期
+- ✅ プッシュ通知の購読管理
+- ✅ Service Worker更新通知
+- ✅ PWAインストール対応
+- ✅ ARアセットのキャッシュ
+
+## レビュー
+
+### 完了内容
+- Service Workerによる完全なオフライン対応を実装
+- PWAとしてインストール可能なアプリケーションに変換
+- ARコンテンツとマーカーのオフライン利用が可能
+- バックグラウンド同期により、オフライン時のデータも自動同期
+
+### 技術詳細
+- **キャッシュ戦略**: 複数の戦略を組み合わせた最適化
+- **オフライン対応**: IndexedDBとService Workerの連携
+- **PWA機能**: マニフェストファイルとアイコンセット
+- **更新管理**: 自動更新チェックとユーザー通知
+
+### 今後の改善点
+1. WebSocketによるリアルタイム同期
+2. より高度なキャッシュ管理戦略
+3. プッシュ通知サーバーの実装
+4. オフラインファースト設計の強化
