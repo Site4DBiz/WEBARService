@@ -9,11 +9,14 @@ export const ALLOWED_FILE_TYPES = {
     mimeTypes: ['image/jpeg', 'image/png', 'image/webp'],
   },
   MODEL: {
-    extensions: ['.glb', '.gltf'],
+    extensions: ['.glb', '.gltf', '.fbx', '.obj'],
     mimeTypes: [
       'model/gltf-binary',
       'model/gltf+json',
       'application/octet-stream', // GLB files often have this MIME type
+      'application/x-fbx', // FBX files
+      'text/plain', // OBJ files
+      'model/obj', // OBJ files alternative
     ],
   },
 }
@@ -23,9 +26,10 @@ interface ValidationResult {
   error?: string
 }
 
-export function validateFile(file: File, type: 'MARKER' | 'MODEL'): ValidationResult {
-  const maxSize = MAX_FILE_SIZE[type]
-  const allowedTypes = ALLOWED_FILE_TYPES[type]
+export function validateFile(file: File, type: 'marker' | 'model' | 'MARKER' | 'MODEL'): ValidationResult {
+  const upperType = type.toUpperCase() as 'MARKER' | 'MODEL'
+  const maxSize = MAX_FILE_SIZE[upperType]
+  const allowedTypes = ALLOWED_FILE_TYPES[upperType]
 
   // Check file size
   if (file.size > maxSize) {

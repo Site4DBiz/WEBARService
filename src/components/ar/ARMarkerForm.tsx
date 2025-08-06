@@ -1,10 +1,20 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, Image, AlertCircle, Check, Loader2, Info } from 'lucide-react'
-import { validateImage, generateUniqueFilename } from '@/utils/file-validation'
+import { Upload, Image, AlertCircle, Check, Loader2, Info, Cube, Eye, X } from 'lucide-react'
+import { validateImage, validateFile, generateUniqueFilename } from '@/utils/file-validation'
 import { createClient } from '@/lib/supabase/client'
+import dynamic from 'next/dynamic'
+
+const ModelViewer = dynamic(() => import('../3d/ModelViewer'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
+      <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
+    </div>
+  ),
+})
 
 interface ARMarkerFormData {
   name: string
@@ -15,6 +25,12 @@ interface ARMarkerFormData {
   markerImage: File | null
   targetWidth: number
   targetHeight: number
+  modelFile: File | null
+  modelScale: number
+  modelPosition: { x: number; y: number; z: number }
+  modelRotation: { x: number; y: number; z: number }
+  enableAnimation: boolean
+  enableInteraction: boolean
 }
 
 interface MarkerQuality {
@@ -41,9 +57,51 @@ export function ARMarkerForm() {
     markerImage: null,
     targetWidth: 1,
     targetHeight: 1,
+    modelFile: null,
+    modelScale: 1,
+    modelPosition: { x: 0, y: 0, z: 0 },
+    modelRotation: { x: 0, y: 0, z: 0 },
+    enableAnimation: true,
+    enableInteraction: true,
   })
 
+  const [modelPreview, setModelPreview] = useState<string | null>(null)
+  const [showModelPreview, setShowModelPreview] = useState(false)
+  const modelInputRef = useRef<HTMLInputElement>(null)
+
   const [tagInput, setTagInput] = useState('')
+
+  const handleModelChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setError(null)
+
+    // バリデーション
+    const validation = validateFile(file, 'model')
+    if (!validation.isValid) {
+      setError(validation.error || '3Dモデルの検証に失敗しました')
+      return
+    }
+
+    setFormData((prev) => ({ ...prev, modelFile: file }))
+
+    // プレビュー用URLを生成
+    const url = URL.createObjectURL(file)
+    setModelPreview(url)
+  }
+
+  const removeModel = () => {
+    setFormData((prev) => ({ ...prev, modelFile: null }))
+    if (modelPreview) {
+      URL.revokeObjectURL(modelPreview)
+      setModelPreview(null)
+    }
+    setShowModelPreview(false)
+    if (modelInputRef.current) {
+      modelInputRef.current.value = ''
+    }
+  }
 
   const categories = [
     { value: 'general', label: '一般' },
@@ -170,6 +228,26 @@ export function ARMarkerForm() {
         data: { publicUrl: markerUrl },
       } = supabase.storage.from('ar-markers').getPublicUrl(markerPath)
 
+      // 3Dモデルをアップロード（存在する場合）
+      let modelUrl = null
+      if (formData.modelFile) {
+        const modelFilename = generateUniqueFilename(formData.modelFile.name)
+        const modelPath = `${user.id}/models/${modelFilename}`
+
+        const { error: modelUploadError } = await supabase.storage
+          .from('ar-models')
+          .upload(modelPath, formData.modelFile)
+
+        if (modelUploadError) {
+          console.error('3Dモデルのアップロードエラー:', modelUploadError)
+        } else {
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from('ar-models').getPublicUrl(modelPath)
+          modelUrl = publicUrl
+        }
+      }
+
       // データベースに保存
       const { error: dbError } = await supabase.from('ar_markers').insert({
         user_id: user.id,
@@ -187,6 +265,14 @@ export function ARMarkerForm() {
           fileSize: formData.markerImage.size,
           mimeType: formData.markerImage.type,
           uploadedAt: new Date().toISOString(),
+          modelUrl: modelUrl,
+          modelSettings: formData.modelFile ? {
+            scale: formData.modelScale,
+            position: formData.modelPosition,
+            rotation: formData.modelRotation,
+            enableAnimation: formData.enableAnimation,
+            enableInteraction: formData.enableInteraction,
+          } : null,
         },
       })
 
@@ -406,6 +492,146 @@ export function ARMarkerForm() {
         </div>
       </div>
 
+      {/* 3Dモデル設定 */}
+      <div className="bg-white rounded-lg shadow-sm p-6">
+        <h3 className="text-lg font-semibold mb-4">3Dモデル</h3>
+
+        <div className="space-y-4">
+          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+            <input
+              ref={modelInputRef}
+              type="file"
+              accept=".glb,.gltf,.fbx,.obj"
+              onChange={handleModelChange}
+              className="hidden"
+              id="model-upload"
+            />
+            <label htmlFor="model-upload" className="cursor-pointer">
+              {formData.modelFile ? (
+                <div className="space-y-4">
+                  <div className="flex items-center justify-center gap-4">
+                    <Cube className="h-8 w-8 text-blue-500" />
+                    <div className="text-left">
+                      <p className="font-medium">{formData.modelFile.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {(formData.modelFile.size / 1024 / 1024).toFixed(2)} MB
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 justify-center">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        setShowModelPreview(true)
+                      }}
+                      className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors flex items-center gap-2"
+                    >
+                      <Eye className="h-4 w-4" />
+                      プレビュー
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
+                        removeModel()
+                      }}
+                      className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      削除
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  <Cube className="mx-auto h-12 w-12 text-gray-400" />
+                  <p className="text-gray-600">
+                    クリックまたはドラッグ＆ドロップで3Dモデルをアップロード
+                  </p>
+                  <p className="text-xs text-gray-500">GLB, GLTF, FBX, OBJ (最大50MB)</p>
+                </div>
+              )}
+            </label>
+          </div>
+
+          {formData.modelFile && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  スケール
+                </label>
+                <input
+                  type="number"
+                  value={formData.modelScale}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      modelScale: parseFloat(e.target.value) || 1,
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  step="0.1"
+                  min="0.1"
+                  max="10"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  位置 (Y軸)
+                </label>
+                <input
+                  type="number"
+                  value={formData.modelPosition.y}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      modelPosition: {
+                        ...prev.modelPosition,
+                        y: parseFloat(e.target.value) || 0,
+                      },
+                    }))
+                  }
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  step="0.1"
+                  min="-5"
+                  max="5"
+                />
+              </div>
+
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.enableAnimation}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, enableAnimation: e.target.checked }))
+                    }
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">アニメーションを有効化</span>
+                </label>
+              </div>
+
+              <div>
+                <label className="flex items-center">
+                  <input
+                    type="checkbox"
+                    checked={formData.enableInteraction}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, enableInteraction: e.target.checked }))
+                    }
+                    className="mr-2"
+                  />
+                  <span className="text-sm text-gray-700">インタラクションを有効化</span>
+                </label>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
       {/* AR設定 */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <h3 className="text-lg font-semibold mb-4">AR設定</h3>
@@ -475,6 +701,33 @@ export function ARMarkerForm() {
         <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg flex items-center">
           <Check className="h-5 w-5 mr-2" />
           マーカーが正常に登録されました。リダイレクト中...
+        </div>
+      )}
+
+      {/* 3Dモデルプレビューモーダル */}
+      {showModelPreview && modelPreview && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold">3Dモデルプレビュー</h3>
+              <button
+                onClick={() => setShowModelPreview(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4" style={{ height: '500px' }}>
+              <ModelViewer
+                modelUrl={modelPreview}
+                scale={formData.modelScale}
+                position={formData.modelPosition}
+                rotation={formData.modelRotation}
+                enableAnimation={formData.enableAnimation}
+                enableInteraction={formData.enableInteraction}
+              />
+            </div>
+          </div>
         </div>
       )}
 
