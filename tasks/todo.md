@@ -20,10 +20,10 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 - [x] 認証ヘルパーの実装
 
 ### 1.3 MindAR統合
-- [ ] MindARライブラリの導入
-- [ ] TypeScript型定義の作成
-- [ ] Webpackの設定調整（必要に応じて）
-- [ ] 基本的なARシーンのセットアップ
+- [x] MindARライブラリの導入
+- [x] TypeScript型定義の作成
+- [x] Webpackの設定調整（必要に応じて）
+- [x] 基本的なARシーンのセットアップ
 
 ## 📋 フェーズ2: データベース設計と実装
 

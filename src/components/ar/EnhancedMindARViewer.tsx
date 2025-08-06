@@ -157,7 +157,7 @@ export const EnhancedMindARViewer: React.FC<EnhancedMindARViewerProps> = ({
         modelLoaderRef.current.dispose()
       }
     }
-  }, [isReady, mindAR, content, enableLighting])
+  }, [isReady, mindAR, content, enableLighting, addAnchor, onTargetFound, onTargetLost])
 
   const handleStart = async () => {
     if (!isReady) return

@@ -75,7 +75,7 @@ export const MindARViewer: React.FC<MindARViewerProps> = ({
         mindAR.renderer.setAnimationLoop(null)
       }
     }
-  }, [isReady, mindAR])
+  }, [isReady, mindAR, addAnchor, onTargetFound, onTargetLost])
 
   const handleStart = async () => {
     if (!isReady) return

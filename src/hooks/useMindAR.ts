@@ -105,7 +105,15 @@ export const useMindAR = (config: MindARConfig) => {
       const scripts = document.querySelectorAll('script[src*="mind-ar"]')
       scripts.forEach((script) => script.remove())
     }
-  }, [config.type, config.imageTargetSrc])
+  }, [
+    config.type,
+    config.imageTargetSrc,
+    config.maxTrack,
+    config.filterMinCF,
+    config.filterBeta,
+    config.warmupTolerance,
+    config.missTolerance,
+  ])
 
   const start = async () => {
     if (!mindARRef.current) {
