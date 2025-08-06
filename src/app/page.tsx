@@ -73,7 +73,7 @@ export default async function HomePage() {
           </div>
         </div>
 
-        <div className="flex gap-4 justify-center">
+        <div className="flex gap-4 justify-center mb-8">
           <Link
             href="/ar"
             className="px-8 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transform transition hover:scale-105 shadow-lg"
@@ -86,9 +86,33 @@ export default async function HomePage() {
           >
             Enhanced AR
           </Link>
-          <button className="px-8 py-3 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transform transition hover:scale-105 shadow-lg">
-            Learn More
-          </button>
+          <Link
+            href="/ar-contents"
+            className="px-8 py-3 bg-green-600 text-white rounded-lg font-semibold hover:bg-green-700 transform transition hover:scale-105 shadow-lg"
+          >
+            Browse AR Gallery
+          </Link>
+        </div>
+        
+        <div className="flex gap-4 justify-center">
+          <Link
+            href="/ar-markers"
+            className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+          >
+            Manage Markers
+          </Link>
+          <Link
+            href="/statistics"
+            className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+          >
+            View Statistics
+          </Link>
+          <Link
+            href="/analytics"
+            className="px-6 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-100 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition"
+          >
+            Analytics
+          </Link>
         </div>
       </div>
     </main>
