@@ -153,19 +153,35 @@ export default async function DashboardPage() {
             )}
 
             {canAccessAdmin && (
-              <Link href="/admin" className="block">
-                <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="px-4 py-5 sm:p-6">
-                    <div className="flex items-center">
-                      <Shield className="h-8 w-8 text-red-500 mr-3" />
-                      <div>
-                        <dt className="text-sm font-medium text-gray-500">Admin Panel</dt>
-                        <dd className="mt-1 text-lg font-semibold text-gray-900">Manage</dd>
+              <>
+                <Link href="/admin" className="block">
+                  <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="px-4 py-5 sm:p-6">
+                      <div className="flex items-center">
+                        <Shield className="h-8 w-8 text-red-500 mr-3" />
+                        <div>
+                          <dt className="text-sm font-medium text-gray-500">Admin Panel</dt>
+                          <dd className="mt-1 text-lg font-semibold text-gray-900">Manage</dd>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+                
+                <Link href="/admin/users" className="block">
+                  <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="px-4 py-5 sm:p-6">
+                      <div className="flex items-center">
+                        <Users className="h-8 w-8 text-indigo-500 mr-3" />
+                        <div>
+                          <dt className="text-sm font-medium text-gray-500">Users</dt>
+                          <dd className="mt-1 text-lg font-semibold text-gray-900">Manage</dd>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </>
             )}
 
             {(canAccessAdmin || userRole === 'moderator') && (
