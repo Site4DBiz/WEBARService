@@ -12,12 +12,15 @@ import type { User } from '@supabase/supabase-js'
  */
 export async function getCurrentUser(): Promise<User | null> {
   const supabase = await createClient()
-  const { data: { user }, error } = await supabase.auth.getUser()
-  
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser()
+
   if (error || !user) {
     return null
   }
-  
+
   return user
 }
 
@@ -28,14 +31,12 @@ export async function getCurrentUser(): Promise<User | null> {
  */
 export async function requireAuth(redirectTo?: string): Promise<User> {
   const user = await getCurrentUser()
-  
+
   if (!user) {
-    const loginUrl = redirectTo 
-      ? `/login?redirectTo=${encodeURIComponent(redirectTo)}`
-      : '/login'
+    const loginUrl = redirectTo ? `/login?redirectTo=${encodeURIComponent(redirectTo)}` : '/login'
     redirect(loginUrl)
   }
-  
+
   return user
 }
 
@@ -45,12 +46,12 @@ export async function requireAuth(redirectTo?: string): Promise<User> {
 export async function signOut() {
   const supabase = await createClient()
   const { error } = await supabase.auth.signOut()
-  
+
   if (error) {
     console.error('Error signing out:', error)
     throw error
   }
-  
+
   redirect('/login')
 }
 
@@ -61,16 +62,16 @@ export async function signOut() {
  */
 export async function signInWithEmail(email: string, password: string) {
   const supabase = await createClient()
-  
+
   const { data, error } = await supabase.auth.signInWithPassword({
     email,
     password,
   })
-  
+
   if (error) {
     return { user: null, error: error.message }
   }
-  
+
   return { user: data.user, error: null }
 }
 
@@ -81,12 +82,12 @@ export async function signInWithEmail(email: string, password: string) {
  * @param metadata - Additional user metadata
  */
 export async function signUpWithEmail(
-  email: string, 
+  email: string,
   password: string,
   metadata?: { full_name?: string; username?: string }
 ) {
   const supabase = await createClient()
-  
+
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -94,11 +95,11 @@ export async function signUpWithEmail(
       data: metadata,
     },
   })
-  
+
   if (error) {
     return { user: null, error: error.message }
   }
-  
+
   return { user: data.user, error: null }
 }
 
@@ -108,15 +109,15 @@ export async function signUpWithEmail(
  */
 export async function resetPassword(email: string) {
   const supabase = await createClient()
-  
+
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/reset-password`,
   })
-  
+
   if (error) {
     return { success: false, error: error.message }
   }
-  
+
   return { success: true, error: null }
 }
 
@@ -126,15 +127,15 @@ export async function resetPassword(email: string) {
  */
 export async function updatePassword(newPassword: string) {
   const supabase = await createClient()
-  
+
   const { error } = await supabase.auth.updateUser({
     password: newPassword,
   })
-  
+
   if (error) {
     return { success: false, error: error.message }
   }
-  
+
   return { success: true, error: null }
 }
 
@@ -144,18 +145,14 @@ export async function updatePassword(newPassword: string) {
  */
 export async function getUserProfile(userId: string) {
   const supabase = await createClient()
-  
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', userId)
-    .single()
-  
+
+  const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single()
+
   if (error) {
     console.error('Error fetching profile:', error)
     return null
   }
-  
+
   return data
 }
 
@@ -173,7 +170,7 @@ export async function updateUserProfile(
   }
 ) {
   const supabase = await createClient()
-  
+
   const { data, error } = await supabase
     .from('profiles')
     .update({
@@ -183,11 +180,11 @@ export async function updateUserProfile(
     .eq('id', userId)
     .select()
     .single()
-  
+
   if (error) {
     console.error('Error updating profile:', error)
     return { profile: null, error: error.message }
   }
-  
+
   return { profile: data, error: null }
 }

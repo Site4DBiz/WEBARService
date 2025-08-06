@@ -1,20 +1,14 @@
 /**
  * Supabase Database Type Definitions
- * 
+ *
  * These types will be generated from your Supabase database schema
  * You can generate them using the Supabase CLI:
  * npx supabase gen types typescript --project-id YOUR_PROJECT_ID > src/types/supabase.ts
- * 
+ *
  * For now, we'll define a basic structure that can be extended
  */
 
-export type Json =
-  | string
-  | number
-  | boolean
-  | null
-  | { [key: string]: Json | undefined }
-  | Json[]
+export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
 export interface Database {
   public: {
@@ -88,11 +82,11 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "ar_contents_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          }
+            foreignKeyName: 'ar_contents_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
         ]
       }
       ar_markers: {
@@ -128,11 +122,11 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "ar_markers_content_id_fkey"
-            columns: ["content_id"]
-            referencedRelation: "ar_contents"
-            referencedColumns: ["id"]
-          }
+            foreignKeyName: 'ar_markers_content_id_fkey'
+            columns: ['content_id']
+            referencedRelation: 'ar_contents'
+            referencedColumns: ['id']
+          },
         ]
       }
       access_logs: {
@@ -165,17 +159,17 @@ export interface Database {
         }
         Relationships: [
           {
-            foreignKeyName: "access_logs_content_id_fkey"
-            columns: ["content_id"]
-            referencedRelation: "ar_contents"
-            referencedColumns: ["id"]
+            foreignKeyName: 'access_logs_content_id_fkey'
+            columns: ['content_id']
+            referencedRelation: 'ar_contents'
+            referencedColumns: ['id']
           },
           {
-            foreignKeyName: "access_logs_user_id_fkey"
-            columns: ["user_id"]
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          }
+            foreignKeyName: 'access_logs_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
         ]
       }
     }

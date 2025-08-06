@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import React, { useEffect, useRef, useState } from 'react';
-import * as THREE from 'three';
-import { useMindAR } from '@/hooks/useMindAR';
+import React, { useEffect, useRef, useState } from 'react'
+import * as THREE from 'three'
+import { useMindAR } from '@/hooks/useMindAR'
 
 interface MindARViewerProps {
-  type: 'image' | 'face';
-  targetUrl?: string;
-  onTargetFound?: () => void;
-  onTargetLost?: () => void;
-  children?: React.ReactNode;
+  type: 'image' | 'face'
+  targetUrl?: string
+  onTargetFound?: () => void
+  onTargetLost?: () => void
+  children?: React.ReactNode
 }
 
 export const MindARViewer: React.FC<MindARViewerProps> = ({
@@ -19,84 +19,75 @@ export const MindARViewer: React.FC<MindARViewerProps> = ({
   onTargetLost,
   children,
 }) => {
-  const [isStarted, setIsStarted] = useState(false);
-  const sceneRef = useRef<THREE.Scene | null>(null);
-  const anchorRef = useRef<any>(null);
-  
-  const { 
-    containerRef, 
-    mindAR, 
-    isLoading, 
-    isReady, 
-    error, 
-    start, 
-    stop,
-    addAnchor 
-  } = useMindAR({
+  const [isStarted, setIsStarted] = useState(false)
+  const sceneRef = useRef<THREE.Scene | null>(null)
+  const anchorRef = useRef<any>(null)
+
+  const { containerRef, mindAR, isLoading, isReady, error, start, stop, addAnchor } = useMindAR({
     type,
     imageTargetSrc: targetUrl,
     maxTrack: 1,
-  });
+  })
 
   useEffect(() => {
-    if (!isReady || !mindAR) return;
+    if (!isReady || !mindAR) return
 
     const setupScene = () => {
-      sceneRef.current = mindAR.scene;
+      sceneRef.current = mindAR.scene
 
-      const anchor = addAnchor(0);
+      const anchor = addAnchor(0)
       if (anchor) {
-        anchorRef.current = anchor;
+        anchorRef.current = anchor
 
-        const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2);
-        const material = new THREE.MeshBasicMaterial({ 
+        const geometry = new THREE.BoxGeometry(0.2, 0.2, 0.2)
+        const material = new THREE.MeshBasicMaterial({
           color: 0x00ff00,
           wireframe: true,
-        });
-        const cube = new THREE.Mesh(geometry, material);
-        anchor.group.add(cube);
+        })
+        const cube = new THREE.Mesh(geometry, material)
+        anchor.group.add(cube)
 
         if (onTargetFound) {
-          anchor.onTargetFound = onTargetFound;
+          anchor.onTargetFound = onTargetFound
         }
         if (onTargetLost) {
-          anchor.onTargetLost = onTargetLost;
+          anchor.onTargetLost = onTargetLost
         }
 
-        const clock = new THREE.Clock();
+        const clock = new THREE.Clock()
         const animate = () => {
-          const delta = clock.getDelta();
-          cube.rotation.x += delta;
-          cube.rotation.y += delta * 2;
-        };
+          const delta = clock.getDelta()
+          cube.rotation.x += delta
+          cube.rotation.y += delta * 2
+        }
 
         mindAR.renderer.setAnimationLoop(() => {
-          animate();
-          mindAR.renderer.render(mindAR.scene, mindAR.camera);
-        });
+          animate()
+          mindAR.renderer.render(mindAR.scene, mindAR.camera)
+        })
       }
-    };
+    }
 
-    setupScene();
+    setupScene()
 
     return () => {
       if (mindAR && mindAR.renderer) {
-        mindAR.renderer.setAnimationLoop(null);
+        mindAR.renderer.setAnimationLoop(null)
       }
-    };
-  }, [isReady, mindAR]);
+    }
+  }, [isReady, mindAR])
 
   const handleStart = async () => {
-    if (!isReady) return;
-    
-    setIsStarted(true);
-    await start();
-  };
+    if (!isReady) return
+
+    setIsStarted(true)
+    await start()
+  }
 
   const handleStop = () => {
-    setIsStarted(false);
-    stop();
-  };
+    setIsStarted(false)
+    stop()
+  }
 
   if (error) {
     return (
@@ -106,17 +97,17 @@ export const MindARViewer: React.FC<MindARViewerProps> = ({
           <p className="text-gray-700">{error}</p>
         </div>
       </div>
-    );
+    )
   }
 
   return (
     <div className="relative w-full h-screen bg-black">
-      <div 
-        ref={containerRef} 
+      <div
+        ref={containerRef}
         className="absolute inset-0"
         style={{ width: '100%', height: '100%' }}
       />
-      
+
       {isLoading && (
         <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-75 z-20">
           <div className="text-center">
@@ -152,7 +143,7 @@ export const MindARViewer: React.FC<MindARViewerProps> = ({
         <div className="absolute bottom-4 left-4 right-4 z-10">
           <div className="bg-white bg-opacity-90 rounded-lg p-4 shadow-lg">
             <p className="text-sm text-gray-700">
-              {type === 'image' 
+              {type === 'image'
                 ? 'Point your camera at the target image'
                 : 'Position your face in the camera view'}
             </p>
@@ -160,5 +151,5 @@ export const MindARViewer: React.FC<MindARViewerProps> = ({
         </div>
       )}
     </div>
-  );
-};
+  )
+}

@@ -18,21 +18,19 @@ export async function uploadFile(
 ): Promise<{ url: string | null; error: string | null }> {
   const supabase = createClient()
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .upload(path, file, {
-      cacheControl: '3600',
-      upsert: false,
-    })
+  const { data, error } = await supabase.storage.from(bucket).upload(path, file, {
+    cacheControl: '3600',
+    upsert: false,
+  })
 
   if (error) {
     console.error('Error uploading file:', error)
     return { url: null, error: error.message }
   }
 
-  const { data: { publicUrl } } = supabase.storage
-    .from(bucket)
-    .getPublicUrl(data.path)
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(bucket).getPublicUrl(data.path)
 
   return { url: publicUrl, error: null }
 }
@@ -48,9 +46,7 @@ export async function deleteFile(
 ): Promise<{ success: boolean; error: string | null }> {
   const supabase = createClient()
 
-  const { error } = await supabase.storage
-    .from(bucket)
-    .remove([path])
+  const { error } = await supabase.storage.from(bucket).remove([path])
 
   if (error) {
     console.error('Error deleting file:', error)
@@ -73,9 +69,7 @@ export async function getSignedUrl(
 ): Promise<{ url: string | null; error: string | null }> {
   const supabase = createClient()
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrl(path, expiresIn)
+  const { data, error } = await supabase.storage.from(bucket).createSignedUrl(path, expiresIn)
 
   if (error) {
     console.error('Error creating signed URL:', error)
@@ -102,13 +96,11 @@ export async function listFiles(
 ): Promise<{ files: any[] | null; error: string | null }> {
   const supabase = createClient()
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .list(path, {
-      limit: options?.limit || 100,
-      offset: options?.offset || 0,
-      search: options?.search,
-    })
+  const { data, error } = await supabase.storage.from(bucket).list(path, {
+    limit: options?.limit || 100,
+    offset: options?.offset || 0,
+    search: options?.search,
+  })
 
   if (error) {
     console.error('Error listing files:', error)
@@ -188,15 +180,11 @@ export function validateFileSize(file: File, maxSize: number): boolean {
  * @param fileName - The original file name
  * @param folder - Optional folder path
  */
-export function generateFilePath(
-  userId: string,
-  fileName: string,
-  folder?: string
-): string {
+export function generateFilePath(userId: string, fileName: string, folder?: string): string {
   const timestamp = Date.now()
   const cleanFileName = fileName.replace(/[^a-zA-Z0-9.-]/g, '_')
   const basePath = folder ? `${folder}/${userId}` : userId
-  
+
   return `${basePath}/${timestamp}_${cleanFileName}`
 }
 

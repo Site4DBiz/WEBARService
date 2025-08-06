@@ -6,17 +6,17 @@ export async function GET() {
     // Check environment variables
     const hasSupabaseUrl = !!process.env.NEXT_PUBLIC_SUPABASE_URL
     const hasSupabaseKey = !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-    
+
     // Try to create a Supabase client
     let supabaseStatus = 'not_configured'
     let databaseConnected = false
-    
+
     if (hasSupabaseUrl && hasSupabaseKey) {
       try {
         const supabase = await createClient()
         // Try a simple query to check database connection
         const { error } = await supabase.from('profiles').select('count').limit(0)
-        
+
         if (!error) {
           supabaseStatus = 'connected'
           databaseConnected = true
@@ -33,7 +33,7 @@ export async function GET() {
         console.error('Failed to create Supabase client:', err)
       }
     }
-    
+
     return NextResponse.json({
       status: 'ok',
       timestamp: new Date().toISOString(),
@@ -46,22 +46,23 @@ export async function GET() {
         hasUrl: hasSupabaseUrl,
         hasKey: hasSupabaseKey,
         databaseConnected,
-        message: supabaseStatus === 'not_configured' 
-          ? 'Please configure your Supabase environment variables in .env.local'
-          : supabaseStatus === 'connected_not_initialized'
-          ? 'Supabase is connected but database tables are not initialized. Run the migration script.'
-          : supabaseStatus === 'connected'
-          ? 'Supabase is properly configured and connected'
-          : 'There was an error connecting to Supabase. Check your configuration.'
-      }
+        message:
+          supabaseStatus === 'not_configured'
+            ? 'Please configure your Supabase environment variables in .env.local'
+            : supabaseStatus === 'connected_not_initialized'
+              ? 'Supabase is connected but database tables are not initialized. Run the migration script.'
+              : supabaseStatus === 'connected'
+                ? 'Supabase is properly configured and connected'
+                : 'There was an error connecting to Supabase. Check your configuration.',
+      },
     })
   } catch (error) {
     console.error('Health check error:', error)
     return NextResponse.json(
-      { 
+      {
         status: 'error',
         message: 'Health check failed',
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : 'Unknown error',
       },
       { status: 500 }
     )
