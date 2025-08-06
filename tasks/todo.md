@@ -104,7 +104,7 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 - [x] キャッシュ戦略の実装
 
 ### 6.2 AR最適化
-- [ ] 3Dモデルの圧縮とLOD
+- [x] 3Dモデルの圧縮とLOD
 - [ ] テクスチャ最適化
 - [x] マーカー検出精度の改善
 - [ ] メモリ使用量の最適化
@@ -189,6 +189,34 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 最終更新日: 2025/08/06
 
 ## 📝 更新履歴
+
+### 2025/08/06 (17)
+- 3Dモデルの圧縮とLODの実装完了
+  - ModelCompressorクラス（/src/lib/ar/ModelCompressor.ts）
+    - DRACO圧縮対応
+    - メッシュ最適化（SimplifyModifier使用）
+    - テクスチャ圧縮（WebP/Basis形式対応）
+    - マテリアル最適化
+    - 頂点データのQuantization
+  - LODManagerクラス（/src/lib/ar/LODManager.ts）
+    - 自動LOD生成機能
+    - 距離ベースの品質調整
+    - 動的パフォーマンス調整（FPSベース）
+    - モバイル最適化プリセット
+    - カリング距離設定
+  - UIコンポーネント
+    - ModelCompressionSettings: 圧縮設定UI
+    - LODSettings: LOD設定UI
+  - ModelLoaderクラスへの統合
+    - 圧縮・LOD機能の追加
+    - 新メソッド: compressModel、createLOD、updateLODs等
+  - テストページ（/ar/test-compression-lod）
+    - 3Dモデルビューアー
+    - リアルタイム圧縮・LOD設定
+    - パフォーマンス統計表示
+  - 依存ライブラリ追加
+    - meshoptimizer: メッシュ最適化
+    - three-stdlib: Three.js拡張機能
 
 ### 2025/08/06 (16)
 - Service Workerの実装完了

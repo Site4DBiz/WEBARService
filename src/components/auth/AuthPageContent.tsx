@@ -6,7 +6,7 @@ import { createClient } from '@/lib/supabase/client'
 import { createProfile } from '@/lib/api/profiles'
 import AuthForm, { AuthFormData } from '@/components/auth/AuthForm'
 import SocialAuth from '@/components/auth/SocialAuth'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/Tabs'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default function AuthPageContent() {
   const [error, setError] = useState<string | null>(null)

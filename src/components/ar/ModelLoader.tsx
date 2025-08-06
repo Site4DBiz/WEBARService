@@ -8,6 +8,8 @@ import { DRACOLoader } from 'three/examples/jsm/loaders/DRACOLoader.js'
 import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js'
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
 import { AnimationManager } from '@/lib/ar/AnimationManager'
+import { ModelCompressor, CompressionOptions, CompressionResult } from '@/lib/ar/ModelCompressor'
+import { LODManager, LODConfiguration } from '@/lib/ar/LODManager'
 
 export interface ModelConfig {
   url: string
@@ -21,11 +23,19 @@ export interface ModelConfig {
   onProgress?: (progress: number) => void
   castShadow?: boolean
   receiveShadow?: boolean
+  // Compression options
+  compress?: boolean
+  compressionOptions?: CompressionOptions
+  // LOD options
+  useLOD?: boolean
+  lodConfig?: Partial<LODConfiguration>
 }
 
 export interface ModelLoadResult {
   model: THREE.Group
   animationManager?: AnimationManager
+  compressionResult?: CompressionResult
+  lod?: THREE.LOD
 }
 
 export class ModelLoader {
@@ -38,13 +48,17 @@ export class ModelLoader {
   private mixer: THREE.AnimationMixer | null = null
   private modelCache: Map<string, THREE.Group> = new Map()
   private renderer: THREE.WebGLRenderer | null = null
+  private modelCompressor: ModelCompressor
+  private lodManager: LODManager
 
-  constructor(renderer?: THREE.WebGLRenderer) {
+  constructor(renderer?: THREE.WebGLRenderer, camera?: THREE.Camera, scene?: THREE.Scene) {
     this.gltfLoader = new GLTFLoader()
     this.fbxLoader = new FBXLoader()
     this.objLoader = new OBJLoader()
     this.mtlLoader = new MTLLoader()
     this.renderer = renderer || null
+    this.modelCompressor = new ModelCompressor()
+    this.lodManager = new LODManager(camera, scene)
 
     // Setup DRACO loader for compressed GLTF models
     this.setupDracoLoader()
@@ -79,10 +93,10 @@ export class ModelLoader {
     }
   }
 
-  async loadModel(config: ModelConfig): Promise<THREE.Group> {
+  async loadModel(config: ModelConfig): Promise<THREE.Group | THREE.LOD> {
     // Check cache first
     const cacheKey = `${config.url}_${JSON.stringify(config)}`
-    if (this.modelCache.has(cacheKey)) {
+    if (this.modelCache.has(cacheKey) && !config.useLOD) {
       const cachedModel = this.modelCache.get(cacheKey)!.clone()
       return cachedModel
     }
@@ -128,6 +142,23 @@ export class ModelLoader {
             if (config.receiveShadow !== undefined) child.receiveShadow = config.receiveShadow
           }
         })
+      }
+
+      // Apply compression if requested
+      if (config.compress) {
+        const compressionResult = await this.modelCompressor.compressModel(
+          model,
+          config.compressionOptions
+        )
+        model = compressionResult.model as THREE.Group
+        console.log('Compression result:', compressionResult)
+      }
+
+      // Create LOD if requested
+      if (config.useLOD) {
+        const lodId = `lod_${Date.now()}`
+        const lod = await this.lodManager.createLOD(lodId, model, config.lodConfig)
+        return lod
       }
 
       // Cache the model
@@ -313,6 +344,9 @@ export class ModelLoader {
     if (this.ktx2Loader) {
       this.ktx2Loader.dispose()
     }
+
+    this.modelCompressor.dispose()
+    this.lodManager.dispose()
   }
 
   clearCache() {
@@ -324,11 +358,16 @@ export class ModelLoader {
   }
 
   async loadModelWithAnimations(config: ModelConfig): Promise<ModelLoadResult> {
-    const model = await this.loadModel(config)
+    const modelOrLod = await this.loadModel(config)
+    
+    // Determine if we have a LOD or regular model
+    const isLOD = modelOrLod instanceof THREE.LOD
+    const model = isLOD ? (modelOrLod as THREE.LOD).levels[0].object as THREE.Group : modelOrLod as THREE.Group
 
     // Create animation manager if the model has animations
     const extension = config.url.split('.').pop()?.toLowerCase()
     let animationManager: AnimationManager | undefined
+    let compressionResult: CompressionResult | undefined
 
     if (extension === 'gltf' || extension === 'glb' || extension === 'fbx') {
       animationManager = new AnimationManager(model)
@@ -369,10 +408,45 @@ export class ModelLoader {
       }
     }
 
-    return {
-      model,
-      animationManager,
+    // Get compression result if compression was applied
+    if (config.compress) {
+      compressionResult = await this.modelCompressor.compressModel(
+        model,
+        config.compressionOptions
+      )
     }
+
+    return {
+      model: isLOD ? model : modelOrLod as THREE.Group,
+      animationManager,
+      compressionResult,
+      lod: isLOD ? modelOrLod as THREE.LOD : undefined
+    }
+  }
+
+  // New methods for compression and LOD management
+  async compressModel(model: THREE.Object3D, options?: CompressionOptions): Promise<CompressionResult> {
+    return await this.modelCompressor.compressModel(model, options)
+  }
+
+  async createLOD(id: string, model: THREE.Object3D, config?: Partial<LODConfiguration>): Promise<THREE.LOD> {
+    return await this.lodManager.createLOD(id, model, config)
+  }
+
+  updateLODs(): void {
+    this.lodManager.updateLODs()
+  }
+
+  getLODStatistics() {
+    return this.lodManager.getStatistics()
+  }
+
+  setCamera(camera: THREE.Camera): void {
+    this.lodManager.setCamera(camera)
+  }
+
+  setScene(scene: THREE.Scene): void {
+    this.lodManager.setScene(scene)
   }
 }
 
