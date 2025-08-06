@@ -240,6 +240,146 @@ export type Database = {
           },
         ]
       }
+      ar_markers: {
+        Row: {
+          id: string
+          user_id: string
+          name: string
+          description: string | null
+          category: string
+          tags: string[]
+          is_public: boolean
+          marker_image_url: string
+          marker_pattern_url: string | null
+          width: number
+          height: number
+          quality_score: number
+          metadata: Json
+          view_count: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          name: string
+          description?: string | null
+          category?: string
+          tags?: string[]
+          is_public?: boolean
+          marker_image_url: string
+          marker_pattern_url?: string | null
+          width?: number
+          height?: number
+          quality_score?: number
+          metadata?: Json
+          view_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          name?: string
+          description?: string | null
+          category?: string
+          tags?: string[]
+          is_public?: boolean
+          marker_image_url?: string
+          marker_pattern_url?: string | null
+          width?: number
+          height?: number
+          quality_score?: number
+          metadata?: Json
+          view_count?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ar_marker_usage: {
+        Row: {
+          id: string
+          marker_id: string
+          user_id: string | null
+          session_id: string | null
+          ip_address: string | null
+          user_agent: string | null
+          duration_seconds: number | null
+          detection_count: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          marker_id: string
+          user_id?: string | null
+          session_id?: string | null
+          ip_address?: string | null
+          user_agent?: string | null
+          duration_seconds?: number | null
+          detection_count?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          marker_id?: string
+          user_id?: string | null
+          session_id?: string | null
+          ip_address?: string | null
+          user_agent?: string | null
+          duration_seconds?: number | null
+          detection_count?: number
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'ar_marker_usage_marker_id_fkey'
+            columns: ['marker_id']
+            referencedRelation: 'ar_markers'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ar_marker_usage_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+        ]
+      }
+      ar_marker_favorites: {
+        Row: {
+          id: string
+          user_id: string
+          marker_id: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          marker_id: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          marker_id?: string
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'ar_marker_favorites_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'users'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ar_marker_favorites_marker_id_fkey'
+            columns: ['marker_id']
+            referencedRelation: 'ar_markers'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -256,6 +396,22 @@ export type Database = {
       can_update_role: {
         Args: Record<PropertyKey, never>
         Returns: boolean
+      }
+      increment_marker_view_count: {
+        Args: { marker_id: string }
+        Returns: void
+      }
+      get_popular_markers: {
+        Args: { limit_count?: number }
+        Returns: Array<{
+          id: string
+          name: string
+          description: string | null
+          marker_image_url: string
+          view_count: number
+          user_id: string
+          created_at: string
+        }>
       }
     }
     Enums: {

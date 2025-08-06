@@ -93,3 +93,16 @@ export function generateUniqueFileName(originalName: string, userId: string): st
 
   return `${userId}/${timestamp}_${random}_${nameWithoutExt}${extension}`
 }
+
+export function validateImage(file: File): ValidationResult {
+  return validateFile(file, 'MARKER')
+}
+
+export function generateUniqueFilename(filename: string): string {
+  const timestamp = Date.now()
+  const random = Math.random().toString(36).substring(2, 8)
+  const extension = '.' + filename.split('.').pop()?.toLowerCase()
+  const nameWithoutExt = sanitizeFileName(filename.replace(extension, ''))
+
+  return `${timestamp}_${random}_${nameWithoutExt}${extension}`
+}
