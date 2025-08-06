@@ -1,7 +1,8 @@
 'use client'
 
-import React, { useState } from 'react'
-import { MindARViewer } from '@/components/ar/MindARViewer'
+import React, { useState, Suspense } from 'react'
+import { LazyMindARViewer } from '@/components/ar/lazy/LazyMindARViewer'
+import { PageLoader } from '@/components/ui/LoadingSpinner'
 
 export default function ARPage() {
   const [arType, setArType] = useState<'image' | 'face'>('face')
@@ -20,12 +21,14 @@ export default function ARPage() {
 
   if (showAR) {
     return (
-      <MindARViewer
-        type={arType}
-        targetUrl={arType === 'image' ? '/targets.mind' : undefined}
-        onTargetFound={handleTargetFound}
-        onTargetLost={handleTargetLost}
-      />
+      <Suspense fallback={<PageLoader message="Initializing AR experience..." />}>
+        <LazyMindARViewer
+          type={arType}
+          targetUrl={arType === 'image' ? '/targets.mind' : undefined}
+          onTargetFound={handleTargetFound}
+          onTargetLost={handleTargetLost}
+        />
+      </Suspense>
     )
   }
 

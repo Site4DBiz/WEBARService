@@ -1,8 +1,9 @@
 'use client'
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import { useRouter } from 'next/navigation'
-import { ARMarkerForm } from '@/components/ar/ARMarkerForm'
+import { LazyARMarkerForm } from '@/components/ar/lazy/LazyARForms'
+import { ComponentLoader } from '@/components/ui/LoadingSpinner'
 import { ArrowLeft, Image } from 'lucide-react'
 
 export default function NewARMarkerPage() {
@@ -29,7 +30,9 @@ export default function NewARMarkerPage() {
         </div>
 
         {/* フォーム */}
-        <ARMarkerForm />
+        <Suspense fallback={<ComponentLoader message="Loading AR marker form..." />}>
+          <LazyARMarkerForm />
+        </Suspense>
 
         {/* ガイドライン */}
         <div className="mt-8 bg-gray-100 rounded-lg p-6">

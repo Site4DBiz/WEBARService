@@ -98,7 +98,7 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 
 ### 6.1 フロントエンド最適化
 - [x] 画像最適化（next/image）
-- [ ] コード分割とlazy loading
+- [x] コード分割とlazy loading
 - [ ] Service Workerの実装
 - [ ] PWA対応
 - [ ] キャッシュ戦略の実装
@@ -189,6 +189,24 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 最終更新日: 2025/08/06
 
 ## 📝 更新履歴
+
+### 2025/08/06 (15)
+- コード分割とlazy loadingの実装完了
+  - 共通ローディングコンポーネント（LoadingSpinner、PageLoader、ComponentLoader）の作成
+  - dynamic importを使用したlazy loading実装
+    - ARコンポーネント（MindARViewer、EnhancedMindARViewer、ARScene等）
+    - 3Dモデル関連（ModelViewer、ModelController、ModelLoader）
+    - アナリティクス関連（全アナリティクスコンポーネント）
+    - ダッシュボード関連（StatCard、Chart系コンポーネント）
+    - 管理画面関連（SystemStatus、UsersList、TagCategoryManager等）
+    - ARフォーム関連（ARMarkerForm、ARContentForm、ARContentsList等）
+  - Suspenseバウンダリの適切な配置
+  - ルートレベルでのコード分割（各ページでlazy loading適用）
+  - バンドルアナライザーの設定追加（@next/bundle-analyzer）
+  - package.jsonにbuild:analyzeスクリプト追加
+  - 対象ファイル：
+    - 新規作成：6つのlazy loadingラッパーファイル、LoadingSpinner.tsx
+    - 更新：ar/page.tsx、analytics/page.tsx、statistics/page.tsx、ar-markers/new/page.tsx、dashboard/ar-contents/page.tsx、next.config.ts、package.json
 
 ### 2025/08/06 (14)
 - 画像最適化（next/image）の実装完了

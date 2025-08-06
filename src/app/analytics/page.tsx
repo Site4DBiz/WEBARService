@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense, lazy } from 'react'
 import {
   Users,
   TrendingUp,
@@ -18,12 +18,15 @@ import {
   PieChart,
   Brain,
 } from 'lucide-react'
-import { CohortAnalysis } from '@/components/analytics/CohortAnalysis'
-import { PredictiveAnalytics } from '@/components/analytics/PredictiveAnalytics'
-import { CustomReportBuilder } from '@/components/analytics/CustomReportBuilder'
-import { BehaviorAnalysis } from '@/components/analytics/BehaviorAnalysis'
-import { AnomalyDetection } from '@/components/analytics/AnomalyDetection'
-import { AnalyticsInsights } from '@/components/analytics/AnalyticsInsights'
+import { ComponentLoader } from '@/components/ui/LoadingSpinner'
+
+// Lazy load heavy analytics components
+const CohortAnalysis = lazy(() => import('@/components/analytics/CohortAnalysis').then(mod => ({ default: mod.CohortAnalysis })))
+const PredictiveAnalytics = lazy(() => import('@/components/analytics/PredictiveAnalytics').then(mod => ({ default: mod.PredictiveAnalytics })))
+const CustomReportBuilder = lazy(() => import('@/components/analytics/CustomReportBuilder').then(mod => ({ default: mod.CustomReportBuilder })))
+const BehaviorAnalysis = lazy(() => import('@/components/analytics/BehaviorAnalysis').then(mod => ({ default: mod.BehaviorAnalysis })))
+const AnomalyDetection = lazy(() => import('@/components/analytics/AnomalyDetection').then(mod => ({ default: mod.AnomalyDetection })))
+const AnalyticsInsights = lazy(() => import('@/components/analytics/AnalyticsInsights').then(mod => ({ default: mod.AnalyticsInsights })))
 
 interface AnalyticsTab {
   id: string
@@ -176,17 +179,19 @@ export default function AnalyticsPage() {
 
         {/* Tab Content */}
         <div className="space-y-6">
-          {activeTab === 'insights' && <AnalyticsInsights dateRange={dateRange} />}
+          <Suspense fallback={<ComponentLoader message="Loading analytics data..." />}>
+            {activeTab === 'insights' && <AnalyticsInsights dateRange={dateRange} />}
 
-          {activeTab === 'cohort' && <CohortAnalysis dateRange={dateRange} />}
+            {activeTab === 'cohort' && <CohortAnalysis dateRange={dateRange} />}
 
-          {activeTab === 'behavior' && <BehaviorAnalysis dateRange={dateRange} />}
+            {activeTab === 'behavior' && <BehaviorAnalysis dateRange={dateRange} />}
 
-          {activeTab === 'predictive' && <PredictiveAnalytics dateRange={dateRange} />}
+            {activeTab === 'predictive' && <PredictiveAnalytics dateRange={dateRange} />}
 
-          {activeTab === 'anomaly' && <AnomalyDetection dateRange={dateRange} />}
+            {activeTab === 'anomaly' && <AnomalyDetection dateRange={dateRange} />}
 
-          {activeTab === 'custom' && <CustomReportBuilder />}
+            {activeTab === 'custom' && <CustomReportBuilder />}
+          </Suspense>
         </div>
 
         {/* Quick Actions */}

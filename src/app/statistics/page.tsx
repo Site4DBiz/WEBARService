@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import {
   Users,
   FileText,
@@ -12,13 +12,16 @@ import {
   BarChart3,
   Settings,
 } from 'lucide-react'
-import { AnimatedStatCard } from '@/components/dashboard/AnimatedStatCard'
-import { ComparisonChart } from '@/components/dashboard/ComparisonChart'
-import { ActivityChart } from '@/components/dashboard/ActivityChart'
-import { RealtimeMetrics } from '@/components/dashboard/RealtimeMetrics'
+import { ComponentLoader } from '@/components/ui/LoadingSpinner'
+import {
+  LazyAnimatedStatCard,
+  LazyComparisonChart,
+  LazyActivityChart,
+  LazyRealtimeMetrics,
+  LazyInteractiveFilters,
+  LazyDrilldownModal
+} from '@/components/dashboard/lazy/LazyDashboard'
 import { ExportButton } from '@/components/dashboard/ExportButton'
-import { InteractiveFilters } from '@/components/dashboard/InteractiveFilters'
-import { DrilldownModal } from '@/components/dashboard/DrilldownModal'
 
 interface DashboardMetrics {
   total_users: number
@@ -224,12 +227,16 @@ export default function StatisticsPage() {
 
         {/* Interactive Filters */}
         <div className="mb-6">
-          <InteractiveFilters onFilterChange={handleFilterChange} initialFilters={filters} />
+          <Suspense fallback={<ComponentLoader message="Loading filters..." />}>
+            <LazyInteractiveFilters onFilterChange={handleFilterChange} initialFilters={filters} />
+          </Suspense>
         </div>
 
         {/* Realtime Metrics */}
         <div className="mb-8">
-          <RealtimeMetrics />
+          <Suspense fallback={<ComponentLoader message="Loading realtime metrics..." />}>
+            <LazyRealtimeMetrics />
+          </Suspense>
         </div>
 
         {/* Tabs */}
@@ -258,27 +265,32 @@ export default function StatisticsPage() {
           <div className="space-y-8">
             {/* Key Metrics with Animation */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <AnimatedStatCard
-                title="Total Users"
-                value={metrics.total_users}
-                previousValue={metrics.previous?.total_users}
-                icon={Users}
-                color="blue"
-                subtitle={`+${metrics.new_users_period} this period`}
-                onClick={() => handleStatCardClick('Total Users')}
-                sparklineData={[100, 120, 115, 130, 125, 140, 135]}
-              />
-              <AnimatedStatCard
-                title="Active Users"
-                value={metrics.active_users}
-                previousValue={metrics.previous?.active_users}
-                icon={Activity}
-                color="green"
+              <Suspense fallback={<ComponentLoader />}>
+                <LazyAnimatedStatCard
+                  title="Total Users"
+                  value={metrics.total_users}
+                  previousValue={metrics.previous?.total_users}
+                  icon={Users}
+                  color="blue"
+                  subtitle={`+${metrics.new_users_period} this period`}
+                  onClick={() => handleStatCardClick('Total Users')}
+                  sparklineData={[100, 120, 115, 130, 125, 140, 135]}
+                />
+              </Suspense>
+              <Suspense fallback={<ComponentLoader />}>
+                <LazyAnimatedStatCard
+                  title="Active Users"
+                  value={metrics.active_users}
+                  previousValue={metrics.previous?.active_users}
+                  icon={Activity}
+                  color="green"
                 subtitle="This period"
                 onClick={() => handleStatCardClick('Active Users')}
                 sparklineData={[80, 85, 90, 88, 95, 92, 98]}
-              />
-              <AnimatedStatCard
+                />
+              </Suspense>
+              <Suspense fallback={<ComponentLoader />}>
+                <LazyAnimatedStatCard
                 title="Total Content"
                 value={metrics.total_content}
                 previousValue={metrics.previous?.total_content}
@@ -288,7 +300,9 @@ export default function StatisticsPage() {
                 onClick={() => handleStatCardClick('Total Content')}
                 sparklineData={[50, 52, 55, 58, 60, 63, 65]}
               />
-              <AnimatedStatCard
+              </Suspense>
+              <Suspense fallback={<ComponentLoader />}>
+                <LazyAnimatedStatCard
                 title="Total Markers"
                 value={metrics.total_markers}
                 previousValue={metrics.previous?.total_markers}
@@ -309,7 +323,9 @@ export default function StatisticsPage() {
                 color="blue"
                 onClick={() => handleStatCardClick('Content Views')}
               />
-              <AnimatedStatCard
+              </Suspense>
+              <Suspense fallback={<ComponentLoader />}>
+                <LazyAnimatedStatCard
                 title="Content Likes"
                 value={metrics.content_likes}
                 previousValue={metrics.previous?.content_likes}
@@ -317,7 +333,9 @@ export default function StatisticsPage() {
                 color="red"
                 onClick={() => handleStatCardClick('Content Likes')}
               />
-              <AnimatedStatCard
+              </Suspense>
+              <Suspense fallback={<ComponentLoader />}>
+                <LazyAnimatedStatCard
                 title="Total Sessions"
                 value={metrics.total_sessions}
                 previousValue={metrics.previous?.total_sessions}
@@ -326,7 +344,9 @@ export default function StatisticsPage() {
                 subtitle="This period"
                 onClick={() => handleStatCardClick('Total Sessions')}
               />
-              <AnimatedStatCard
+              </Suspense>
+              <Suspense fallback={<ComponentLoader />}>
+                <LazyAnimatedStatCard
                 title="Avg Session Duration"
                 value={Math.round(metrics.avg_session_duration / 60)}
                 previousValue={
@@ -339,12 +359,14 @@ export default function StatisticsPage() {
                 format="duration"
                 onClick={() => handleStatCardClick('Session Duration')}
               />
+              </Suspense>
             </div>
 
             {/* Comparison Charts */}
             {filters.comparison && trends.length > 0 && (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <ComparisonChart
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazyComparisonChart
                   title="User Activity Comparison"
                   data={trends}
                   type="area"
@@ -354,7 +376,9 @@ export default function StatisticsPage() {
                     console.log('Data point clicked:', data)
                   }}
                 />
-                <ComparisonChart
+                </Suspense>
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazyComparisonChart
                   title="Content Performance"
                   data={trends.map((t) => ({
                     name: t.name || t.date,
@@ -365,6 +389,7 @@ export default function StatisticsPage() {
                   currentPeriodLabel="Current"
                   previousPeriodLabel="Previous"
                 />
+                </Suspense>
               </div>
             )}
           </div>
@@ -375,7 +400,8 @@ export default function StatisticsPage() {
           <div className="space-y-8">
             {filters.comparison ? (
               <>
-                <ComparisonChart
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazyComparisonChart
                   title="User Activity Trends - Period Comparison"
                   data={trends}
                   type="area"
@@ -396,7 +422,9 @@ export default function StatisticsPage() {
                     setIsDrilldownOpen(true)
                   }}
                 />
-                <ComparisonChart
+                </Suspense>
+                <Suspense fallback={<ComponentLoader />}>
+                  <LazyComparisonChart
                   title="Content & Sessions - Period Comparison"
                   data={trends.map((t) => ({
                     name: t.name || t.date,
@@ -408,7 +436,8 @@ export default function StatisticsPage() {
               </>
             ) : (
               <>
-                <ActivityChart
+                <Suspense fallback={<ComponentLoader />}>
+                <LazyActivityChart
                   title="User Activity Trends"
                   data={trends}
                   type="area"
@@ -418,7 +447,9 @@ export default function StatisticsPage() {
                   ]}
                   height={350}
                 />
-                <ActivityChart
+                </Suspense>
+                <Suspense fallback={<ComponentLoader />}>
+                <LazyActivityChart
                   title="Content & Sessions"
                   data={trends}
                   type="line"
@@ -428,6 +459,7 @@ export default function StatisticsPage() {
                   ]}
                   height={350}
                 />
+                </Suspense>
               </>
             )}
 
@@ -444,16 +476,18 @@ export default function StatisticsPage() {
         {/* Categories Tab */}
         {activeTab === 'categories' && categories.length > 0 && (
           <div className="space-y-8">
-            <ActivityChart
-              title="Content by Category"
-              data={categories.slice(0, 10)}
-              type="bar"
-              dataKeys={[
-                { key: 'content_count', color: '#3B82F6', name: 'Content Count' },
-                { key: 'active_users', color: '#10B981', name: 'Active Users' },
-              ]}
-              height={350}
-            />
+            <Suspense fallback={<ComponentLoader />}>
+              <LazyActivityChart
+                title="Content by Category"
+                data={categories.slice(0, 10)}
+                type="bar"
+                dataKeys={[
+                  { key: 'content_count', color: '#3B82F6', name: 'Content Count' },
+                  { key: 'active_users', color: '#10B981', name: 'Active Users' },
+                ]}
+                height={350}
+              />
+            </Suspense>
 
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <div className="px-6 py-4 border-b border-gray-200">
@@ -518,11 +552,13 @@ export default function StatisticsPage() {
 
         {/* Drilldown Modal */}
         {drilldownData && (
-          <DrilldownModal
-            isOpen={isDrilldownOpen}
-            onClose={() => setIsDrilldownOpen(false)}
-            data={drilldownData}
-          />
+          <Suspense fallback={<ComponentLoader />}>
+            <LazyDrilldownModal
+              isOpen={isDrilldownOpen}
+              onClose={() => setIsDrilldownOpen(false)}
+              data={drilldownData}
+            />
+          </Suspense>
         )}
       </div>
     </div>
