@@ -4,7 +4,7 @@ import Link from 'next/link'
 import UserProfile from '@/components/dashboard/UserProfile'
 import SignOutButton from '@/components/dashboard/SignOutButton'
 import { UserRole } from '@/types/database'
-import { Shield, Upload, Settings, Users, Activity, Eye, BarChart3 } from 'lucide-react'
+import { Shield, Upload, Settings, Users, Activity, Eye, BarChart3, FileText } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -177,6 +177,22 @@ export default async function DashboardPage() {
                       <div>
                         <dt className="text-sm font-medium text-gray-500">Statistics</dt>
                         <dd className="mt-1 text-lg font-semibold text-gray-900">Dashboard</dd>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            )}
+
+            {canCreateContent && (
+              <Link href="/dashboard/ar-contents" className="block">
+                <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                  <div className="px-4 py-5 sm:p-6">
+                    <div className="flex items-center">
+                      <FileText className="h-8 w-8 text-green-500 mr-3" />
+                      <div>
+                        <dt className="text-sm font-medium text-gray-500">AR Contents</dt>
+                        <dd className="mt-1 text-lg font-semibold text-gray-900">Manage</dd>
                       </div>
                     </div>
                   </div>
