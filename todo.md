@@ -97,3 +97,173 @@ src/
 2. マルチマーカー対応
 3. WebXR APIの統合検討
 4. より高度な3Dインタラクション機能
+
+---
+
+# ユーザーテーブルの設計と実装
+
+## 計画
+Supabaseを使用したユーザー管理システムの構築
+
+### タスクリスト
+- [x] ユーザーテーブルの要件定義
+- [x] Supabaseのセットアップと環境変数の設定
+- [x] ユーザーテーブルのスキーマ設計
+- [x] Supabaseクライアントの設定
+- [x] ユーザー認証機能の実装
+- [x] ユーザーCRUD操作の実装
+- [x] 動作確認とテスト
+- [ ] Gitへのコミットとプッシュ
+
+## 要件定義
+
+### ユーザーテーブルの目的
+- WebARアプリケーションのユーザー管理
+- ユーザー認証とプロファイル管理
+- ARコンテンツの所有権管理
+- ユーザーの活動履歴追跡
+
+### 機能要件
+1. **認証機能**
+   - メールアドレスによるサインアップ/サインイン
+   - パスワードリセット機能
+   - セッション管理
+
+2. **プロファイル管理**
+   - ユーザー基本情報の管理
+   - アバター画像のアップロード
+   - プロファイルの公開/非公開設定
+
+3. **ARコンテンツ管理**
+   - 作成したARコンテンツとの関連付け
+   - お気に入りコンテンツの管理
+   - 使用履歴の記録
+
+### テーブル設計
+
+#### 1. users（Supabase Auth提供）
+- id: UUID（主キー）
+- email: 文字列（ユニーク）
+- created_at: タイムスタンプ
+
+#### 2. profiles（カスタムテーブル）
+```sql
+CREATE TABLE profiles (
+  id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  username VARCHAR(50) UNIQUE,
+  full_name VARCHAR(255),
+  avatar_url TEXT,
+  bio TEXT,
+  website VARCHAR(255),
+  is_public BOOLEAN DEFAULT true,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+#### 3. user_ar_contents（ARコンテンツ管理）
+```sql
+CREATE TABLE user_ar_contents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  title VARCHAR(255) NOT NULL,
+  description TEXT,
+  content_type VARCHAR(50), -- 'image', 'face', '3d_model'
+  target_file_url TEXT,
+  model_file_url TEXT,
+  metadata JSONB,
+  is_public BOOLEAN DEFAULT false,
+  view_count INTEGER DEFAULT 0,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+#### 4. user_favorites（お気に入り管理）
+```sql
+CREATE TABLE user_favorites (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  content_id UUID REFERENCES user_ar_contents(id) ON DELETE CASCADE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(user_id, content_id)
+);
+```
+
+#### 5. user_activity_logs（活動履歴）
+```sql
+CREATE TABLE user_activity_logs (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  activity_type VARCHAR(50) NOT NULL, -- 'view', 'create', 'update', 'delete'
+  resource_type VARCHAR(50), -- 'ar_content', 'profile'
+  resource_id UUID,
+  metadata JSONB,
+  ip_address INET,
+  user_agent TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
+
+### Row Level Security (RLS) ポリシー
+
+1. **profiles テーブル**
+   - 自分のプロファイルは読み書き可能
+   - 公開プロファイルは誰でも読み取り可能
+
+2. **user_ar_contents テーブル**
+   - 自分のコンテンツは読み書き可能
+   - 公開コンテンツは誰でも読み取り可能
+
+3. **user_favorites テーブル**
+   - 自分のお気に入りのみ読み書き可能
+
+4. **user_activity_logs テーブル**
+   - 自分の活動履歴のみ読み取り可能
+   - システムのみ書き込み可能
+
+## レビュー
+
+### 実装完了内容
+- ✅ ユーザーテーブルの要件定義とスキーマ設計完了
+- ✅ Supabaseクライアントの設定（ブラウザ・サーバー・ミドルウェア）
+- ✅ 認証ページの実装（ログイン・サインアップ）
+- ✅ ダッシュボードページの実装
+- ✅ プロファイル管理APIの実装
+- ✅ ARコンテンツ管理APIの実装
+- ✅ SQLマイグレーションファイルの作成
+- ✅ Row Level Securityポリシーの設定
+- ✅ TypeScript型定義の作成
+
+### 実装ファイル一覧
+1. **Supabaseクライアント設定**
+   - `/src/lib/supabase/client.ts`
+   - `/src/lib/supabase/server.ts`
+   - `/src/lib/supabase/middleware.ts`
+   - `/src/middleware.ts`
+
+2. **認証関連ページ**
+   - `/src/app/auth/login/page.tsx`
+   - `/src/app/auth/signup/page.tsx`
+   - `/src/app/dashboard/page.tsx`
+
+3. **コンポーネント**
+   - `/src/components/dashboard/UserProfile.tsx`
+   - `/src/components/dashboard/SignOutButton.tsx`
+
+4. **API層**
+   - `/src/lib/api/profiles.ts`
+   - `/src/lib/api/ar-contents.ts`
+
+5. **型定義**
+   - `/src/types/database.ts`
+
+6. **データベース**
+   - `/supabase/migrations/20240101000000_create_user_tables.sql`
+
+### 今後の実装予定
+1. プロファイル編集機能
+2. ARコンテンツ作成・編集UI
+3. お気に入り機能の実装
+4. アクティビティログの表示
+5. アバター画像のアップロード機能

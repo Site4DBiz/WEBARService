@@ -1,8 +1,41 @@
 import Link from 'next/link'
+import { createClient } from '@/lib/supabase/server'
 
-export default function HomePage() {
+export default async function HomePage() {
+  const supabase = await createClient()
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center p-24">
+      <div className="absolute top-4 right-4 flex gap-2">
+        {user ? (
+          <>
+            <Link
+              href="/dashboard"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+            >
+              Dashboard
+            </Link>
+          </>
+        ) : (
+          <>
+            <Link
+              href="/auth/login"
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition"
+            >
+              Login
+            </Link>
+            <Link
+              href="/auth/signup"
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition"
+            >
+              Sign Up
+            </Link>
+          </>
+        )}
+      </div>
       <div className="z-10 w-full max-w-5xl items-center justify-between text-sm">
         <h1 className="text-4xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-purple-600">
           WebAR Service
