@@ -2,12 +2,21 @@
 
 import React, { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import { Upload, Image, AlertCircle, Check, Loader2, Info, Cube, Eye, X } from 'lucide-react'
+import { Upload, Image, AlertCircle, Check, Loader2, Info, Cube, Eye, X, Palette } from 'lucide-react'
 import { validateImage, validateFile, generateUniqueFilename } from '@/utils/file-validation'
 import { createClient } from '@/lib/supabase/client'
 import dynamic from 'next/dynamic'
 
 const ModelViewer = dynamic(() => import('../3d/ModelViewer'), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
+      <Loader2 className="animate-spin h-8 w-8 text-gray-400" />
+    </div>
+  ),
+})
+
+const MaterialEditor = dynamic(() => import('./MaterialEditor'), {
   ssr: false,
   loading: () => (
     <div className="flex items-center justify-center h-64 bg-gray-100 rounded-lg">
@@ -31,6 +40,7 @@ interface ARMarkerFormData {
   modelRotation: { x: number; y: number; z: number }
   enableAnimation: boolean
   enableInteraction: boolean
+  metadata?: any
 }
 
 interface MarkerQuality {
@@ -67,7 +77,9 @@ export function ARMarkerForm() {
 
   const [modelPreview, setModelPreview] = useState<string | null>(null)
   const [showModelPreview, setShowModelPreview] = useState(false)
+  const [showMaterialEditor, setShowMaterialEditor] = useState(false)
   const modelInputRef = useRef<HTMLInputElement>(null)
+  const [modelMaterial, setModelMaterial] = useState<any>(null)
 
   const [tagInput, setTagInput] = useState('')
 
@@ -534,6 +546,17 @@ export function ARMarkerForm() {
                       type="button"
                       onClick={(e) => {
                         e.preventDefault()
+                        setShowMaterialEditor(true)
+                      }}
+                      className="px-4 py-2 bg-purple-100 text-purple-700 rounded-lg hover:bg-purple-200 transition-colors flex items-center gap-2"
+                    >
+                      <Palette className="h-4 w-4" />
+                      マテリアル編集
+                    </button>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault()
                         removeModel()
                       }}
                       className="px-4 py-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors flex items-center gap-2"
@@ -725,6 +748,39 @@ export function ARMarkerForm() {
                 rotation={formData.modelRotation}
                 enableAnimation={formData.enableAnimation}
                 enableInteraction={formData.enableInteraction}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* マテリアルエディタモーダル */}
+      {showMaterialEditor && modelPreview && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h3 className="text-lg font-semibold">マテリアルエディタ</h3>
+              <button
+                onClick={() => setShowMaterialEditor(false)}
+                className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-4 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 100px)' }}>
+              <MaterialEditor
+                modelUrl={modelPreview}
+                onMaterialChange={(material) => {
+                  setModelMaterial(material)
+                  // マテリアル設定をformDataに保存
+                  setFormData(prev => ({
+                    ...prev,
+                    metadata: {
+                      ...prev.metadata,
+                      material: material
+                    }
+                  }))
+                }}
               />
             </div>
           </div>

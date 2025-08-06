@@ -26,7 +26,10 @@ interface ValidationResult {
   error?: string
 }
 
-export function validateFile(file: File, type: 'marker' | 'model' | 'MARKER' | 'MODEL'): ValidationResult {
+export function validateFile(
+  file: File,
+  type: 'marker' | 'model' | 'MARKER' | 'MODEL'
+): ValidationResult {
   const upperType = type.toUpperCase() as 'MARKER' | 'MODEL'
   const maxSize = MAX_FILE_SIZE[upperType]
   const allowedTypes = ALLOWED_FILE_TYPES[upperType]
