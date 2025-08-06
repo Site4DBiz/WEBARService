@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -185,11 +186,15 @@ export default function UserDetailsPage() {
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   {user.avatar_url ? (
-                    <img
-                      src={user.avatar_url}
-                      alt={user.full_name || user.username || 'User'}
-                      className="w-24 h-24 rounded-full border-4 border-white shadow-lg"
-                    />
+                    <div className="relative w-24 h-24">
+                      <Image
+                        src={user.avatar_url}
+                        alt={user.full_name || user.username || 'User'}
+                        fill
+                        className="rounded-full border-4 border-white shadow-lg object-cover"
+                        sizes="96px"
+                      />
+                    </div>
                   ) : (
                     <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center border-4 border-white shadow-lg">
                       <User className="w-12 h-12 text-white" />

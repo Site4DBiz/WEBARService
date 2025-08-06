@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -288,11 +289,15 @@ export default function ProfileEditPage() {
                 <div className="relative">
                   {avatarPreview ? (
                     <div className="relative">
-                      <img
-                        src={avatarPreview}
-                        alt="Avatar preview"
-                        className="h-24 w-24 rounded-full object-cover border-2 border-gray-200"
-                      />
+                      <div className="relative h-24 w-24">
+                        <Image
+                          src={avatarPreview}
+                          alt="Avatar preview"
+                          fill
+                          className="rounded-full object-cover border-2 border-gray-200"
+                          sizes="96px"
+                        />
+                      </div>
                       <button
                         type="button"
                         onClick={removeAvatar}

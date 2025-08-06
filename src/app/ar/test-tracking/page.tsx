@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import dynamic from 'next/dynamic'
 import { ImageTracker } from '@/lib/ar/ImageTracker'
 import { TrackingOptimizer, TrackingState } from '@/lib/ar/TrackingOptimizer'
@@ -120,11 +121,15 @@ export default function TestTrackingPage() {
 
             {uploadedImage && (
               <div className="mt-4">
-                <img
-                  src={uploadedImage}
-                  alt="Uploaded marker"
-                  className="max-w-md rounded-lg shadow-lg"
-                />
+                <div className="relative max-w-md aspect-video">
+                  <Image
+                    src={uploadedImage}
+                    alt="Uploaded marker"
+                    fill
+                    className="rounded-lg shadow-lg object-contain"
+                    sizes="(max-width: 768px) 100vw, 448px"
+                  />
+                </div>
               </div>
             )}
           </div>

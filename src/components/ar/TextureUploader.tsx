@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback } from 'react'
+import Image from 'next/image'
 import {
   Upload,
   X,
@@ -226,10 +227,12 @@ export function TextureUploader({
                 className="relative group border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
               >
                 <div className="aspect-square bg-gray-100 relative">
-                  <img
+                  <Image
                     src={texture.preview}
                     alt={texture.file.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 50vw, 200px"
                   />
 
                   {/* ステータスオーバーレイ */}
@@ -320,11 +323,15 @@ export function TextureUploader({
               </button>
             </div>
             <div className="p-4">
-              <img
-                src={textures.find((t) => t.id === selectedTexture)?.preview}
-                alt="Preview"
-                className="max-w-full max-h-[70vh] mx-auto"
-              />
+              <div className="relative w-full" style={{ maxHeight: '70vh', aspectRatio: '16/9' }}>
+                <Image
+                  src={textures.find((t) => t.id === selectedTexture)?.preview || ''}
+                  alt="Preview"
+                  fill
+                  className="object-contain"
+                  sizes="(max-width: 768px) 100vw, 80vw"
+                />
+              </div>
             </div>
           </div>
         </div>

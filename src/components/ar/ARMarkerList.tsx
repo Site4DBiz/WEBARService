@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
   Eye,
@@ -320,10 +321,12 @@ export function ARMarkerList({ filter = 'all', showActions = true }: ARMarkerLis
             >
               {/* マーカー画像 */}
               <div className="aspect-square relative bg-gray-100">
-                <img
+                <Image
                   src={marker.marker_image_url}
                   alt={marker.name}
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                 />
                 {marker.is_public && (
                   <span className="absolute top-2 right-2 px-2 py-1 bg-green-500 text-white text-xs rounded">
@@ -435,11 +438,15 @@ export function ARMarkerList({ filter = 'all', showActions = true }: ARMarkerLis
             <div key={marker.id} className="p-4 hover:bg-gray-50 transition-colors">
               <div className="flex items-center gap-4">
                 {/* サムネイル */}
-                <img
-                  src={marker.marker_image_url}
-                  alt={marker.name}
-                  className="w-20 h-20 object-cover rounded-lg"
-                />
+                <div className="relative w-20 h-20">
+                  <Image
+                    src={marker.marker_image_url}
+                    alt={marker.name}
+                    fill
+                    className="object-cover rounded-lg"
+                    sizes="80px"
+                  />
+                </div>
 
                 {/* 情報 */}
                 <div className="flex-1 min-w-0">

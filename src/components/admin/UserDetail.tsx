@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import {
   User,
   Mail,
@@ -168,11 +169,15 @@ export default function UserDetail({ userId, onClose, onUpdate }: UserDetailProp
         <div className="px-6 py-4 border-b border-gray-200 flex justify-between items-center bg-gray-50">
           <div className="flex items-center space-x-4">
             {user.avatar_url ? (
-              <img
-                src={user.avatar_url}
-                alt={user.full_name || user.username || ''}
-                className="w-12 h-12 rounded-full"
-              />
+              <div className="relative w-12 h-12">
+                <Image
+                  src={user.avatar_url}
+                  alt={user.full_name || user.username || ''}
+                  fill
+                  className="rounded-full object-cover"
+                  sizes="48px"
+                />
+              </div>
             ) : (
               <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
                 <User className="w-6 h-6 text-gray-500" />

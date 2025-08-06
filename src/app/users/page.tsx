@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { RoleGuard } from '@/components/auth/RoleGuard'
@@ -237,11 +238,15 @@ export default function UsersPage() {
                               <div className="flex items-center">
                                 <div className="flex-shrink-0 h-10 w-10">
                                   {user.avatar_url ? (
-                                    <img
-                                      className="h-10 w-10 rounded-full"
-                                      src={user.avatar_url}
-                                      alt={user.full_name || user.username || 'User'}
-                                    />
+                                    <div className="relative h-10 w-10">
+                                      <Image
+                                        className="rounded-full object-cover"
+                                        src={user.avatar_url}
+                                        alt={user.full_name || user.username || 'User'}
+                                        fill
+                                        sizes="40px"
+                                      />
+                                    </div>
                                   ) : (
                                     <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
                                       <Users className="w-5 h-5 text-gray-500" />

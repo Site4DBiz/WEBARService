@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -223,11 +224,15 @@ export default function ProfilePage() {
               <div className="flex items-center space-x-6">
                 <div className="relative">
                   {profile.avatar_url ? (
-                    <img
-                      src={profile.avatar_url}
-                      alt="Avatar"
-                      className="w-24 h-24 rounded-full object-cover"
-                    />
+                    <div className="relative w-24 h-24">
+                      <Image
+                        src={profile.avatar_url}
+                        alt="Avatar"
+                        fill
+                        className="rounded-full object-cover"
+                        sizes="96px"
+                      />
+                    </div>
                   ) : (
                     <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
                       <User className="w-12 h-12 text-gray-400" />

@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
+import NextImage from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
   Upload,
@@ -404,11 +405,15 @@ export function ARMarkerForm() {
             <label htmlFor="marker-upload" className="cursor-pointer">
               {imagePreview ? (
                 <div className="space-y-4">
-                  <img
-                    src={imagePreview}
-                    alt="マーカープレビュー"
-                    className="mx-auto max-w-xs rounded-lg shadow-md"
-                  />
+                  <div className="relative mx-auto max-w-xs aspect-square">
+                    <NextImage
+                      src={imagePreview}
+                      alt="マーカープレビュー"
+                      fill
+                      className="rounded-lg shadow-md object-contain"
+                      sizes="(max-width: 768px) 100vw, 320px"
+                    />
+                  </div>
                   <p className="text-sm text-gray-600">クリックして画像を変更</p>
                 </div>
               ) : (

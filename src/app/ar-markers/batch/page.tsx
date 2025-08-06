@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import {
   ArrowLeft,
@@ -452,11 +453,15 @@ export default function BatchUploadPage() {
                         }`}
                       >
                         <div className="flex items-start space-x-3">
-                          <img
-                            src={file.preview}
-                            alt={file.name}
-                            className="w-16 h-16 object-cover rounded"
-                          />
+                          <div className="relative w-16 h-16">
+                            <Image
+                              src={file.preview}
+                              alt={file.name}
+                              fill
+                              className="object-cover rounded"
+                              sizes="64px"
+                            />
+                          </div>
                           <div className="flex-1">
                             <input
                               type="text"

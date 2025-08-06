@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
+import Image from 'next/image'
 import {
   ImageTracker,
   ImageFeature,
@@ -505,7 +506,15 @@ export const ImageTrackingSettings: React.FC<ImageTrackingSettingsProps> = ({
       {previewUrl && (
         <div className="bg-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-white mb-4">最適化済み画像プレビュー</h3>
-          <img src={previewUrl} alt="Optimized" className="w-full rounded-lg" />
+          <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+            <Image
+              src={previewUrl}
+              alt="Optimized"
+              fill
+              className="rounded-lg object-contain"
+              sizes="100vw"
+            />
+          </div>
         </div>
       )}
     </div>

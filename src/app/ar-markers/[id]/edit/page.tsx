@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
+import NextImage from 'next/image'
 import { useRouter } from 'next/navigation'
 import { ArrowLeft, Image, Loader2, Save, Upload, AlertCircle, Info, History } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -358,11 +359,15 @@ export default function EditARMarkerPage({ params }: PageProps) {
               </div>
               <div className="space-y-4">
                 <div className="max-w-xs mx-auto">
-                  <img
-                    src={imagePreview || marker.marker_image_url}
-                    alt={marker.name}
-                    className="w-full rounded-lg shadow-md"
-                  />
+                  <div className="relative aspect-square">
+                    <NextImage
+                      src={imagePreview || marker.marker_image_url}
+                      alt={marker.name}
+                      fill
+                      className="rounded-lg shadow-md object-contain"
+                      sizes="(max-width: 768px) 100vw, 320px"
+                    />
+                  </div>
                   {!newImage && (
                     <p className="text-sm text-gray-600 mt-2 text-center">現在のマーカー画像</p>
                   )}

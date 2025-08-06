@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, FormEvent, useEffect } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import { Database } from '@/types/database'
 
@@ -381,11 +382,15 @@ export default function ARContentUpload() {
             <div className="mt-3 space-y-2">
               {markerValidation.thumbnail && (
                 <div className="flex items-start space-x-3">
-                  <img
-                    src={markerValidation.thumbnail}
-                    alt="Marker thumbnail"
-                    className="w-20 h-20 object-cover rounded border border-gray-300"
-                  />
+                  <div className="relative w-20 h-20">
+                    <Image
+                      src={markerValidation.thumbnail}
+                      alt="Marker thumbnail"
+                      fill
+                      className="object-cover rounded border border-gray-300"
+                      sizes="80px"
+                    />
+                  </div>
                   <div className="flex-1">
                     {markerValidation.qualityScore !== undefined && (
                       <div className="mb-2">

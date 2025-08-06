@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import {
   FileText,
@@ -315,11 +316,15 @@ export function ContentApprovalWorkflow() {
                   >
                     <div className="flex items-start gap-4">
                       {approval.content?.thumbnail_url ? (
-                        <img
-                          src={approval.content.thumbnail_url}
-                          alt={approval.content.title}
-                          className="w-16 h-16 rounded-lg object-cover"
-                        />
+                        <div className="relative w-16 h-16">
+                          <Image
+                            src={approval.content.thumbnail_url}
+                            alt={approval.content.title}
+                            fill
+                            className="rounded-lg object-cover"
+                            sizes="64px"
+                          />
+                        </div>
                       ) : (
                         <div className="w-16 h-16 bg-gray-200 rounded-lg flex items-center justify-center">
                           <FileText className="w-8 h-8 text-gray-400" />

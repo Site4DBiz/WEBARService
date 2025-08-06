@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import {
   Users,
   Search,
@@ -391,11 +392,15 @@ export default function UsersList({ onSelectUser }: UsersListProps) {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center">
                       {user.avatar_url ? (
-                        <img
-                          src={user.avatar_url}
-                          alt={user.full_name || user.username || ''}
-                          className="w-10 h-10 rounded-full mr-3"
-                        />
+                        <div className="relative w-10 h-10 mr-3">
+                          <Image
+                            src={user.avatar_url}
+                            alt={user.full_name || user.username || ''}
+                            fill
+                            className="rounded-full object-cover"
+                            sizes="40px"
+                          />
+                        </div>
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-gray-200 mr-3 flex items-center justify-center">
                           <Users className="w-5 h-5 text-gray-500" />

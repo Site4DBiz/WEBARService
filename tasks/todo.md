@@ -97,7 +97,7 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 ## 📋 フェーズ6: パフォーマンス最適化
 
 ### 6.1 フロントエンド最適化
-- [ ] 画像最適化（next/image）
+- [x] 画像最適化（next/image）
 - [ ] コード分割とlazy loading
 - [ ] Service Workerの実装
 - [ ] PWA対応
@@ -189,6 +189,19 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 最終更新日: 2025/08/06
 
 ## 📝 更新履歴
+
+### 2025/08/06 (14)
+- 画像最適化（next/image）の実装完了
+  - next.config.tsにAVIF・WebP形式対応、デバイスサイズ、キャッシュTTL設定追加
+  - 全コンポーネントでimgタグをnext/imageのImageコンポーネントに置き換え
+  - 適切なサイズ指定とレスポンシブ対応
+  - オブジェクトフィット（cover/contain）の適切な設定
+  - 対象コンポーネント（20ファイル以上）:
+    - ContentApprovalWorkflow、ARMarkerVersionHistory、ARContentUpload
+    - ar-contents/page、profile関連ページ、ARMarkerForm
+    - ARMarkerList、TextureUploader、ar-markers関連ページ
+    - UsersList、UserDetail、users関連ページ
+    - ImageTrackingSettings、test-trackingページ
 
 ### 2025/08/06 (13)
 - バッチ処理機能の実装完了

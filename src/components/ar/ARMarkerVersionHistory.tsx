@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { formatDistanceToNow } from 'date-fns'
 import { ja } from 'date-fns/locale'
 import {
@@ -162,10 +163,12 @@ export default function ARMarkerVersionHistory({ markerId, canEdit }: ARMarkerVe
                 {/* サムネイル */}
                 <div className="relative w-20 h-20 flex-shrink-0">
                   {version.thumbnail_url || version.image_url ? (
-                    <img
+                    <Image
                       src={version.thumbnail_url || version.image_url}
                       alt={`Version ${version.version_number}`}
-                      className="w-full h-full object-cover rounded"
+                      fill
+                      className="object-cover rounded"
+                      sizes="80px"
                     />
                   ) : (
                     <div className="w-full h-full bg-gray-200 rounded flex items-center justify-center">
@@ -274,11 +277,15 @@ export default function ARMarkerVersionHistory({ markerId, canEdit }: ARMarkerVe
                 ✕
               </button>
             </div>
-            <img
-              src={selectedVersion.image_url}
-              alt={`Version ${selectedVersion.version_number}`}
-              className="w-full rounded-lg"
-            />
+            <div className="relative w-full" style={{ aspectRatio: '16/9' }}>
+              <Image
+                src={selectedVersion.image_url}
+                alt={`Version ${selectedVersion.version_number}`}
+                fill
+                className="rounded-lg object-contain"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+            </div>
           </div>
         </div>
       )}

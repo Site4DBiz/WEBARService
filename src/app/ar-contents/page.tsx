@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import Image from 'next/image'
 import { createClient } from '@/lib/supabase/client'
 import Link from 'next/link'
 import { Search, Filter, Eye, Heart, Clock, User, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -219,10 +220,12 @@ export default function ARContentsListPage() {
                     >
                       <div className="aspect-video bg-gradient-to-br from-blue-400 to-purple-600 relative">
                         {content.target_file_url && (
-                          <img
+                          <Image
                             src={content.target_file_url}
                             alt={content.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none'
                             }}
@@ -262,11 +265,15 @@ export default function ARContentsListPage() {
                         {content.profiles && (
                           <div className="flex items-center gap-2 mb-3">
                             {content.profiles.avatar_url ? (
-                              <img
-                                src={content.profiles.avatar_url}
-                                alt={content.profiles.username || 'User'}
-                                className="w-6 h-6 rounded-full"
-                              />
+                              <div className="relative w-6 h-6">
+                                <Image
+                                  src={content.profiles.avatar_url}
+                                  alt={content.profiles.username || 'User'}
+                                  fill
+                                  className="rounded-full object-cover"
+                                  sizes="24px"
+                                />
+                              </div>
                             ) : (
                               <User className="w-6 h-6 text-gray-400" />
                             )}
