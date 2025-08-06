@@ -1,20 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
-import { cookies } from 'next/headers'
-import { Database } from '@/types/database.types'
+import { createClient } from '@/lib/supabase/server'
+import { Database } from '@/types/database'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient<Database>({ cookies })
-    
+    const supabase = await createClient()
+
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Parse form data
@@ -27,10 +26,7 @@ export async function POST(request: NextRequest) {
 
     // Validate required fields
     if (!title) {
-      return NextResponse.json(
-        { error: 'Title is required' },
-        { status: 400 }
-      )
+      return NextResponse.json({ error: 'Title is required' }, { status: 400 })
     }
 
     if (!markerFile && !modelFile) {
@@ -47,7 +43,7 @@ export async function POST(request: NextRequest) {
     if (markerFile) {
       const markerPath = `${user.id}/${Date.now()}-${markerFile.name}`
       const markerBuffer = Buffer.from(await markerFile.arrayBuffer())
-      
+
       const { data: markerData, error: markerError } = await supabase.storage
         .from('ar-markers')
         .upload(markerPath, markerBuffer, {
@@ -62,10 +58,10 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('ar-markers')
-        .getPublicUrl(markerPath)
-      
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('ar-markers').getPublicUrl(markerPath)
+
       markerUrl = publicUrl
     }
 
@@ -73,7 +69,7 @@ export async function POST(request: NextRequest) {
     if (modelFile) {
       const modelPath = `${user.id}/${Date.now()}-${modelFile.name}`
       const modelBuffer = Buffer.from(await modelFile.arrayBuffer())
-      
+
       const { data: modelData, error: modelError } = await supabase.storage
         .from('ar-models')
         .upload(modelPath, modelBuffer, {
@@ -88,23 +84,24 @@ export async function POST(request: NextRequest) {
         )
       }
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('ar-models')
-        .getPublicUrl(modelPath)
-      
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('ar-models').getPublicUrl(modelPath)
+
       modelUrl = publicUrl
     }
 
     // Create AR content record
     const { data: arContent, error: dbError } = await supabase
-      .from('ar_contents')
+      .from('user_ar_contents')
       .insert({
         user_id: user.id,
         title,
         description: description || null,
-        marker_url: markerUrl,
-        model_url: modelUrl,
+        target_file_url: markerUrl,
+        model_file_url: modelUrl,
         is_public: isPublic,
+        content_type: 'image',
       })
       .select()
       .single()
@@ -116,52 +113,34 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create marker record if marker was uploaded
-    if (markerUrl && arContent) {
-      const { error: markerRecordError } = await supabase
-        .from('ar_markers')
-        .insert({
-          content_id: arContent.id,
-          marker_image_url: markerUrl,
-          marker_pattern_url: markerUrl,
-        })
-
-      if (markerRecordError) {
-        console.error('Failed to create marker record:', markerRecordError)
-      }
-    }
-
     return NextResponse.json({
       success: true,
       data: arContent,
     })
   } catch (error: any) {
     console.error('Upload error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = createRouteHandlerClient<Database>({ cookies })
-    
+    const supabase = await createClient()
+
     // Check authentication
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser()
+
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      )
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
     // Get user's AR contents
     const { data: arContents, error: dbError } = await supabase
-      .from('ar_contents')
-      .select('*, ar_markers(*)')
+      .from('user_ar_contents')
+      .select('*')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
 
@@ -178,9 +157,6 @@ export async function GET(request: NextRequest) {
     })
   } catch (error: any) {
     console.error('Fetch error:', error)
-    return NextResponse.json(
-      { error: error.message || 'Internal server error' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: error.message || 'Internal server error' }, { status: 500 })
   }
 }

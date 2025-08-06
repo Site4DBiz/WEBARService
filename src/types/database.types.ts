@@ -160,7 +160,7 @@ export interface Database {
             columns: ['parent_id']
             referencedRelation: 'ar_contents'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
       ar_markers: {
@@ -215,7 +215,7 @@ export interface Database {
             columns: ['content_id']
             referencedRelation: 'ar_contents'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
       user_favorites: {
@@ -249,7 +249,7 @@ export interface Database {
             columns: ['content_id']
             referencedRelation: 'ar_contents'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
       user_activity_logs: {
@@ -304,7 +304,7 @@ export interface Database {
             columns: ['user_id']
             referencedRelation: 'profiles'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
       user_relationships: {
@@ -338,7 +338,7 @@ export interface Database {
             columns: ['following_id']
             referencedRelation: 'profiles'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
       user_notifications: {
@@ -381,7 +381,7 @@ export interface Database {
             columns: ['user_id']
             referencedRelation: 'profiles'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
       api_keys: {
@@ -433,7 +433,7 @@ export interface Database {
             columns: ['user_id']
             referencedRelation: 'profiles'
             referencedColumns: ['id']
-          }
+          },
         ]
       }
     }
@@ -476,7 +476,8 @@ export interface Database {
   }
 }
 
-export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
+export type Tables<T extends keyof Database['public']['Tables']> =
+  Database['public']['Tables'][T]['Row']
 export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T]
 
 export type Profile = Tables<'profiles'>
