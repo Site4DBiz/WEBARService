@@ -10,6 +10,11 @@ import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader.js'
 import { AnimationManager } from '@/lib/ar/AnimationManager'
 import { ModelCompressor, CompressionOptions, CompressionResult } from '@/lib/ar/ModelCompressor'
 import { LODManager, LODConfiguration } from '@/lib/ar/LODManager'
+import {
+  TextureOptimizer,
+  TextureOptimizationOptions,
+  TextureStats,
+} from '@/lib/ar/TextureOptimizer'
 
 export interface ModelConfig {
   url: string
@@ -29,6 +34,9 @@ export interface ModelConfig {
   // LOD options
   useLOD?: boolean
   lodConfig?: Partial<LODConfiguration>
+  // Texture optimization options
+  optimizeTextures?: boolean
+  textureOptions?: TextureOptimizationOptions
 }
 
 export interface ModelLoadResult {
@@ -36,6 +44,7 @@ export interface ModelLoadResult {
   animationManager?: AnimationManager
   compressionResult?: CompressionResult
   lod?: THREE.LOD
+  textureStats?: TextureStats[]
 }
 
 export class ModelLoader {
@@ -50,6 +59,7 @@ export class ModelLoader {
   private renderer: THREE.WebGLRenderer | null = null
   private modelCompressor: ModelCompressor
   private lodManager: LODManager
+  private textureOptimizer: TextureOptimizer
 
   constructor(renderer?: THREE.WebGLRenderer, camera?: THREE.Camera, scene?: THREE.Scene) {
     this.gltfLoader = new GLTFLoader()
@@ -59,6 +69,7 @@ export class ModelLoader {
     this.renderer = renderer || null
     this.modelCompressor = new ModelCompressor()
     this.lodManager = new LODManager(camera, scene)
+    this.textureOptimizer = new TextureOptimizer()
 
     // Setup DRACO loader for compressed GLTF models
     this.setupDracoLoader()
@@ -152,6 +163,11 @@ export class ModelLoader {
         )
         model = compressionResult.model as THREE.Group
         console.log('Compression result:', compressionResult)
+      }
+
+      // Optimize textures if requested
+      if (config.optimizeTextures) {
+        await this.optimizeModelTextures(model, config.textureOptions)
       }
 
       // Create LOD if requested
@@ -347,6 +363,7 @@ export class ModelLoader {
 
     this.modelCompressor.dispose()
     this.lodManager.dispose()
+    this.textureOptimizer.dispose()
   }
 
   clearCache() {
@@ -359,15 +376,18 @@ export class ModelLoader {
 
   async loadModelWithAnimations(config: ModelConfig): Promise<ModelLoadResult> {
     const modelOrLod = await this.loadModel(config)
-    
+
     // Determine if we have a LOD or regular model
     const isLOD = modelOrLod instanceof THREE.LOD
-    const model = isLOD ? (modelOrLod as THREE.LOD).levels[0].object as THREE.Group : modelOrLod as THREE.Group
+    const model = isLOD
+      ? ((modelOrLod as THREE.LOD).levels[0].object as THREE.Group)
+      : (modelOrLod as THREE.Group)
 
     // Create animation manager if the model has animations
     const extension = config.url.split('.').pop()?.toLowerCase()
     let animationManager: AnimationManager | undefined
     let compressionResult: CompressionResult | undefined
+    let textureStats: TextureStats[] | undefined
 
     if (extension === 'gltf' || extension === 'glb' || extension === 'fbx') {
       animationManager = new AnimationManager(model)
@@ -410,26 +430,36 @@ export class ModelLoader {
 
     // Get compression result if compression was applied
     if (config.compress) {
-      compressionResult = await this.modelCompressor.compressModel(
-        model,
-        config.compressionOptions
-      )
+      compressionResult = await this.modelCompressor.compressModel(model, config.compressionOptions)
+    }
+
+    // Optimize textures if requested
+    if (config.optimizeTextures) {
+      textureStats = await this.optimizeModelTextures(model, config.textureOptions)
     }
 
     return {
-      model: isLOD ? model : modelOrLod as THREE.Group,
+      model: isLOD ? model : (modelOrLod as THREE.Group),
       animationManager,
       compressionResult,
-      lod: isLOD ? modelOrLod as THREE.LOD : undefined
+      lod: isLOD ? (modelOrLod as THREE.LOD) : undefined,
+      textureStats,
     }
   }
 
   // New methods for compression and LOD management
-  async compressModel(model: THREE.Object3D, options?: CompressionOptions): Promise<CompressionResult> {
+  async compressModel(
+    model: THREE.Object3D,
+    options?: CompressionOptions
+  ): Promise<CompressionResult> {
     return await this.modelCompressor.compressModel(model, options)
   }
 
-  async createLOD(id: string, model: THREE.Object3D, config?: Partial<LODConfiguration>): Promise<THREE.LOD> {
+  async createLOD(
+    id: string,
+    model: THREE.Object3D,
+    config?: Partial<LODConfiguration>
+  ): Promise<THREE.LOD> {
     return await this.lodManager.createLOD(id, model, config)
   }
 
@@ -447,6 +477,115 @@ export class ModelLoader {
 
   setScene(scene: THREE.Scene): void {
     this.lodManager.setScene(scene)
+  }
+
+  // Texture optimization methods
+  async optimizeModelTextures(
+    model: THREE.Object3D,
+    options?: TextureOptimizationOptions
+  ): Promise<TextureStats[]> {
+    const textures: THREE.Texture[] = []
+    const stats: TextureStats[] = []
+
+    // Collect all textures from the model
+    model.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const material = child.material as any
+
+        if (material) {
+          // Check for standard material properties
+          const textureProperties = [
+            'map',
+            'normalMap',
+            'roughnessMap',
+            'metalnessMap',
+            'aoMap',
+            'emissiveMap',
+            'bumpMap',
+            'displacementMap',
+            'alphaMap',
+            'envMap',
+            'lightMap',
+          ]
+
+          textureProperties.forEach((prop) => {
+            if (material[prop] && material[prop] instanceof THREE.Texture) {
+              textures.push(material[prop])
+            }
+          })
+
+          // Handle array materials
+          if (Array.isArray(material)) {
+            material.forEach((mat: any) => {
+              textureProperties.forEach((prop) => {
+                if (mat[prop] && mat[prop] instanceof THREE.Texture) {
+                  textures.push(mat[prop])
+                }
+              })
+            })
+          }
+        }
+      }
+    })
+
+    // Optimize each texture
+    for (const texture of textures) {
+      try {
+        const result = await this.textureOptimizer.optimizeTexture(texture, options)
+
+        // Replace original texture with optimized one
+        model.traverse((child) => {
+          if (child instanceof THREE.Mesh) {
+            const material = child.material as any
+
+            if (material) {
+              const textureProperties = [
+                'map',
+                'normalMap',
+                'roughnessMap',
+                'metalnessMap',
+                'aoMap',
+                'emissiveMap',
+                'bumpMap',
+                'displacementMap',
+                'alphaMap',
+                'envMap',
+                'lightMap',
+              ]
+
+              textureProperties.forEach((prop) => {
+                if (material[prop] === texture) {
+                  material[prop] = result.texture
+                  material.needsUpdate = true
+                }
+              })
+            }
+          }
+        })
+
+        stats.push(result.stats)
+      } catch (error) {
+        console.error('Failed to optimize texture:', error)
+      }
+    }
+
+    console.log(`Optimized ${stats.length} textures`)
+    if (stats.length > 0) {
+      const totalOriginal = stats.reduce((sum, s) => sum + s.originalSize, 0)
+      const totalOptimized = stats.reduce((sum, s) => sum + s.optimizedSize, 0)
+      const avgCompression = stats.reduce((sum, s) => sum + s.compressionRatio, 0) / stats.length
+
+      console.log(
+        `Total size reduction: ${((totalOriginal - totalOptimized) / 1024 / 1024).toFixed(2)} MB`
+      )
+      console.log(`Average compression ratio: ${avgCompression.toFixed(1)}%`)
+    }
+
+    return stats
+  }
+
+  getTextureOptimizer(): TextureOptimizer {
+    return this.textureOptimizer
   }
 }
 

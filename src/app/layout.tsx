@@ -47,9 +47,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icon-192x192.png" />
       </head>
       <body className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
-        <ServiceWorkerProvider>
-          {children}
-        </ServiceWorkerProvider>
+        <ServiceWorkerProvider>{children}</ServiceWorkerProvider>
       </body>
     </html>
   )

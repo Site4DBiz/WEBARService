@@ -126,7 +126,8 @@ export function ContentApprovalWorkflow() {
     try {
       let query = supabase
         .from('content_approvals')
-        .select(`
+        .select(
+          `
           *,
           content:ar_contents(
             title,
@@ -136,7 +137,8 @@ export function ContentApprovalWorkflow() {
           ),
           submitter:user_profiles!content_approvals_submitted_by_fkey(email, full_name),
           reviewer:user_profiles!content_approvals_reviewed_by_fkey(email, full_name)
-        `)
+        `
+        )
         .order('created_at', { ascending: false })
 
       if (filter !== 'all') {
@@ -158,10 +160,12 @@ export function ContentApprovalWorkflow() {
     try {
       const { data, error } = await supabase
         .from('approval_history')
-        .select(`
+        .select(
+          `
           *,
           user:user_profiles!approval_history_performed_by_fkey(email, full_name)
-        `)
+        `
+        )
         .eq('approval_id', approvalId)
         .order('performed_at', { ascending: false })
 
@@ -331,14 +335,18 @@ export function ContentApprovalWorkflow() {
                         </div>
                       )}
                       <div className="flex-1">
-                        <h3 className="font-medium mb-1">{approval.content?.title || 'Untitled'}</h3>
+                        <h3 className="font-medium mb-1">
+                          {approval.content?.title || 'Untitled'}
+                        </h3>
                         <p className="text-sm text-gray-600 mb-2 line-clamp-2">
                           {approval.content?.description || 'No description'}
                         </p>
                         <div className="flex items-center gap-4 text-xs text-gray-500">
                           <span className="flex items-center gap-1">
                             <User className="w-3 h-3" />
-                            {approval.submitter?.full_name || approval.submitter?.email || 'Unknown'}
+                            {approval.submitter?.full_name ||
+                              approval.submitter?.email ||
+                              'Unknown'}
                           </span>
                           <span className="flex items-center gap-1">
                             <Calendar className="w-3 h-3" />

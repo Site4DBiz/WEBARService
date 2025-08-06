@@ -4,57 +4,57 @@ import dynamic from 'next/dynamic'
 import { ComponentLoader } from '@/components/ui/LoadingSpinner'
 
 export const LazyAnalyticsOverview = dynamic(
-  () => import('../AnalyticsOverview').then(mod => ({ default: mod.AnalyticsOverview })),
+  () => import('../AnalyticsOverview').then((mod) => ({ default: mod.AnalyticsOverview })),
   {
     loading: () => <ComponentLoader message="Loading analytics..." />,
-    ssr: false
+    ssr: false,
   }
 )
 
 export const LazyTimeSeriesChart = dynamic(
-  () => import('../TimeSeriesChart').then(mod => ({ default: mod.TimeSeriesChart })),
+  () => import('../TimeSeriesChart').then((mod) => ({ default: mod.TimeSeriesChart })),
   {
     loading: () => <ComponentLoader message="Loading charts..." />,
-    ssr: false
+    ssr: false,
   }
 )
 
 export const LazyDeviceAnalytics = dynamic(
-  () => import('../DeviceAnalytics').then(mod => ({ default: mod.DeviceAnalytics })),
+  () => import('../DeviceAnalytics').then((mod) => ({ default: mod.DeviceAnalytics })),
   {
     loading: () => <ComponentLoader message="Loading device analytics..." />,
-    ssr: false
+    ssr: false,
   }
 )
 
 export const LazyGeographicAnalytics = dynamic(
-  () => import('../GeographicAnalytics').then(mod => ({ default: mod.GeographicAnalytics })),
+  () => import('../GeographicAnalytics').then((mod) => ({ default: mod.GeographicAnalytics })),
   {
     loading: () => <ComponentLoader message="Loading geographic data..." />,
-    ssr: false
+    ssr: false,
   }
 )
 
 export const LazyContentPerformance = dynamic(
-  () => import('../ContentPerformance').then(mod => ({ default: mod.ContentPerformance })),
+  () => import('../ContentPerformance').then((mod) => ({ default: mod.ContentPerformance })),
   {
     loading: () => <ComponentLoader message="Loading performance metrics..." />,
-    ssr: false
+    ssr: false,
   }
 )
 
 export const LazyEngagementMetrics = dynamic(
-  () => import('../EngagementMetrics').then(mod => ({ default: mod.EngagementMetrics })),
+  () => import('../EngagementMetrics').then((mod) => ({ default: mod.EngagementMetrics })),
   {
     loading: () => <ComponentLoader message="Loading engagement data..." />,
-    ssr: false
+    ssr: false,
   }
 )
 
 export const LazyUserGrowthChart = dynamic(
-  () => import('../UserGrowthChart').then(mod => ({ default: mod.UserGrowthChart })),
+  () => import('../UserGrowthChart').then((mod) => ({ default: mod.UserGrowthChart })),
   {
     loading: () => <ComponentLoader message="Loading user growth data..." />,
-    ssr: false
+    ssr: false,
   }
 )

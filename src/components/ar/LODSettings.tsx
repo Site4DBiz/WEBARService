@@ -1,97 +1,103 @@
-'use client';
+'use client'
 
-import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { Slider } from '@/components/ui/slider';
-import { Switch } from '@/components/ui/switch';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { 
-  Layers, 
-  Eye, 
-  Zap, 
-  Plus, 
-  Trash2, 
+import React, { useState, useCallback } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Slider } from '@/components/ui/slider'
+import { Switch } from '@/components/ui/switch'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Layers,
+  Eye,
+  Zap,
+  Plus,
+  Trash2,
   Settings2,
   Smartphone,
   Monitor,
   Activity,
-  Info
-} from 'lucide-react';
-import type { LODLevel, LODConfiguration, LODStatistics } from '@/lib/ar/LODManager';
+  Info,
+} from 'lucide-react'
+import type { LODLevel, LODConfiguration, LODStatistics } from '@/lib/ar/LODManager'
 
 interface LODSettingsProps {
-  onConfigurationChange?: (config: LODConfiguration) => void;
-  statistics?: LODStatistics | null;
-  onGenerateLOD?: () => void;
-  isGenerating?: boolean;
+  onConfigurationChange?: (config: LODConfiguration) => void
+  statistics?: LODStatistics | null
+  onGenerateLOD?: () => void
+  isGenerating?: boolean
 }
 
-export function LODSettings({ 
+export function LODSettings({
   onConfigurationChange,
   statistics,
   onGenerateLOD,
-  isGenerating = false
+  isGenerating = false,
 }: LODSettingsProps) {
   const [levels, setLevels] = useState<LODLevel[]>([
     { distance: 10, targetRatio: 1.0 },
     { distance: 30, targetRatio: 0.5 },
     { distance: 60, targetRatio: 0.25 },
-    { distance: 100, targetRatio: 0.1 }
-  ]);
-  const [autoGenerate, setAutoGenerate] = useState(true);
-  const [dynamicAdjustment, setDynamicAdjustment] = useState(false);
-  const [targetFPS, setTargetFPS] = useState(60);
-  const [smoothTransition, setSmoothTransition] = useState(false);
-  const [cullingDistance, setCullingDistance] = useState(150);
-  const [devicePreset, setDevicePreset] = useState<'desktop' | 'mobile' | 'custom'>('custom');
+    { distance: 100, targetRatio: 0.1 },
+  ])
+  const [autoGenerate, setAutoGenerate] = useState(true)
+  const [dynamicAdjustment, setDynamicAdjustment] = useState(false)
+  const [targetFPS, setTargetFPS] = useState(60)
+  const [smoothTransition, setSmoothTransition] = useState(false)
+  const [cullingDistance, setCullingDistance] = useState(150)
+  const [devicePreset, setDevicePreset] = useState<'desktop' | 'mobile' | 'custom'>('custom')
 
   const handleAddLevel = useCallback(() => {
     const newLevel: LODLevel = {
       distance: levels.length > 0 ? levels[levels.length - 1].distance + 20 : 10,
-      targetRatio: levels.length > 0 ? levels[levels.length - 1].targetRatio * 0.5 : 0.5
-    };
-    setLevels([...levels, newLevel]);
-  }, [levels]);
+      targetRatio: levels.length > 0 ? levels[levels.length - 1].targetRatio * 0.5 : 0.5,
+    }
+    setLevels([...levels, newLevel])
+  }, [levels])
 
-  const handleRemoveLevel = useCallback((index: number) => {
-    setLevels(levels.filter((_, i) => i !== index));
-  }, [levels]);
+  const handleRemoveLevel = useCallback(
+    (index: number) => {
+      setLevels(levels.filter((_, i) => i !== index))
+    },
+    [levels]
+  )
 
-  const handleLevelChange = useCallback((index: number, field: keyof LODLevel, value: number) => {
-    const newLevels = [...levels];
-    newLevels[index] = { ...newLevels[index], [field]: value };
-    setLevels(newLevels);
-  }, [levels]);
+  const handleLevelChange = useCallback(
+    (index: number, field: keyof LODLevel, value: number) => {
+      const newLevels = [...levels]
+      newLevels[index] = { ...newLevels[index], [field]: value }
+      setLevels(newLevels)
+    },
+    [levels]
+  )
 
   const applyPreset = useCallback((preset: 'desktop' | 'mobile') => {
-    setDevicePreset(preset);
-    
+    setDevicePreset(preset)
+
     if (preset === 'desktop') {
       setLevels([
         { distance: 10, targetRatio: 1.0 },
         { distance: 30, targetRatio: 0.7 },
         { distance: 60, targetRatio: 0.4 },
-        { distance: 100, targetRatio: 0.2 }
-      ]);
-      setTargetFPS(60);
-      setCullingDistance(200);
-      setDynamicAdjustment(false);
+        { distance: 100, targetRatio: 0.2 },
+      ])
+      setTargetFPS(60)
+      setCullingDistance(200)
+      setDynamicAdjustment(false)
     } else if (preset === 'mobile') {
       setLevels([
         { distance: 5, targetRatio: 0.8 },
         { distance: 15, targetRatio: 0.4 },
         { distance: 30, targetRatio: 0.2 },
-        { distance: 50, targetRatio: 0.05 }
-      ]);
-      setTargetFPS(30);
-      setCullingDistance(60);
-      setDynamicAdjustment(true);
+        { distance: 50, targetRatio: 0.05 },
+      ])
+      setTargetFPS(30)
+      setCullingDistance(60)
+      setDynamicAdjustment(true)
     }
-  }, []);
+  }, [])
 
   const handleApplyConfiguration = useCallback(() => {
     if (onConfigurationChange) {
@@ -101,15 +107,23 @@ export function LODSettings({
         dynamicAdjustment,
         targetFPS,
         smoothTransition,
-        cullingDistance
-      };
-      onConfigurationChange(config);
+        cullingDistance,
+      }
+      onConfigurationChange(config)
     }
-  }, [levels, autoGenerate, dynamicAdjustment, targetFPS, smoothTransition, cullingDistance, onConfigurationChange]);
+  }, [
+    levels,
+    autoGenerate,
+    dynamicAdjustment,
+    targetFPS,
+    smoothTransition,
+    cullingDistance,
+    onConfigurationChange,
+  ])
 
   const formatNumber = (num: number): string => {
-    return num.toLocaleString();
-  };
+    return num.toLocaleString()
+  }
 
   return (
     <div className="space-y-6">
@@ -159,32 +173,24 @@ export function LODSettings({
           <div className="space-y-3">
             <div className="flex justify-between items-center">
               <Label>LOD Levels</Label>
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={handleAddLevel}
-              >
+              <Button size="sm" variant="outline" onClick={handleAddLevel}>
                 <Plus className="mr-1 h-3 w-3" />
                 Add Level
               </Button>
             </div>
-            
+
             <div className="space-y-3">
               {levels.map((level, index) => (
                 <div key={index} className="p-4 border rounded-lg space-y-3">
                   <div className="flex justify-between items-center">
                     <Badge variant="outline">Level {index + 1}</Badge>
                     {levels.length > 1 && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleRemoveLevel(index)}
-                      >
+                      <Button size="sm" variant="ghost" onClick={() => handleRemoveLevel(index)}>
                         <Trash2 className="h-3 w-3" />
                       </Button>
                     )}
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
@@ -199,7 +205,7 @@ export function LODSettings({
                         onValueChange={(value) => handleLevelChange(index, 'distance', value[0])}
                       />
                     </div>
-                    
+
                     <div className="space-y-2">
                       <div className="flex justify-between items-center">
                         <Label className="text-xs">Quality</Label>
@@ -232,11 +238,7 @@ export function LODSettings({
                 Automatically create optimized models for each level
               </p>
             </div>
-            <Switch
-              id="auto-generate"
-              checked={autoGenerate}
-              onCheckedChange={setAutoGenerate}
-            />
+            <Switch id="auto-generate" checked={autoGenerate} onCheckedChange={setAutoGenerate} />
           </div>
 
           {/* Dynamic Adjustment */}
@@ -247,9 +249,7 @@ export function LODSettings({
                   <Activity className="h-4 w-4" />
                   Dynamic Performance Adjustment
                 </Label>
-                <p className="text-xs text-muted-foreground">
-                  Adjust LOD distances based on FPS
-                </p>
+                <p className="text-xs text-muted-foreground">Adjust LOD distances based on FPS</p>
               </div>
               <Switch
                 id="dynamic-adjustment"
@@ -261,7 +261,9 @@ export function LODSettings({
             {dynamicAdjustment && (
               <div className="space-y-2 pl-6">
                 <div className="flex justify-between items-center">
-                  <Label htmlFor="target-fps" className="text-sm">Target FPS</Label>
+                  <Label htmlFor="target-fps" className="text-sm">
+                    Target FPS
+                  </Label>
                   <span className="text-sm text-muted-foreground">{targetFPS}</span>
                 </div>
                 <Slider
@@ -283,9 +285,7 @@ export function LODSettings({
                 <Eye className="h-4 w-4" />
                 Smooth Transitions
               </Label>
-              <p className="text-xs text-muted-foreground">
-                Fade between LOD levels
-              </p>
+              <p className="text-xs text-muted-foreground">Fade between LOD levels</p>
             </div>
             <Switch
               id="smooth-transition"
@@ -315,18 +315,11 @@ export function LODSettings({
 
           {/* Apply Button */}
           <div className="flex gap-2">
-            <Button 
-              onClick={handleApplyConfiguration}
-              className="flex-1"
-            >
+            <Button onClick={handleApplyConfiguration} className="flex-1">
               Apply Configuration
             </Button>
             {onGenerateLOD && (
-              <Button 
-                onClick={onGenerateLOD}
-                variant="outline"
-                disabled={isGenerating}
-              >
+              <Button onClick={onGenerateLOD} variant="outline" disabled={isGenerating}>
                 {isGenerating ? (
                   <>
                     <Activity className="mr-2 h-4 w-4 animate-spin" />
@@ -388,7 +381,8 @@ export function LODSettings({
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  Low FPS detected. Consider enabling dynamic adjustment or reducing quality settings.
+                  Low FPS detected. Consider enabling dynamic adjustment or reducing quality
+                  settings.
                 </AlertDescription>
               </Alert>
             )}
@@ -396,5 +390,5 @@ export function LODSettings({
         </Card>
       )}
     </div>
-  );
+  )
 }

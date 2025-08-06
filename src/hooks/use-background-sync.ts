@@ -1,181 +1,187 @@
-'use client';
+'use client'
 
-import { useEffect, useCallback, useState } from 'react';
-import { offlineDB, offlineSyncManager } from '@/lib/offline/indexed-db';
-import serviceWorkerManager from '@/lib/service-worker/register';
+import { useEffect, useCallback, useState } from 'react'
+import { offlineDB, offlineSyncManager } from '@/lib/offline/indexed-db'
+import serviceWorkerManager from '@/lib/service-worker/register'
 
 export interface UseBackgroundSyncOptions {
-  autoSync?: boolean;
-  syncInterval?: number;
+  autoSync?: boolean
+  syncInterval?: number
 }
 
 export function useBackgroundSync(options: UseBackgroundSyncOptions = {}) {
-  const { autoSync = true, syncInterval = 30000 } = options; // デフォルト30秒
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [pendingCount, setPendingCount] = useState(0);
-  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null);
+  const { autoSync = true, syncInterval = 30000 } = options // デフォルト30秒
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [pendingCount, setPendingCount] = useState(0)
+  const [lastSyncTime, setLastSyncTime] = useState<Date | null>(null)
 
   // 保留中のアイテム数を取得
   const updatePendingCount = useCallback(async () => {
     try {
-      const items = await offlineDB.getPendingSync();
-      setPendingCount(items.length);
+      const items = await offlineDB.getPendingSync()
+      setPendingCount(items.length)
     } catch (error) {
-      console.error('Failed to get pending count:', error);
+      console.error('Failed to get pending count:', error)
     }
-  }, []);
+  }, [])
 
   // 手動同期
   const syncNow = useCallback(async () => {
     if (isSyncing) {
-      console.log('Sync already in progress');
-      return;
+      console.log('Sync already in progress')
+      return
     }
 
-    setIsSyncing(true);
+    setIsSyncing(true)
     try {
-      await offlineSyncManager.sync();
-      setLastSyncTime(new Date());
-      await updatePendingCount();
-      
+      await offlineSyncManager.sync()
+      setLastSyncTime(new Date())
+      await updatePendingCount()
+
       // Service Workerにも同期を通知
-      await serviceWorkerManager.registerSync('sync-user-data');
+      await serviceWorkerManager.registerSync('sync-user-data')
     } catch (error) {
-      console.error('Sync failed:', error);
+      console.error('Sync failed:', error)
     } finally {
-      setIsSyncing(false);
+      setIsSyncing(false)
     }
-  }, [isSyncing, updatePendingCount]);
+  }, [isSyncing, updatePendingCount])
 
   // ARコンテンツをオフラインで保存
-  const saveARContentOffline = useCallback(async (content: any) => {
-    try {
-      // IndexedDBに保存
-      await offlineDB.save('ar_content', content);
-      
-      // 同期待ちリストに追加
-      await offlineDB.addPendingSync({
-        type: 'ar-content',
-        action: 'create',
-        data: content,
-      });
-      
-      await updatePendingCount();
-      
-      // バックグラウンド同期を登録
-      await serviceWorkerManager.registerSync('sync-ar-content');
-    } catch (error) {
-      console.error('Failed to save AR content offline:', error);
-      throw error;
-    }
-  }, [updatePendingCount]);
+  const saveARContentOffline = useCallback(
+    async (content: any) => {
+      try {
+        // IndexedDBに保存
+        await offlineDB.save('ar_content', content)
+
+        // 同期待ちリストに追加
+        await offlineDB.addPendingSync({
+          type: 'ar-content',
+          action: 'create',
+          data: content,
+        })
+
+        await updatePendingCount()
+
+        // バックグラウンド同期を登録
+        await serviceWorkerManager.registerSync('sync-ar-content')
+      } catch (error) {
+        console.error('Failed to save AR content offline:', error)
+        throw error
+      }
+    },
+    [updatePendingCount]
+  )
 
   // マーカーをオフラインで保存
-  const saveMarkerOffline = useCallback(async (marker: any) => {
-    try {
-      // IndexedDBに保存
-      await offlineDB.save('markers', marker);
-      
-      // 同期待ちリストに追加
-      await offlineDB.addPendingSync({
-        type: 'marker',
-        action: 'create',
-        data: marker,
-      });
-      
-      await updatePendingCount();
-      
-      // バックグラウンド同期を登録
-      await serviceWorkerManager.registerSync('sync-ar-content');
-    } catch (error) {
-      console.error('Failed to save marker offline:', error);
-      throw error;
-    }
-  }, [updatePendingCount]);
+  const saveMarkerOffline = useCallback(
+    async (marker: any) => {
+      try {
+        // IndexedDBに保存
+        await offlineDB.save('markers', marker)
+
+        // 同期待ちリストに追加
+        await offlineDB.addPendingSync({
+          type: 'marker',
+          action: 'create',
+          data: marker,
+        })
+
+        await updatePendingCount()
+
+        // バックグラウンド同期を登録
+        await serviceWorkerManager.registerSync('sync-ar-content')
+      } catch (error) {
+        console.error('Failed to save marker offline:', error)
+        throw error
+      }
+    },
+    [updatePendingCount]
+  )
 
   // オフラインデータを取得
   const getOfflineData = useCallback(async (storeName: string) => {
     try {
-      return await offlineDB.getAll(storeName);
+      return await offlineDB.getAll(storeName)
     } catch (error) {
-      console.error('Failed to get offline data:', error);
-      return [];
+      console.error('Failed to get offline data:', error)
+      return []
     }
-  }, []);
+  }, [])
 
   // キャッシュデータを取得
   const getCachedData = useCallback(async (key: string) => {
     try {
-      return await offlineDB.getCachedData(key);
+      return await offlineDB.getCachedData(key)
     } catch (error) {
-      console.error('Failed to get cached data:', error);
-      return null;
+      console.error('Failed to get cached data:', error)
+      return null
     }
-  }, []);
+  }, [])
 
   // データをキャッシュ
   const cacheData = useCallback(async (key: string, data: any, ttl?: number) => {
     try {
-      await offlineDB.cacheData(key, data, ttl);
+      await offlineDB.cacheData(key, data, ttl)
     } catch (error) {
-      console.error('Failed to cache data:', error);
+      console.error('Failed to cache data:', error)
     }
-  }, []);
+  }, [])
 
   // 保留中のデータをクリア
   const clearPendingSync = useCallback(async () => {
     try {
-      await offlineDB.clear('pending_sync');
-      await updatePendingCount();
+      await offlineDB.clear('pending_sync')
+      await updatePendingCount()
     } catch (error) {
-      console.error('Failed to clear pending sync:', error);
+      console.error('Failed to clear pending sync:', error)
     }
-  }, [updatePendingCount]);
+  }, [updatePendingCount])
 
   // オンライン復帰時の自動同期
   useEffect(() => {
     const handleOnline = () => {
-      console.log('Back online, starting sync...');
+      console.log('Back online, starting sync...')
       if (autoSync) {
-        syncNow();
+        syncNow()
       }
-    };
+    }
 
-    window.addEventListener('online', handleOnline);
+    window.addEventListener('online', handleOnline)
     return () => {
-      window.removeEventListener('online', handleOnline);
-    };
-  }, [autoSync, syncNow]);
+      window.removeEventListener('online', handleOnline)
+    }
+  }, [autoSync, syncNow])
 
   // 定期的な同期
   useEffect(() => {
-    if (!autoSync || !navigator.onLine) return;
+    if (!autoSync || !navigator.onLine) return
 
     const intervalId = setInterval(() => {
       if (navigator.onLine && pendingCount > 0) {
-        syncNow();
+        syncNow()
       }
-    }, syncInterval);
+    }, syncInterval)
 
     return () => {
-      clearInterval(intervalId);
-    };
-  }, [autoSync, syncInterval, pendingCount, syncNow]);
+      clearInterval(intervalId)
+    }
+  }, [autoSync, syncInterval, pendingCount, syncNow])
 
   // 初期化
   useEffect(() => {
-    updatePendingCount();
-    
+    updatePendingCount()
+
     // 期限切れキャッシュのクリーンアップ
-    offlineDB.cleanupExpiredCache().catch(console.error);
-  }, [updatePendingCount]);
+    offlineDB.cleanupExpiredCache().catch(console.error)
+  }, [updatePendingCount])
 
   return {
     // 状態
     isSyncing,
     pendingCount,
     lastSyncTime,
-    
+
     // アクション
     syncNow,
     saveARContentOffline,
@@ -184,5 +190,5 @@ export function useBackgroundSync(options: UseBackgroundSyncOptions = {}) {
     getCachedData,
     cacheData,
     clearPendingSync,
-  };
+  }
 }

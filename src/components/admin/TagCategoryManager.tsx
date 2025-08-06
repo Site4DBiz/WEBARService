@@ -314,9 +314,7 @@ export function TagCategoryManager() {
                 <span className="text-sm text-gray-500">{category.content_count || 0} items</span>
                 <span
                   className={`px-2 py-1 text-xs rounded-full ${
-                    category.active
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-600'
+                    category.active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'
                   }`}
                 >
                   {category.active ? 'Active' : 'Inactive'}
@@ -351,7 +349,9 @@ export function TagCategoryManager() {
             </div>
           </div>
         </div>
-        {category.children && category.children.length > 0 && renderCategoryTree(category.children, level + 1)}
+        {category.children &&
+          category.children.length > 0 &&
+          renderCategoryTree(category.children, level + 1)}
       </div>
     ))
   }
@@ -586,7 +586,9 @@ export function TagCategoryManager() {
               {activeTab === 'categories' && (
                 <>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Icon (Emoji)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Icon (Emoji)
+                    </label>
                     <input
                       type="text"
                       value={formData.icon}
@@ -596,7 +598,9 @@ export function TagCategoryManager() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Sort Order</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Sort Order
+                    </label>
                     <input
                       type="number"
                       value={formData.sort_order}

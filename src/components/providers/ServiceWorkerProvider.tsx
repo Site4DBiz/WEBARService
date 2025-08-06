@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import { useEffect, useState, createContext, useContext, ReactNode } from 'react';
-import serviceWorkerManager from '@/lib/service-worker/register';
-import { PWAInstallPrompt } from '@/components/PWAInstallPrompt';
+import { useEffect, useState, createContext, useContext, ReactNode } from 'react'
+import serviceWorkerManager from '@/lib/service-worker/register'
+import { PWAInstallPrompt } from '@/components/PWAInstallPrompt'
 
 interface ServiceWorkerContextType {
-  isOnline: boolean;
-  isUpdateAvailable: boolean;
-  updateServiceWorker: () => void;
-  clearCache: () => void;
+  isOnline: boolean
+  isUpdateAvailable: boolean
+  updateServiceWorker: () => void
+  clearCache: () => void
 }
 
 const ServiceWorkerContext = createContext<ServiceWorkerContextType>({
@@ -16,68 +16,68 @@ const ServiceWorkerContext = createContext<ServiceWorkerContextType>({
   isUpdateAvailable: false,
   updateServiceWorker: () => {},
   clearCache: () => {},
-});
+})
 
-export const useServiceWorker = () => useContext(ServiceWorkerContext);
+export const useServiceWorker = () => useContext(ServiceWorkerContext)
 
 interface ServiceWorkerProviderProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
 export function ServiceWorkerProvider({ children }: ServiceWorkerProviderProps) {
-  const [isOnline, setIsOnline] = useState(true);
-  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
-  const [showUpdateNotification, setShowUpdateNotification] = useState(false);
+  const [isOnline, setIsOnline] = useState(true)
+  const [isUpdateAvailable, setIsUpdateAvailable] = useState(false)
+  const [showUpdateNotification, setShowUpdateNotification] = useState(false)
 
   useEffect(() => {
     // Service Workerを登録
     serviceWorkerManager.register({
       onUpdate: (registration) => {
-        console.log('Service Worker update available');
-        setIsUpdateAvailable(true);
-        setShowUpdateNotification(true);
+        console.log('Service Worker update available')
+        setIsUpdateAvailable(true)
+        setShowUpdateNotification(true)
       },
       onSuccess: (registration) => {
-        console.log('Service Worker ready');
+        console.log('Service Worker ready')
       },
       onError: (error) => {
-        console.error('Service Worker error:', error);
+        console.error('Service Worker error:', error)
       },
       onOffline: () => {
-        setIsOnline(false);
+        setIsOnline(false)
       },
       onOnline: () => {
-        setIsOnline(true);
+        setIsOnline(true)
       },
-    });
+    })
 
     // 初期のオンライン状態を設定
-    setIsOnline(navigator.onLine);
+    setIsOnline(navigator.onLine)
 
     // ネットワーク状態の監視
-    const handleOnline = () => setIsOnline(true);
-    const handleOffline = () => setIsOnline(false);
+    const handleOnline = () => setIsOnline(true)
+    const handleOffline = () => setIsOnline(false)
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline)
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
-    };
-  }, []);
+      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('offline', handleOffline)
+    }
+  }, [])
 
   const updateServiceWorker = async () => {
-    await serviceWorkerManager.skipWaiting();
-    setIsUpdateAvailable(false);
-    setShowUpdateNotification(false);
-    window.location.reload();
-  };
+    await serviceWorkerManager.skipWaiting()
+    setIsUpdateAvailable(false)
+    setShowUpdateNotification(false)
+    window.location.reload()
+  }
 
   const clearCache = async () => {
-    await serviceWorkerManager.clearCache();
-    console.log('Cache cleared');
-  };
+    await serviceWorkerManager.clearCache()
+    console.log('Cache cleared')
+  }
 
   return (
     <ServiceWorkerContext.Provider
@@ -89,7 +89,7 @@ export function ServiceWorkerProvider({ children }: ServiceWorkerProviderProps) 
       }}
     >
       {children}
-      
+
       {/* PWAインストールプロンプト */}
       <PWAInstallPrompt />
 
@@ -161,5 +161,5 @@ export function ServiceWorkerProvider({ children }: ServiceWorkerProviderProps) 
         </div>
       )}
     </ServiceWorkerContext.Provider>
-  );
+  )
 }

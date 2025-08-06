@@ -171,7 +171,7 @@ export default function StatisticsPage() {
     const days = dateRange === '7d' ? 7 : dateRange === '30d' ? 30 : 90
     const data: TrendData[] = []
     const now = new Date()
-    
+
     for (let i = days - 1; i >= 0; i--) {
       const date = new Date(now)
       date.setDate(date.getDate() - i)
@@ -215,10 +215,18 @@ export default function StatisticsPage() {
     } else {
       const csvRows = [
         ['Metric', 'Value', 'Previous Value', 'Change %'],
-        ['Total Users', metrics.total_users, metrics.previous?.total_users || 0, 
-         ((metrics.total_users - (metrics.previous?.total_users || 0)) / (metrics.previous?.total_users || 1) * 100).toFixed(2)],
+        [
+          'Total Users',
+          metrics.total_users,
+          metrics.previous?.total_users || 0,
+          (
+            ((metrics.total_users - (metrics.previous?.total_users || 0)) /
+              (metrics.previous?.total_users || 1)) *
+            100
+          ).toFixed(2),
+        ],
       ]
-      const csvContent = csvRows.map(row => row.join(',')).join('\n')
+      const csvContent = csvRows.map((row) => row.join(',')).join('\n')
       const blob = new Blob([csvContent], { type: 'text/csv' })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
@@ -251,10 +259,7 @@ export default function StatisticsPage() {
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-3xl font-bold">統計ダッシュボード</h1>
         <div className="flex gap-4">
-          <InteractiveFilters
-            filters={filters}
-            onFiltersChange={setFilters}
-          />
+          <InteractiveFilters filters={filters} onFiltersChange={setFilters} />
           <ExportButton onExport={handleExport} />
         </div>
       </div>
@@ -264,9 +269,7 @@ export default function StatisticsPage() {
           <button
             onClick={() => setActiveTab('overview')}
             className={`px-4 py-2 rounded-lg ${
-              activeTab === 'overview'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
+              activeTab === 'overview' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
             }`}
           >
             Overview
@@ -274,9 +277,7 @@ export default function StatisticsPage() {
           <button
             onClick={() => setActiveTab('trends')}
             className={`px-4 py-2 rounded-lg ${
-              activeTab === 'trends'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
+              activeTab === 'trends' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
             }`}
           >
             Trends
@@ -284,9 +285,7 @@ export default function StatisticsPage() {
           <button
             onClick={() => setActiveTab('categories')}
             className={`px-4 py-2 rounded-lg ${
-              activeTab === 'categories'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-200 text-gray-700'
+              activeTab === 'categories' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-700'
             }`}
           >
             Categories
@@ -395,7 +394,7 @@ export default function StatisticsPage() {
               />
               <ComparisonChart
                 title="Content Performance Comparison"
-                data={trends.map(t => ({
+                data={trends.map((t) => ({
                   name: t.date,
                   current: t.views,
                   previous: Math.floor(t.views * 0.9),
@@ -440,14 +439,10 @@ export default function StatisticsPage() {
             </>
           ) : (
             <>
-              <ActivityChart
-                title="User Activity Trends"
-                data={trends}
-                height={400}
-              />
+              <ActivityChart title="User Activity Trends" data={trends} height={400} />
               <ActivityChart
                 title="Content & Sessions"
-                data={trends.map(t => ({
+                data={trends.map((t) => ({
                   date: t.date,
                   users: t.users,
                   content: t.content,
@@ -489,7 +484,7 @@ export default function StatisticsPage() {
             <h3 className="text-lg font-semibold mb-4">Category Performance</h3>
             <ActivityChart
               title=""
-              data={categories.map(cat => ({
+              data={categories.map((cat) => ({
                 date: cat.category,
                 users: cat.views,
                 content: cat.count,

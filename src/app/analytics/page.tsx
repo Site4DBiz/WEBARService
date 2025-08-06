@@ -21,12 +21,34 @@ import {
 import { ComponentLoader } from '@/components/ui/LoadingSpinner'
 
 // Lazy load heavy analytics components
-const CohortAnalysis = lazy(() => import('@/components/analytics/CohortAnalysis').then(mod => ({ default: mod.CohortAnalysis })))
-const PredictiveAnalytics = lazy(() => import('@/components/analytics/PredictiveAnalytics').then(mod => ({ default: mod.PredictiveAnalytics })))
-const CustomReportBuilder = lazy(() => import('@/components/analytics/CustomReportBuilder').then(mod => ({ default: mod.CustomReportBuilder })))
-const BehaviorAnalysis = lazy(() => import('@/components/analytics/BehaviorAnalysis').then(mod => ({ default: mod.BehaviorAnalysis })))
-const AnomalyDetection = lazy(() => import('@/components/analytics/AnomalyDetection').then(mod => ({ default: mod.AnomalyDetection })))
-const AnalyticsInsights = lazy(() => import('@/components/analytics/AnalyticsInsights').then(mod => ({ default: mod.AnalyticsInsights })))
+const CohortAnalysis = lazy(() =>
+  import('@/components/analytics/CohortAnalysis').then((mod) => ({ default: mod.CohortAnalysis }))
+)
+const PredictiveAnalytics = lazy(() =>
+  import('@/components/analytics/PredictiveAnalytics').then((mod) => ({
+    default: mod.PredictiveAnalytics,
+  }))
+)
+const CustomReportBuilder = lazy(() =>
+  import('@/components/analytics/CustomReportBuilder').then((mod) => ({
+    default: mod.CustomReportBuilder,
+  }))
+)
+const BehaviorAnalysis = lazy(() =>
+  import('@/components/analytics/BehaviorAnalysis').then((mod) => ({
+    default: mod.BehaviorAnalysis,
+  }))
+)
+const AnomalyDetection = lazy(() =>
+  import('@/components/analytics/AnomalyDetection').then((mod) => ({
+    default: mod.AnomalyDetection,
+  }))
+)
+const AnalyticsInsights = lazy(() =>
+  import('@/components/analytics/AnalyticsInsights').then((mod) => ({
+    default: mod.AnalyticsInsights,
+  }))
+)
 
 interface AnalyticsTab {
   id: string
