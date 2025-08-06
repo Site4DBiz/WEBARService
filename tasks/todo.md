@@ -13,11 +13,11 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 - [x] プロジェクトディレクトリ構造の設計
 
 ### 1.2 Supabase統合
-- [ ] Supabaseプロジェクトの作成
-- [ ] Supabase CLIのインストールと設定
-- [ ] 環境変数の設定（.env.local）
-- [ ] Supabase Clientの初期化
-- [ ] 認証ヘルパーの実装
+- [x] Supabaseプロジェクトの作成
+- [x] Supabase CLIのインストールと設定
+- [x] 環境変数の設定（.env.local）
+- [x] Supabase Clientの初期化
+- [x] 認証ヘルパーの実装
 
 ### 1.3 MindAR統合
 - [ ] MindARライブラリの導入
