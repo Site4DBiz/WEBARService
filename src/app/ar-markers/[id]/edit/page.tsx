@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Image, Loader2, Save } from 'lucide-react'
+import { ArrowLeft, Image, Loader2, Save, Upload, AlertCircle, Info } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { validateImage, generateUniqueFilename } from '@/utils/file-validation'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -26,6 +27,14 @@ export default function EditARMarkerPage({ params }: PageProps) {
     targetHeight: 1,
   })
   const [tagInput, setTagInput] = useState('')
+  const [newImage, setNewImage] = useState<File | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [markerQuality, setMarkerQuality] = useState<{
+    score: number
+    warnings: string[]
+    suggestions: string[]
+  } | null>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   const categories = [
     { value: 'general', label: '一般' },
@@ -121,6 +130,59 @@ export default function EditARMarkerPage({ params }: PageProps) {
     }))
   }
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setError(null)
+    setMarkerQuality(null)
+
+    // バリデーション
+    const validation = validateImage(file)
+    if (!validation.isValid) {
+      setError(validation.error || '画像の検証に失敗しました')
+      return
+    }
+
+    setNewImage(file)
+
+    // プレビュー生成
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    // 画像品質の評価
+    await evaluateMarkerQuality(file)
+  }
+
+  const evaluateMarkerQuality = async (file: File) => {
+    setIsProcessing(true)
+    try {
+      const formData = new FormData()
+      formData.append('image', file)
+
+      const response = await fetch('/api/ar/process-marker', {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (response.ok) {
+        const data = await response.json()
+        setMarkerQuality({
+          score: data.quality.score,
+          warnings: data.quality.warnings || [],
+          suggestions: data.quality.suggestions || [],
+        })
+      }
+    } catch (error) {
+      console.error('マーカー品質評価エラー:', error)
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
@@ -133,6 +195,46 @@ export default function EditARMarkerPage({ params }: PageProps) {
     setError(null)
 
     try {
+      const supabase = createClient()
+      let markerImageUrl = marker.marker_image_url
+
+      // 新しい画像がアップロードされた場合
+      if (newImage) {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) {
+          throw new Error('認証が必要です')
+        }
+
+        // 古い画像を削除（存在する場合）
+        if (marker.marker_image_url) {
+          const oldImagePath = marker.marker_image_url.split('/').pop()
+          if (oldImagePath) {
+            await supabase.storage
+              .from('ar-markers')
+              .remove([`${user.id}/${oldImagePath}`])
+          }
+        }
+
+        // 新しい画像をアップロード
+        const markerFilename = generateUniqueFilename(newImage.name)
+        const markerPath = `${user.id}/${markerFilename}`
+
+        const { error: uploadError } = await supabase.storage
+          .from('ar-markers')
+          .upload(markerPath, newImage)
+
+        if (uploadError) {
+          throw new Error('画像のアップロードに失敗しました')
+        }
+
+        // 新しい画像のURLを取得
+        const { data: { publicUrl } } = supabase.storage
+          .from('ar-markers')
+          .getPublicUrl(markerPath)
+
+        markerImageUrl = publicUrl
+      }
+
       const response = await fetch('/api/ar-markers', {
         method: 'PUT',
         headers: {
@@ -147,6 +249,8 @@ export default function EditARMarkerPage({ params }: PageProps) {
           is_public: formData.isPublic,
           width: formData.targetWidth,
           height: formData.targetHeight,
+          marker_image_url: markerImageUrl,
+          quality_score: markerQuality?.score || marker.quality_score,
         }),
       })
 
@@ -216,15 +320,105 @@ export default function EditARMarkerPage({ params }: PageProps) {
           {marker && (
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h3 className="text-lg font-semibold mb-4">マーカー画像</h3>
-              <div className="max-w-xs mx-auto">
-                <img
-                  src={marker.marker_image_url}
-                  alt={marker.name}
-                  className="w-full rounded-lg shadow-md"
-                />
-                <p className="text-sm text-gray-600 mt-2 text-center">
-                  ※画像の変更は現在サポートされていません
-                </p>
+              <div className="space-y-4">
+                <div className="max-w-xs mx-auto">
+                  <img
+                    src={imagePreview || marker.marker_image_url}
+                    alt={marker.name}
+                    className="w-full rounded-lg shadow-md"
+                  />
+                  {!newImage && (
+                    <p className="text-sm text-gray-600 mt-2 text-center">
+                      現在のマーカー画像
+                    </p>
+                  )}
+                  {newImage && (
+                    <p className="text-sm text-green-600 mt-2 text-center">
+                      新しいマーカー画像
+                    </p>
+                  )}
+                </div>
+
+                {/* 画像アップロード */}
+                <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center hover:border-gray-400 transition-colors">
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    onChange={handleImageChange}
+                    className="hidden"
+                    id="marker-update"
+                  />
+                  <label htmlFor="marker-update" className="cursor-pointer">
+                    <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
+                    <p className="text-sm text-gray-600">
+                      クリックして画像を変更
+                    </p>
+                    <p className="text-xs text-gray-500">JPEG, PNG, WebP (最大5MB)</p>
+                  </label>
+                </div>
+
+                {/* 品質評価結果 */}
+                {isProcessing && (
+                  <div className="flex items-center justify-center p-4">
+                    <Loader2 className="animate-spin h-5 w-5 mr-2" />
+                    <span>画像を分析中...</span>
+                  </div>
+                )}
+
+                {markerQuality && (
+                  <div
+                    className={`rounded-lg p-4 ${
+                      markerQuality.score >= 70
+                        ? 'bg-green-50 border border-green-200'
+                        : markerQuality.score >= 50
+                          ? 'bg-yellow-50 border border-yellow-200'
+                          : 'bg-red-50 border border-red-200'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">トラッキング品質スコア</span>
+                      <span
+                        className={`text-lg font-bold ${
+                          markerQuality.score >= 70
+                            ? 'text-green-600'
+                            : markerQuality.score >= 50
+                              ? 'text-yellow-600'
+                              : 'text-red-600'
+                        }`}
+                      >
+                        {markerQuality.score}/100
+                      </span>
+                    </div>
+
+                    {markerQuality.warnings.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-sm font-medium text-gray-700 mb-1">注意事項:</p>
+                        <ul className="text-sm text-gray-600 space-y-1">
+                          {markerQuality.warnings.map((warning, i) => (
+                            <li key={i} className="flex items-start">
+                              <AlertCircle className="h-4 w-4 text-yellow-500 mr-1 flex-shrink-0 mt-0.5" />
+                              {warning}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+
+                    {markerQuality.suggestions.length > 0 && (
+                      <div className="mt-2">
+                        <p className="text-sm font-medium text-gray-700 mb-1">改善提案:</p>
+                        <ul className="text-sm text-gray-600 space-y-1">
+                          {markerQuality.suggestions.map((suggestion, i) => (
+                            <li key={i} className="flex items-start">
+                              <Info className="h-4 w-4 text-blue-500 mr-1 flex-shrink-0 mt-0.5" />
+                              {suggestion}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           )}

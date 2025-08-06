@@ -3,7 +3,7 @@
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { ARMarkerList } from '@/components/ar/ARMarkerList'
-import { Plus, Image } from 'lucide-react'
+import { Plus, Image, Upload, BarChart3 } from 'lucide-react'
 
 export default function ARMarkersPage() {
   const router = useRouter()
@@ -29,13 +29,29 @@ export default function ARMarkersPage() {
               </h1>
               <p className="mt-2 text-gray-600">WebARで使用するマーカー画像を管理します</p>
             </div>
-            <button
-              onClick={() => router.push('/ar-markers/new')}
-              className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm"
-            >
-              <Plus className="h-5 w-5" />
-              新規マーカー作成
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={() => router.push('/ar-markers/stats')}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 shadow-sm"
+              >
+                <BarChart3 className="h-5 w-5" />
+                統計ダッシュボード
+              </button>
+              <button
+                onClick={() => router.push('/ar-markers/batch')}
+                className="px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 shadow-sm"
+              >
+                <Upload className="h-5 w-5" />
+                バッチアップロード
+              </button>
+              <button
+                onClick={() => router.push('/ar-markers/new')}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm"
+              >
+                <Plus className="h-5 w-5" />
+                新規マーカー作成
+              </button>
+            </div>
           </div>
 
           {/* 統計情報 */}
