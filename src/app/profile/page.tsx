@@ -3,7 +3,17 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { User, Mail, Globe, FileText, Camera, Save, ArrowLeft, AlertCircle, Check } from 'lucide-react'
+import {
+  User,
+  Mail,
+  Globe,
+  FileText,
+  Camera,
+  Save,
+  ArrowLeft,
+  AlertCircle,
+  Check,
+} from 'lucide-react'
 import Link from 'next/link'
 
 interface Profile {
@@ -24,7 +34,7 @@ export default function ProfilePage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
   const [user, setUser] = useState<any>(null)
-  
+
   const router = useRouter()
   const supabase = createClient()
 
@@ -38,8 +48,10 @@ export default function ProfilePage() {
       setError(null)
 
       // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+      } = await supabase.auth.getUser()
+
       if (!user) {
         router.push('/auth')
         return
@@ -48,11 +60,7 @@ export default function ProfilePage() {
       setUser(user)
 
       // Get profile
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single()
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single()
 
       if (error && error.code !== 'PGRST116') {
         throw error
@@ -82,7 +90,7 @@ export default function ProfilePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!profile || !user) return
 
     setSaving(true)
@@ -90,12 +98,10 @@ export default function ProfilePage() {
     setSuccess(false)
 
     try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          ...profile,
-          updated_at: new Date().toISOString(),
-        })
+      const { error } = await supabase.from('profiles').upsert({
+        ...profile,
+        updated_at: new Date().toISOString(),
+      })
 
       if (error) throw error
 
@@ -111,7 +117,7 @@ export default function ProfilePage() {
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     try {
       setError(null)
-      
+
       if (!e.target.files || e.target.files.length === 0) {
         return
       }
@@ -129,12 +135,12 @@ export default function ProfilePage() {
       if (uploadError) throw uploadError
 
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(filePath)
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from('avatars').getPublicUrl(filePath)
 
       // Update profile
-      setProfile(prev => prev ? { ...prev, avatar_url: publicUrl } : null)
+      setProfile((prev) => (prev ? { ...prev, avatar_url: publicUrl } : null))
     } catch (error: any) {
       setError(error.message)
     }
@@ -145,9 +151,25 @@ export default function ProfilePage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 mb-4">
-            <svg className="animate-spin h-12 w-12 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            <svg
+              className="animate-spin h-12 w-12 text-blue-600"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
             </svg>
           </div>
           <h2 className="text-xl font-semibold text-gray-900">Loading profile...</h2>
@@ -341,9 +363,25 @@ export default function ProfilePage() {
             >
               {saving ? (
                 <>
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Saving...
                 </>

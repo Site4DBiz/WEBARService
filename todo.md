@@ -193,6 +193,108 @@ Supabaseを使用したユーザー管理システムの構築
 
 ---
 
+# ロール別アクセス制御の実装
+
+## 計画
+ユーザーのロールに基づいたアクセス制御システムの実装
+
+### タスクリスト
+- [x] ロール別アクセス制御の要件定義と設計
+- [x] ユーザーロールテーブルの作成とマイグレーション
+- [x] ロール管理用の型定義とAPIの実装
+- [x] 認証ミドルウェアとロールガードの実装
+- [x] 管理者ダッシュボードの作成
+- [x] コンテンツアクセス制御の実装
+- [x] 動作確認とテスト
+- [x] todo.mdの更新とGitへのコミット
+
+## 要件定義
+
+### ユーザーロール
+1. **admin** - システム管理者（全権限）
+2. **creator** - コンテンツ作成者（自分のコンテンツの作成・編集・削除）
+3. **viewer** - 閲覧者（公開コンテンツの閲覧のみ）
+4. **moderator** - モデレーター（コンテンツの承認・管理）
+
+### 実装機能
+1. **データベース設計**
+   - user_role型の定義（admin, creator, viewer, moderator）
+   - permissionsテーブル（リソースとアクションの権限定義）
+   - role_assignmentsテーブル（ロール変更履歴）
+   - Row Level Security (RLS) ポリシー
+
+2. **API層**
+   - getUserRole - ユーザーのロール取得
+   - checkPermission - 権限チェック
+   - assignRole - ロール割り当て
+   - getPermissions - 権限一覧取得
+   - ロールヘルパー関数（isAdmin, isCreator等）
+
+3. **コンポーネント**
+   - RoleGuard - ページレベルのアクセス制御
+   - ConditionalRender - UIコンポーネントの条件付き表示
+   - 管理者ダッシュボード
+
+4. **統合**
+   - ARコンテンツアップロード（creator以上のみ）
+   - ダッシュボードでのロール表示
+   - 管理者パネルへのアクセス（adminのみ）
+
+## 実装詳細
+
+### 作成ファイル
+1. `/supabase/migrations/20250806000000_add_user_roles.sql` - ロールテーブルマイグレーション
+2. `/src/lib/api/roles.ts` - ロール管理API
+3. `/src/hooks/use-role.ts` - ロール関連フック
+4. `/src/components/auth/RoleGuard.tsx` - アクセス制御コンポーネント
+5. `/src/components/auth/AuthPageContent.tsx` - 認証ページコンテンツ（Suspense対応）
+6. `/src/app/admin/page.tsx` - 管理者ダッシュボード
+
+### 更新ファイル
+1. `/src/types/database.ts` - UserRole型とテーブル定義追加
+2. `/src/app/dashboard/page.tsx` - ロール表示と条件付きリンク
+3. `/src/app/ar-content/upload/page.tsx` - ロールベースアクセス制御追加
+4. `/src/app/auth/page.tsx` - Suspenseバウンダリ追加
+
+### 実装された機能
+- ✅ 4つのユーザーロール（admin, creator, viewer, moderator）
+- ✅ データベースレベルの権限管理
+- ✅ Row Level Security (RLS) による安全なアクセス制御
+- ✅ ロール変更履歴の追跡
+- ✅ 管理者ダッシュボードでのユーザー管理
+- ✅ ページレベルのアクセス制御
+- ✅ UIコンポーネントの条件付き表示
+- ✅ ARコンテンツ作成権限の制御
+
+## レビュー
+
+### 完了内容
+- Supabaseでロールベースアクセス制御システムを完全実装
+- 管理者がユーザーのロールを管理できるダッシュボードを作成
+- 各ロールに応じた機能へのアクセス制御を実装
+- データベースレベルでのセキュアな権限管理
+
+### 技術詳細
+- **データベース**: PostgreSQL with RLS
+- **認証**: Supabase Auth
+- **フロントエンド**: Next.js 15 with TypeScript
+- **アクセス制御**: RoleGuard コンポーネント
+- **権限管理**: データベース関数とRLSポリシー
+
+### セキュリティ対策
+1. Row Level Security (RLS) による行レベルのアクセス制御
+2. データベース関数による権限チェック
+3. サーバーサイドでのロール検証
+4. クライアントサイドでのUIレベル制御
+
+### 今後の改善点
+1. ロールの有効期限機能の実装
+2. より細かい権限設定（カスタムパーミッション）
+3. ロール継承機能
+4. 監査ログの詳細化
+
+---
+
 # ログイン/サインアップページの改善
 
 ## 計画

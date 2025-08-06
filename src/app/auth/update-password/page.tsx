@@ -13,13 +13,13 @@ interface PasswordStrength {
 
 function calculatePasswordStrength(password: string): PasswordStrength {
   let score = 0
-  
+
   if (password.length >= 8) score++
   if (password.length >= 12) score++
   if (/[a-z]/.test(password) && /[A-Z]/.test(password)) score++
   if (/\d/.test(password)) score++
   if (/[^a-zA-Z\d]/.test(password)) score++
-  
+
   const strengthMap: Record<number, PasswordStrength> = {
     0: { score: 0, message: 'Very Weak', color: 'bg-red-500' },
     1: { score: 20, message: 'Weak', color: 'bg-orange-500' },
@@ -28,7 +28,7 @@ function calculatePasswordStrength(password: string): PasswordStrength {
     4: { score: 80, message: 'Strong', color: 'bg-green-500' },
     5: { score: 100, message: 'Very Strong', color: 'bg-green-600' },
   }
-  
+
   return strengthMap[score] || strengthMap[0]
 }
 
@@ -43,13 +43,15 @@ export default function UpdatePasswordPage() {
   const [validationError, setValidationError] = useState<string | null>(null)
   const router = useRouter()
   const supabase = createClient()
-  
+
   const passwordStrength = calculatePasswordStrength(password)
 
   useEffect(() => {
     // Check if user has a valid session from the reset link
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
       if (!session) {
         // No valid session, redirect to reset password page
         router.push('/auth/reset-password')
@@ -63,29 +65,29 @@ export default function UpdatePasswordPage() {
       setValidationError('Password must be at least 8 characters long')
       return false
     }
-    
+
     if (password !== confirmPassword) {
       setValidationError('Passwords do not match')
       return false
     }
-    
+
     setValidationError(null)
     return true
   }
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validatePassword()) {
       return
     }
-    
+
     setLoading(true)
     setError(null)
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: password
+        password: password,
       })
 
       if (error) {
@@ -130,12 +132,8 @@ export default function UpdatePasswordPage() {
         <div className="bg-white rounded-2xl shadow-xl p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Set New Password
-            </h2>
-            <p className="text-gray-600">
-              Please enter your new password below
-            </p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-2">Set New Password</h2>
+            <p className="text-gray-600">Please enter your new password below</p>
           </div>
 
           {/* Error Alert */}
@@ -172,13 +170,15 @@ export default function UpdatePasswordPage() {
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
-              
+
               {/* Password strength indicator */}
               {password && (
                 <div className="mt-2">
                   <div className="flex items-center justify-between mb-1">
                     <span className="text-xs text-gray-600">Password strength:</span>
-                    <span className="text-xs font-medium text-gray-700">{passwordStrength.message}</span>
+                    <span className="text-xs font-medium text-gray-700">
+                      {passwordStrength.message}
+                    </span>
                   </div>
                   <div className="w-full bg-gray-200 rounded-full h-2">
                     <div
@@ -192,7 +192,10 @@ export default function UpdatePasswordPage() {
 
             {/* Confirm Password field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700 mb-1"
+              >
                 Confirm New Password
               </label>
               <div className="relative">
@@ -211,13 +214,19 @@ export default function UpdatePasswordPage() {
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showConfirmPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  {showConfirmPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
                 </button>
               </div>
-              
+
               {/* Match indicator */}
               {confirmPassword && (
-                <p className={`mt-1 text-sm ${password === confirmPassword ? 'text-green-600' : 'text-red-600'}`}>
+                <p
+                  className={`mt-1 text-sm ${password === confirmPassword ? 'text-green-600' : 'text-red-600'}`}
+                >
                   {password === confirmPassword ? '✓ Passwords match' : '✗ Passwords do not match'}
                 </p>
               )}
@@ -230,9 +239,25 @@ export default function UpdatePasswordPage() {
             >
               {loading ? (
                 <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   Updating password...
                 </span>

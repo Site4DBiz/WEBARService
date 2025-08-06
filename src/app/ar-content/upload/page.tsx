@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
-import { Database } from '@/types/database'
+import { Database, UserRole } from '@/types/database'
 import ARContentUpload from '@/components/ar/ARContentUpload'
 
 export default async function UploadPage() {
@@ -12,6 +12,18 @@ export default async function UploadPage() {
 
   if (!session) {
     redirect('/auth/login')
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('role')
+    .eq('id', session.user.id)
+    .single()
+
+  const allowedRoles: UserRole[] = ['admin', 'creator', 'moderator']
+
+  if (!profile || !allowedRoles.includes(profile.role)) {
+    redirect('/dashboard?error=insufficient_permissions')
   }
 
   return (

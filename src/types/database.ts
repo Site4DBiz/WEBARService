@@ -1,5 +1,7 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[]
 
+export type UserRole = 'admin' | 'creator' | 'viewer' | 'moderator'
+
 export type Database = {
   public: {
     Tables: {
@@ -12,6 +14,7 @@ export type Database = {
           bio: string | null
           website: string | null
           is_public: boolean
+          role: UserRole
           created_at: string
           updated_at: string
         }
@@ -23,6 +26,7 @@ export type Database = {
           bio?: string | null
           website?: string | null
           is_public?: boolean
+          role?: UserRole
           created_at?: string
           updated_at?: string
         }
@@ -34,6 +38,7 @@ export type Database = {
           bio?: string | null
           website?: string | null
           is_public?: boolean
+          role?: UserRole
           created_at?: string
           updated_at?: string
         }
@@ -168,15 +173,93 @@ export type Database = {
           },
         ]
       }
+      permissions: {
+        Row: {
+          id: string
+          resource: string
+          action: string
+          role: UserRole
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          resource: string
+          action: string
+          role: UserRole
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          resource?: string
+          action?: string
+          role?: UserRole
+          created_at?: string
+        }
+        Relationships: []
+      }
+      role_assignments: {
+        Row: {
+          id: string
+          user_id: string
+          role: UserRole
+          assigned_by: string | null
+          reason: string | null
+          created_at: string
+          expires_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          role: UserRole
+          assigned_by?: string | null
+          reason?: string | null
+          created_at?: string
+          expires_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          role?: UserRole
+          assigned_by?: string | null
+          reason?: string | null
+          created_at?: string
+          expires_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'role_assignments_user_id_fkey'
+            columns: ['user_id']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'role_assignments_assigned_by_fkey'
+            columns: ['assigned_by']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      check_permission: {
+        Args: { p_resource: string; p_action: string }
+        Returns: boolean
+      }
+      get_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: UserRole
+      }
+      can_update_role: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      user_role: UserRole
     }
     CompositeTypes: {
       [_ in never]: never
