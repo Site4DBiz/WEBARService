@@ -380,6 +380,70 @@ export type Database = {
           },
         ]
       }
+      ar_marker_versions: {
+        Row: {
+          id: string
+          marker_id: string
+          version_number: number
+          image_url: string
+          thumbnail_url: string | null
+          quality_score: number
+          file_size: number | null
+          width: number | null
+          height: number | null
+          mime_type: string | null
+          change_description: string | null
+          is_current: boolean
+          created_by: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          marker_id: string
+          version_number?: number
+          image_url: string
+          thumbnail_url?: string | null
+          quality_score?: number
+          file_size?: number | null
+          width?: number | null
+          height?: number | null
+          mime_type?: string | null
+          change_description?: string | null
+          is_current?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          marker_id?: string
+          version_number?: number
+          image_url?: string
+          thumbnail_url?: string | null
+          quality_score?: number
+          file_size?: number | null
+          width?: number | null
+          height?: number | null
+          mime_type?: string | null
+          change_description?: string | null
+          is_current?: boolean
+          created_by?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: 'ar_marker_versions_marker_id_fkey'
+            columns: ['marker_id']
+            referencedRelation: 'ar_markers'
+            referencedColumns: ['id']
+          },
+          {
+            foreignKeyName: 'ar_marker_versions_created_by_fkey'
+            columns: ['created_by']
+            referencedRelation: 'profiles'
+            referencedColumns: ['id']
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

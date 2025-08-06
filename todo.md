@@ -626,10 +626,10 @@ CREATE TABLE user_activity_logs (
 
 ### 今後の改善点
 1. ~~マーカー画像の更新機能~~ ✅ 実装完了
-2. MindARフォーマット（.mind）への自動変換
+2. ~~MindARフォーマット（.mind）への自動変換~~ ✅ 実装完了（2025-08-06）
 3. ~~バッチアップロード機能~~ ✅ 実装完了
 4. ~~詳細な使用統計ダッシュボード~~ ✅ 実装完了
-5. マーカーのバージョン管理
+5. ~~マーカーのバージョン管理~~ ✅ 実装完了（2025-08-06）
 
 ### 追加実装内容（2025-08-06）
 
@@ -650,3 +650,49 @@ CREATE TABLE user_activity_logs (
 - 日別アクティビティグラフ
 - カテゴリー分布表示
 - 統計データのCSVエクスポート
+
+---
+
+# ARマーカー拡張機能の実装（2025-08-06）
+
+## 実装内容
+
+### 1. バージョン管理機能
+- ✅ バージョン履歴テーブル（ar_marker_versions）の作成
+- ✅ バージョン管理APIエンドポイント（/api/ar-markers/versions）
+- ✅ バージョン履歴UIコンポーネント（ARMarkerVersionHistory）
+- ✅ 編集ページへのバージョン履歴統合
+- ✅ 画像更新時の自動バージョン作成
+
+### 2. MindARフォーマット変換機能
+- ✅ MindARコンパイラーワーカーの実装
+- ✅ クライアントサイドでの.mindファイル生成
+- ✅ Web Workerを使用した非同期処理
+- ✅ 品質レベルに応じた特徴点抽出
+- ✅ ダウンロード機能のUI実装
+
+### 実装ファイル
+1. **データベース**
+   - `/supabase/migrations/20250806_ar_marker_versions.sql`
+
+2. **API**
+   - `/src/app/api/ar-markers/versions/route.ts`
+   - `/src/app/api/ar-markers/compile/route.ts`
+
+3. **コンポーネント**
+   - `/src/components/ar/ARMarkerVersionHistory.tsx`
+
+4. **ユーティリティ**
+   - `/src/lib/utils/mindar-compiler.ts`
+   - `/src/lib/workers/mindar-compiler.worker.ts`
+
+5. **更新ファイル**
+   - `/src/types/database.ts` - バージョンテーブルの型定義追加
+   - `/src/app/ar-markers/[id]/edit/page.tsx` - バージョン履歴機能統合
+   - `/src/components/ar/ARMarkerList.tsx` - .mindダウンロード機能追加
+
+### 技術詳細
+- **バージョン管理**: 自動バージョン番号生成、現在バージョンのトラッキング
+- **MindARコンパイラー**: Web Worker使用、3段階の品質設定（low/medium/high）
+- **特徴点抽出**: 簡易的なコーナー検出アルゴリズム実装
+- **.mindファイル形式**: カスタムバイナリフォーマット生成

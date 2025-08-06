@@ -2,8 +2,22 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Eye, Edit, Trash2, Heart, Download, Plus, Search, Filter, Grid, List } from 'lucide-react'
+import {
+  Eye,
+  Edit,
+  Trash2,
+  Heart,
+  Download,
+  Plus,
+  Search,
+  Filter,
+  Grid,
+  List,
+  FileDown,
+  Loader2,
+} from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { getMindARCompiler } from '@/lib/utils/mindar-compiler'
 
 interface ARMarker {
   id: string
@@ -43,6 +57,7 @@ export function ARMarkerList({ filter = 'all', showActions = true }: ARMarkerLis
   const [currentUser, setCurrentUser] = useState<any>(null)
   const [totalCount, setTotalCount] = useState(0)
   const [currentPage, setCurrentPage] = useState(1)
+  const [compilingMarkers, setCompilingMarkers] = useState<Set<string>>(new Set())
   const itemsPerPage = 12
 
   const categories = [
@@ -149,6 +164,63 @@ export function ARMarkerList({ filter = 'all', showActions = true }: ARMarkerLis
       )
     } catch (error) {
       console.error('お気に入り操作エラー:', error)
+    }
+  }
+
+  const handleDownloadMind = async (marker: ARMarker) => {
+    if (!currentUser) {
+      router.push('/auth/login')
+      return
+    }
+
+    setCompilingMarkers((prev) => new Set(prev).add(marker.id))
+
+    try {
+      // 画像をフェッチ
+      const response = await fetch(marker.marker_image_url)
+      const blob = await response.blob()
+      const file = new File([blob], 'marker.jpg', { type: blob.type })
+
+      // .mindファイルを生成
+      const compiler = getMindARCompiler()
+      const result = await compiler.compile(file, {
+        quality:
+          marker.quality_score >= 70 ? 'high' : marker.quality_score >= 50 ? 'medium' : 'low',
+        widthInMM: marker.width,
+        heightInMM: marker.height,
+      })
+
+      if (result.success && result.data) {
+        // ダウンロード
+        const url = URL.createObjectURL(result.data)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${marker.name.replace(/[^a-z0-9]/gi, '_')}.mind`
+        document.body.appendChild(a)
+        a.click()
+        document.body.removeChild(a)
+        URL.revokeObjectURL(url)
+
+        // APIに記録
+        await fetch('/api/ar-markers/compile', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ marker_id: marker.id }),
+        })
+      } else {
+        alert('MindARファイルの生成に失敗しました')
+      }
+    } catch (error) {
+      console.error('MindARファイル生成エラー:', error)
+      alert('エラーが発生しました')
+    } finally {
+      setCompilingMarkers((prev) => {
+        const newSet = new Set(prev)
+        newSet.delete(marker.id)
+        return newSet
+      })
     }
   }
 
@@ -332,6 +404,18 @@ export function ARMarkerList({ filter = 'all', showActions = true }: ARMarkerLis
                       >
                         <Heart className={`h-4 w-4 ${marker.is_favorite ? 'fill-current' : ''}`} />
                       </button>
+                      <button
+                        onClick={() => handleDownloadMind(marker)}
+                        disabled={compilingMarkers.has(marker.id)}
+                        className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors disabled:opacity-50"
+                        title=".mindファイルをダウンロード"
+                      >
+                        {compilingMarkers.has(marker.id) ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <FileDown className="h-4 w-4" />
+                        )}
+                      </button>
                     </div>
                     <button
                       onClick={() => router.push(`/ar-markers/${marker.id}`)}
@@ -418,6 +502,18 @@ export function ARMarkerList({ filter = 'all', showActions = true }: ARMarkerLis
                           <Heart
                             className={`h-5 w-5 ${marker.is_favorite ? 'fill-current' : ''}`}
                           />
+                        </button>
+                        <button
+                          onClick={() => handleDownloadMind(marker)}
+                          disabled={compilingMarkers.has(marker.id)}
+                          className="p-2 text-purple-600 hover:bg-purple-50 rounded-lg transition-colors disabled:opacity-50"
+                          title=".mindファイルをダウンロード"
+                        >
+                          {compilingMarkers.has(marker.id) ? (
+                            <Loader2 className="h-5 w-5 animate-spin" />
+                          ) : (
+                            <FileDown className="h-5 w-5" />
+                          )}
                         </button>
                       </div>
                     )}

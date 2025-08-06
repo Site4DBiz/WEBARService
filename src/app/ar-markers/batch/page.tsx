@@ -80,9 +80,7 @@ export default function BatchUploadPage() {
   }
 
   const handleNameChange = (index: number, name: string) => {
-    setFiles((prev) =>
-      prev.map((f, i) => (i === index ? { ...f, name } : f))
-    )
+    setFiles((prev) => prev.map((f, i) => (i === index ? { ...f, name } : f)))
   }
 
   const evaluateMarkerQuality = async (file: File): Promise<number> => {
@@ -194,9 +192,7 @@ export default function BatchUploadPage() {
 
       // ステータスを更新
       setFiles((prev) =>
-        prev.map((f, index) =>
-          index === i ? { ...f, status: 'processing' as const } : f
-        )
+        prev.map((f, index) => (index === i ? { ...f, status: 'processing' as const } : f))
       )
 
       // ファイルをアップロード
@@ -290,15 +286,11 @@ export default function BatchUploadPage() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
               <h3 className="text-lg font-semibold mb-4">デフォルト設定</h3>
-              <p className="text-sm text-gray-600 mb-4">
-                すべてのマーカーに適用される共通設定です
-              </p>
+              <p className="text-sm text-gray-600 mb-4">すべてのマーカーに適用される共通設定です</p>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    カテゴリー
-                  </label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">カテゴリー</label>
                   <select
                     value={defaultSettings.category}
                     onChange={(e) =>

@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowLeft, Image, Loader2, Save, Upload, AlertCircle, Info } from 'lucide-react'
+import { ArrowLeft, Image, Loader2, Save, Upload, AlertCircle, Info, History } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { validateImage, generateUniqueFilename } from '@/utils/file-validation'
+import ARMarkerVersionHistory from '@/components/ar/ARMarkerVersionHistory'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -35,6 +36,8 @@ export default function EditARMarkerPage({ params }: PageProps) {
     suggestions: string[]
   } | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
+  const [changeDescription, setChangeDescription] = useState('')
+  const [showVersionHistory, setShowVersionHistory] = useState(false)
 
   const categories = [
     { value: 'general', label: '一般' },
@@ -200,7 +203,9 @@ export default function EditARMarkerPage({ params }: PageProps) {
 
       // 新しい画像がアップロードされた場合
       if (newImage) {
-        const { data: { user } } = await supabase.auth.getUser()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
         if (!user) {
           throw new Error('認証が必要です')
         }
@@ -209,9 +214,7 @@ export default function EditARMarkerPage({ params }: PageProps) {
         if (marker.marker_image_url) {
           const oldImagePath = marker.marker_image_url.split('/').pop()
           if (oldImagePath) {
-            await supabase.storage
-              .from('ar-markers')
-              .remove([`${user.id}/${oldImagePath}`])
+            await supabase.storage.from('ar-markers').remove([`${user.id}/${oldImagePath}`])
           }
         }
 
@@ -228,11 +231,34 @@ export default function EditARMarkerPage({ params }: PageProps) {
         }
 
         // 新しい画像のURLを取得
-        const { data: { publicUrl } } = supabase.storage
-          .from('ar-markers')
-          .getPublicUrl(markerPath)
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from('ar-markers').getPublicUrl(markerPath)
 
         markerImageUrl = publicUrl
+
+        // バージョン履歴に新しいバージョンを追加
+        const versionResponse = await fetch('/api/ar-markers/versions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            marker_id: markerId,
+            image_url: markerImageUrl,
+            thumbnail_url: markerImageUrl,
+            quality_score: markerQuality?.score || 0,
+            change_description: changeDescription || '画像を更新しました',
+            file_size: newImage.size,
+            width: formData.targetWidth,
+            height: formData.targetHeight,
+            mime_type: newImage.type,
+          }),
+        })
+
+        if (!versionResponse.ok) {
+          console.error('Failed to create version history')
+        }
       }
 
       const response = await fetch('/api/ar-markers', {
@@ -319,7 +345,17 @@ export default function EditARMarkerPage({ params }: PageProps) {
           {/* マーカー画像プレビュー */}
           {marker && (
             <div className="bg-white rounded-lg shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">マーカー画像</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">マーカー画像</h3>
+                <button
+                  type="button"
+                  onClick={() => setShowVersionHistory(!showVersionHistory)}
+                  className="flex items-center gap-2 text-blue-600 hover:text-blue-700"
+                >
+                  <History className="w-5 h-5" />
+                  バージョン履歴
+                </button>
+              </div>
               <div className="space-y-4">
                 <div className="max-w-xs mx-auto">
                   <img
@@ -328,14 +364,10 @@ export default function EditARMarkerPage({ params }: PageProps) {
                     className="w-full rounded-lg shadow-md"
                   />
                   {!newImage && (
-                    <p className="text-sm text-gray-600 mt-2 text-center">
-                      現在のマーカー画像
-                    </p>
+                    <p className="text-sm text-gray-600 mt-2 text-center">現在のマーカー画像</p>
                   )}
                   {newImage && (
-                    <p className="text-sm text-green-600 mt-2 text-center">
-                      新しいマーカー画像
-                    </p>
+                    <p className="text-sm text-green-600 mt-2 text-center">新しいマーカー画像</p>
                   )}
                 </div>
 
@@ -350,12 +382,26 @@ export default function EditARMarkerPage({ params }: PageProps) {
                   />
                   <label htmlFor="marker-update" className="cursor-pointer">
                     <Upload className="mx-auto h-8 w-8 text-gray-400 mb-2" />
-                    <p className="text-sm text-gray-600">
-                      クリックして画像を変更
-                    </p>
+                    <p className="text-sm text-gray-600">クリックして画像を変更</p>
                     <p className="text-xs text-gray-500">JPEG, PNG, WebP (最大5MB)</p>
                   </label>
                 </div>
+
+                {/* 変更説明（新しい画像がある場合のみ表示） */}
+                {newImage && (
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      変更内容の説明（オプション）
+                    </label>
+                    <input
+                      type="text"
+                      value={changeDescription}
+                      onChange={(e) => setChangeDescription(e.target.value)}
+                      placeholder="例：解像度を向上させました"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                )}
 
                 {/* 品質評価結果 */}
                 {isProcessing && (
@@ -623,6 +669,13 @@ export default function EditARMarkerPage({ params }: PageProps) {
             </button>
           </div>
         </form>
+
+        {/* バージョン履歴セクション */}
+        {showVersionHistory && marker && (
+          <div className="mt-6 bg-white rounded-lg shadow-sm p-6">
+            <ARMarkerVersionHistory markerId={markerId!} canEdit={true} />
+          </div>
+        )}
       </div>
     </div>
   )

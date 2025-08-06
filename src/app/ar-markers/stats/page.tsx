@@ -115,9 +115,8 @@ export default function MarkerStatsPage() {
         const dateStr = date.toISOString().split('T')[0]
 
         const created =
-          myMarkers?.filter(
-            (m) => new Date(m.created_at).toISOString().split('T')[0] === dateStr
-          ).length || 0
+          myMarkers?.filter((m) => new Date(m.created_at).toISOString().split('T')[0] === dateStr)
+            .length || 0
 
         dailyStats.push({
           date: dateStr,
