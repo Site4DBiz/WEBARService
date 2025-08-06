@@ -60,15 +60,16 @@ export default function UsersPage() {
   const fetchUsers = async () => {
     setLoading(true)
     try {
-      let query = supabase
-        .from('profiles')
-        .select(`
+      let query = supabase.from('profiles').select(
+        `
           *,
           auth_users:auth.users!profiles_id_fkey (
             email,
             last_sign_in_at
           )
-        `, { count: 'exact' })
+        `,
+        { count: 'exact' }
+      )
 
       if (roleFilter !== 'all') {
         query = query.eq('role', roleFilter)
@@ -84,7 +85,7 @@ export default function UsersPage() {
 
       const from = (currentPage - 1) * itemsPerPage
       const to = from + itemsPerPage - 1
-      
+
       const { data, error, count } = await query.range(from, to)
 
       if (error) {
@@ -103,7 +104,7 @@ export default function UsersPage() {
     }
   }
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = users.filter((user) => {
     const searchLower = searchQuery.toLowerCase()
     return (
       user.username?.toLowerCase().includes(searchLower) ||
@@ -264,16 +265,20 @@ export default function UsersPage() {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`px-2 py-1 text-xs font-medium rounded-full border ${getRoleBadgeColor(user.role)}`}>
+                              <span
+                                className={`px-2 py-1 text-xs font-medium rounded-full border ${getRoleBadgeColor(user.role)}`}
+                              >
                                 {user.role}
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`px-2 py-1 text-xs font-medium rounded-full ${
-                                user.is_public
-                                  ? 'bg-green-100 text-green-800'
-                                  : 'bg-gray-100 text-gray-800'
-                              }`}>
+                              <span
+                                className={`px-2 py-1 text-xs font-medium rounded-full ${
+                                  user.is_public
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-800'
+                                }`}
+                              >
                                 {user.is_public ? 'Public' : 'Private'}
                               </span>
                             </td>
@@ -323,16 +328,16 @@ export default function UsersPage() {
               {totalPages > 1 && (
                 <div className="mt-8 flex justify-center items-center gap-2">
                   <button
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
                     className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
-                  
+
                   <div className="flex gap-1">
                     {Array.from({ length: totalPages }, (_, i) => i + 1)
-                      .filter(page => {
+                      .filter((page) => {
                         const distance = Math.abs(page - currentPage)
                         return distance === 0 || distance === 1 || page === 1 || page === totalPages
                       })
@@ -356,7 +361,7 @@ export default function UsersPage() {
                   </div>
 
                   <button
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages}
                     className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                   >

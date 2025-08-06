@@ -17,10 +17,10 @@ interface TimeSeriesChartProps {
   dataKey?: 'users' | 'views' | 'sessions' | 'contents'
 }
 
-export default function TimeSeriesChart({ 
-  data, 
+export default function TimeSeriesChart({
+  data,
   title = 'Time Series Data',
-  dataKey = 'views'
+  dataKey = 'views',
 }: TimeSeriesChartProps) {
   const chartRef = useRef<HTMLCanvasElement>(null)
   const chartInstance = useRef<Chart | null>(null)
@@ -36,17 +36,15 @@ export default function TimeSeriesChart({
     const ctx = chartRef.current.getContext('2d')
     if (!ctx) return
 
-    const labels = data.map(d => {
+    const labels = data.map((d) => {
       const date = new Date(d.date)
       return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
     })
 
-    const values = data.map(d => d[dataKey] || 0)
+    const values = data.map((d) => d[dataKey] || 0)
 
     // Calculate trend
-    const trend = values.length > 1 
-      ? values[values.length - 1] - values[0]
-      : 0
+    const trend = values.length > 1 ? values[values.length - 1] - values[0] : 0
 
     const gradient = ctx.createLinearGradient(0, 0, 0, 400)
     gradient.addColorStop(0, 'rgba(59, 130, 246, 0.5)')
@@ -56,27 +54,29 @@ export default function TimeSeriesChart({
       type: 'line',
       data: {
         labels,
-        datasets: [{
-          label: title,
-          data: values,
-          fill: true,
-          backgroundColor: gradient,
-          borderColor: 'rgb(59, 130, 246)',
-          borderWidth: 2,
-          tension: 0.4,
-          pointRadius: 4,
-          pointBackgroundColor: 'rgb(59, 130, 246)',
-          pointBorderColor: '#fff',
-          pointBorderWidth: 2,
-          pointHoverRadius: 6
-        }]
+        datasets: [
+          {
+            label: title,
+            data: values,
+            fill: true,
+            backgroundColor: gradient,
+            borderColor: 'rgb(59, 130, 246)',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 4,
+            pointBackgroundColor: 'rgb(59, 130, 246)',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointHoverRadius: 6,
+          },
+        ],
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
         plugins: {
           legend: {
-            display: false
+            display: false,
           },
           tooltip: {
             backgroundColor: 'rgba(0, 0, 0, 0.8)',
@@ -89,42 +89,42 @@ export default function TimeSeriesChart({
             callbacks: {
               label: (context) => {
                 return `${formatValue(context.parsed.y)} ${getUnit(dataKey)}`
-              }
-            }
-          }
+              },
+            },
+          },
         },
         scales: {
           x: {
             grid: {
-              display: false
+              display: false,
             },
             ticks: {
               color: '#6b7280',
               font: {
-                size: 11
-              }
-            }
+                size: 11,
+              },
+            },
           },
           y: {
             grid: {
-              color: 'rgba(0, 0, 0, 0.05)'
+              color: 'rgba(0, 0, 0, 0.05)',
             },
             ticks: {
               color: '#6b7280',
               font: {
-                size: 11
+                size: 11,
               },
-              callback: function(value) {
+              callback: function (value) {
                 return formatValue(Number(value))
-              }
-            }
-          }
+              },
+            },
+          },
         },
         interaction: {
           intersect: false,
-          mode: 'index'
-        }
-      }
+          mode: 'index',
+        },
+      },
     })
 
     return () => {
@@ -138,16 +138,14 @@ export default function TimeSeriesChart({
     return (
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">{title}</h3>
-        <div className="h-64 flex items-center justify-center text-gray-500">
-          No data available
-        </div>
+        <div className="h-64 flex items-center justify-center text-gray-500">No data available</div>
       </div>
     )
   }
 
   const calculateTrend = () => {
     if (!data || data.length < 2) return 0
-    const values = data.map(d => d[dataKey] || 0)
+    const values = data.map((d) => d[dataKey] || 0)
     const trend = ((values[values.length - 1] - values[0]) / Math.max(1, values[0])) * 100
     return trend
   }
@@ -160,7 +158,8 @@ export default function TimeSeriesChart({
         <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
         {trend !== 0 && (
           <span className={`text-sm font-medium ${trend > 0 ? 'text-green-600' : 'text-red-600'}`}>
-            {trend > 0 ? '+' : ''}{trend.toFixed(1)}%
+            {trend > 0 ? '+' : ''}
+            {trend.toFixed(1)}%
           </span>
         )}
       </div>
@@ -179,10 +178,15 @@ function formatValue(value: number): string {
 
 function getUnit(dataKey: string): string {
   switch (dataKey) {
-    case 'users': return 'users'
-    case 'views': return 'views'
-    case 'sessions': return 'sessions'
-    case 'contents': return 'items'
-    default: return ''
+    case 'users':
+      return 'users'
+    case 'views':
+      return 'views'
+    case 'sessions':
+      return 'sessions'
+    case 'contents':
+      return 'items'
+    default:
+      return ''
   }
 }

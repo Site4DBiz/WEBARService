@@ -4,7 +4,18 @@ import Link from 'next/link'
 import UserProfile from '@/components/dashboard/UserProfile'
 import SignOutButton from '@/components/dashboard/SignOutButton'
 import { UserRole } from '@/types/database'
-import { Shield, Upload, Settings, Users, Activity, Eye, BarChart3, FileText, Monitor } from 'lucide-react'
+import {
+  Shield,
+  Upload,
+  Settings,
+  Users,
+  Activity,
+  Eye,
+  BarChart3,
+  FileText,
+  Monitor,
+  UserCircle,
+} from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -136,6 +147,20 @@ export default async function DashboardPage() {
           </div>
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Link href="/profile/edit" className="block">
+              <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                <div className="px-4 py-5 sm:p-6">
+                  <div className="flex items-center">
+                    <UserCircle className="h-8 w-8 text-indigo-500 mr-3" />
+                    <div>
+                      <dt className="text-sm font-medium text-gray-500">Profile</dt>
+                      <dd className="mt-1 text-lg font-semibold text-gray-900">Edit</dd>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </Link>
+
             {canCreateContent && (
               <Link href="/ar-content/upload" className="block">
                 <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
@@ -213,7 +238,7 @@ export default async function DashboardPage() {
                     </div>
                   </div>
                 </Link>
-                
+
                 <Link href="/analytics" className="block">
                   <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
                     <div className="px-4 py-5 sm:p-6">

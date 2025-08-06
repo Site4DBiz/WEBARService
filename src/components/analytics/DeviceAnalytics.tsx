@@ -36,17 +36,19 @@ export default function DeviceAnalytics({ data }: DeviceAnalyticsProps) {
         type: 'doughnut',
         data: {
           labels: Object.keys(data.devices),
-          datasets: [{
-            data: Object.values(data.devices),
-            backgroundColor: [
-              'rgba(59, 130, 246, 0.8)',
-              'rgba(16, 185, 129, 0.8)',
-              'rgba(245, 158, 11, 0.8)',
-              'rgba(239, 68, 68, 0.8)',
-              'rgba(139, 92, 246, 0.8)'
-            ],
-            borderWidth: 0
-          }]
+          datasets: [
+            {
+              data: Object.values(data.devices),
+              backgroundColor: [
+                'rgba(59, 130, 246, 0.8)',
+                'rgba(16, 185, 129, 0.8)',
+                'rgba(245, 158, 11, 0.8)',
+                'rgba(239, 68, 68, 0.8)',
+                'rgba(139, 92, 246, 0.8)',
+              ],
+              borderWidth: 0,
+            },
+          ],
         },
         options: {
           responsive: true,
@@ -57,19 +59,19 @@ export default function DeviceAnalytics({ data }: DeviceAnalyticsProps) {
               labels: {
                 padding: 15,
                 font: {
-                  size: 12
-                }
-              }
+                  size: 12,
+                },
+              },
             },
             tooltip: {
               callbacks: {
                 label: (context) => {
                   return `${context.label}: ${context.parsed}%`
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       })
     }
 
@@ -82,52 +84,53 @@ export default function DeviceAnalytics({ data }: DeviceAnalyticsProps) {
       const ctx = browserChartRef.current.getContext('2d')
       if (!ctx) return
 
-      const sortedBrowsers = Object.entries(data.browsers)
-        .sort((a, b) => b[1] - a[1])
+      const sortedBrowsers = Object.entries(data.browsers).sort((a, b) => b[1] - a[1])
 
       browserChartInstance.current = new Chart(ctx, {
         type: 'bar',
         data: {
           labels: sortedBrowsers.map(([browser]) => browser),
-          datasets: [{
-            label: 'Usage %',
-            data: sortedBrowsers.map(([, percentage]) => percentage),
-            backgroundColor: 'rgba(59, 130, 246, 0.8)',
-            borderRadius: 4
-          }]
+          datasets: [
+            {
+              label: 'Usage %',
+              data: sortedBrowsers.map(([, percentage]) => percentage),
+              backgroundColor: 'rgba(59, 130, 246, 0.8)',
+              borderRadius: 4,
+            },
+          ],
         },
         options: {
           responsive: true,
           maintainAspectRatio: false,
           plugins: {
             legend: {
-              display: false
+              display: false,
             },
             tooltip: {
               callbacks: {
                 label: (context) => {
                   return `${context.parsed.y}%`
-                }
-              }
-            }
+                },
+              },
+            },
           },
           scales: {
             x: {
               grid: {
-                display: false
-              }
+                display: false,
+              },
             },
             y: {
               beginAtZero: true,
               max: 100,
               ticks: {
-                callback: function(value) {
+                callback: function (value) {
                   return value + '%'
-                }
-              }
-            }
-          }
-        }
+                },
+              },
+            },
+          },
+        },
       })
     }
 
@@ -154,10 +157,14 @@ export default function DeviceAnalytics({ data }: DeviceAnalyticsProps) {
 
   const getDeviceIcon = (device: string) => {
     switch (device.toLowerCase()) {
-      case 'mobile': return Smartphone
-      case 'desktop': return Monitor
-      case 'tablet': return Tablet
-      default: return Globe
+      case 'mobile':
+        return Smartphone
+      case 'desktop':
+        return Monitor
+      case 'tablet':
+        return Tablet
+      default:
+        return Globe
     }
   }
 
@@ -171,28 +178,32 @@ export default function DeviceAnalytics({ data }: DeviceAnalyticsProps) {
             <canvas ref={deviceChartRef}></canvas>
           </div>
           <div className="space-y-3">
-            {data.devices && Object.entries(data.devices).map(([device, percentage]) => {
-              const Icon = getDeviceIcon(device)
-              return (
-                <div key={device} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <Icon className="h-5 w-5 text-gray-600" />
-                    <span className="font-medium text-gray-900 capitalize">{device}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-24 bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full"
-                        style={{ width: `${percentage}%` }}
-                      ></div>
+            {data.devices &&
+              Object.entries(data.devices).map(([device, percentage]) => {
+                const Icon = getDeviceIcon(device)
+                return (
+                  <div
+                    key={device}
+                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <Icon className="h-5 w-5 text-gray-600" />
+                      <span className="font-medium text-gray-900 capitalize">{device}</span>
                     </div>
-                    <span className="text-sm font-semibold text-gray-700 w-12 text-right">
-                      {percentage}%
-                    </span>
+                    <div className="flex items-center space-x-2">
+                      <div className="w-24 bg-gray-200 rounded-full h-2">
+                        <div
+                          className="bg-blue-600 h-2 rounded-full"
+                          style={{ width: `${percentage}%` }}
+                        ></div>
+                      </div>
+                      <span className="text-sm font-semibold text-gray-700 w-12 text-right">
+                        {percentage}%
+                      </span>
+                    </div>
                   </div>
-                </div>
-              )
-            })}
+                )
+              })}
           </div>
         </div>
       </div>

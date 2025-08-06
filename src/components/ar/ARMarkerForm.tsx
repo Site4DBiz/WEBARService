@@ -9,7 +9,7 @@ import {
   Check,
   Loader2,
   Info,
-  Cube,
+  Box,
   Eye,
   X,
   Palette,
@@ -605,7 +605,7 @@ export function ARMarkerForm() {
               {formData.modelFile ? (
                 <div className="space-y-4">
                   <div className="flex items-center justify-center gap-4">
-                    <Cube className="h-8 w-8 text-blue-500" />
+                    <Box className="h-8 w-8 text-blue-500" />
                     <div className="text-left">
                       <p className="font-medium">{formData.modelFile.name}</p>
                       <p className="text-sm text-gray-500">
@@ -651,7 +651,7 @@ export function ARMarkerForm() {
                 </div>
               ) : (
                 <div className="space-y-2">
-                  <Cube className="mx-auto h-12 w-12 text-gray-400" />
+                  <Box className="mx-auto h-12 w-12 text-gray-400" />
                   <p className="text-gray-600">
                     クリックまたはドラッグ＆ドロップで3Dモデルをアップロード
                   </p>

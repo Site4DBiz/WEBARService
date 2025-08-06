@@ -93,7 +93,7 @@ export default async function HomePage() {
             Browse AR Gallery
           </Link>
         </div>
-        
+
         <div className="flex gap-4 justify-center">
           <Link
             href="/ar-markers"

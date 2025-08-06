@@ -176,9 +176,7 @@ export default function ARContentForm({
     const fileName = `${Math.random()}.${fileExt}`
     const filePath = `${fileName}`
 
-    const { error: uploadError } = await supabase.storage
-      .from(bucket)
-      .upload(filePath, file)
+    const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file)
 
     if (uploadError) throw uploadError
 
@@ -228,10 +226,7 @@ export default function ARContentForm({
         if (error) throw error
       } else {
         // Update existing content
-        const { error } = await supabase
-          .from('ar_contents')
-          .update(contentData)
-          .eq('id', contentId)
+        const { error } = await supabase.from('ar_contents').update(contentData).eq('id', contentId)
         if (error) throw error
       }
 
@@ -412,7 +407,7 @@ export default function ARContentForm({
           {/* Transform Settings */}
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Transform Settings</h3>
-            
+
             <div>
               <Label htmlFor="scale">Scale</Label>
               <Input
@@ -548,7 +543,10 @@ export default function ARContentForm({
               onChange={(e) =>
                 setFormData({
                   ...formData,
-                  tags: e.target.value.split(',').map((tag) => tag.trim()).filter(Boolean),
+                  tags: e.target.value
+                    .split(',')
+                    .map((tag) => tag.trim())
+                    .filter(Boolean),
                 })
               }
               placeholder="e.g. education, interactive, 3d"

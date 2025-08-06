@@ -25,7 +25,10 @@ interface ContentPerformanceProps {
   title?: string
 }
 
-export default function ContentPerformance({ data, title = 'Content Performance' }: ContentPerformanceProps) {
+export default function ContentPerformance({
+  data,
+  title = 'Content Performance',
+}: ContentPerformanceProps) {
   if (!data) {
     return (
       <div className="bg-white rounded-lg shadow p-6">
@@ -44,7 +47,7 @@ export default function ContentPerformance({ data, title = 'Content Performance'
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-6">{title}</h3>
-      
+
       <div className="space-y-6">
         {/* Top Contents */}
         {data.contents && data.contents.length > 0 && (
@@ -55,14 +58,22 @@ export default function ContentPerformance({ data, title = 'Content Performance'
             </h4>
             <div className="space-y-3">
               {data.contents.map((content, index) => (
-                <div key={content.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div
+                  key={content.id}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
                   <div className="flex items-center space-x-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm ${
-                      index === 0 ? 'bg-yellow-500' :
-                      index === 1 ? 'bg-gray-400' :
-                      index === 2 ? 'bg-orange-600' :
-                      'bg-blue-600'
-                    }`}>
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold text-sm ${
+                        index === 0
+                          ? 'bg-yellow-500'
+                          : index === 1
+                            ? 'bg-gray-400'
+                            : index === 2
+                              ? 'bg-orange-600'
+                              : 'bg-blue-600'
+                      }`}
+                    >
                       {index + 1}
                     </div>
                     <div>
@@ -93,9 +104,13 @@ export default function ContentPerformance({ data, title = 'Content Performance'
             </h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {data.creators.map((creator, index) => (
-                <div key={creator.id} className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div
+                  key={creator.id}
+                  className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                >
                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold">
-                    {creator.username?.charAt(0).toUpperCase() || creator.email?.charAt(0).toUpperCase()}
+                    {creator.username?.charAt(0).toUpperCase() ||
+                      creator.email?.charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1">
                     <p className="font-medium text-gray-900 text-sm">
@@ -119,7 +134,10 @@ export default function ContentPerformance({ data, title = 'Content Performance'
             </h4>
             <div className="space-y-2">
               {data.engagement.map((item) => (
-                <div key={item.id} className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg">
+                <div
+                  key={item.id}
+                  className="p-3 bg-gradient-to-r from-purple-50 to-blue-50 rounded-lg"
+                >
                   <div className="flex items-center justify-between mb-2">
                     <p className="font-medium text-gray-900 text-sm">{item.title}</p>
                     <span className="px-2 py-1 bg-purple-100 text-purple-700 text-xs font-semibold rounded">
@@ -138,14 +156,14 @@ export default function ContentPerformance({ data, title = 'Content Performance'
           </div>
         )}
 
-        {(!data.contents || data.contents.length === 0) && 
-         (!data.creators || data.creators.length === 0) && 
-         (!data.engagement || data.engagement.length === 0) && (
-          <div className="text-center py-8 text-gray-500">
-            <FileText className="h-12 w-12 mx-auto mb-3 text-gray-400" />
-            <p>No performance data available</p>
-          </div>
-        )}
+        {(!data.contents || data.contents.length === 0) &&
+          (!data.creators || data.creators.length === 0) &&
+          (!data.engagement || data.engagement.length === 0) && (
+            <div className="text-center py-8 text-gray-500">
+              <FileText className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+              <p>No performance data available</p>
+            </div>
+          )}
       </div>
     </div>
   )

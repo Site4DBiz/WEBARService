@@ -2,23 +2,23 @@
 
 import { useState, useEffect } from 'react'
 import { SystemStatus as SystemStatusType } from '@/app/api/system-status/route'
-import { 
-  Activity, 
-  AlertCircle, 
-  CheckCircle, 
-  Clock, 
-  Cpu, 
-  Database, 
-  HardDrive, 
-  Key, 
-  RefreshCw, 
+import {
+  Activity,
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Cpu,
+  Database,
+  HardDrive,
+  Key,
+  RefreshCw,
   Server,
   TrendingUp,
   Users,
   Zap,
   AlertTriangle,
   Wifi,
-  WifiOff
+  WifiOff,
 } from 'lucide-react'
 
 export default function SystemStatus() {
@@ -44,7 +44,7 @@ export default function SystemStatus() {
 
   useEffect(() => {
     fetchStatus()
-    
+
     if (autoRefresh) {
       const interval = setInterval(fetchStatus, 30000) // Refresh every 30 seconds
       return () => clearInterval(interval)
@@ -100,7 +100,7 @@ export default function SystemStatus() {
     const days = Math.floor(seconds / 86400)
     const hours = Math.floor((seconds % 86400) / 3600)
     const minutes = Math.floor((seconds % 3600) / 60)
-    
+
     if (days > 0) return `${days}d ${hours}h ${minutes}m`
     if (hours > 0) return `${hours}h ${minutes}m`
     return `${minutes}m`
@@ -144,14 +144,13 @@ export default function SystemStatus() {
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
             <div className={`p-3 rounded-lg ${getStatusBgColor(status.status)}`}>
-              <div className={getStatusColor(status.status)}>
-                {getStatusIcon(status.status)}
-              </div>
+              <div className={getStatusColor(status.status)}>{getStatusIcon(status.status)}</div>
             </div>
             <div>
               <h2 className="text-2xl font-bold text-gray-900">System Status</h2>
               <p className="text-sm text-gray-500">
-                Overall Status: <span className={`font-semibold ${getStatusColor(status.status)}`}>
+                Overall Status:{' '}
+                <span className={`font-semibold ${getStatusColor(status.status)}`}>
                   {status.status.toUpperCase()}
                 </span>
               </p>
@@ -185,7 +184,7 @@ export default function SystemStatus() {
             </button>
           </div>
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
             <Clock className="w-5 h-5 text-gray-500" />
@@ -244,9 +243,7 @@ export default function SystemStatus() {
                     <span className="font-medium text-gray-900">{service.responseTime}ms</span>
                   </div>
                 )}
-                {service.message && (
-                  <p className="text-xs text-gray-500 mt-2">{service.message}</p>
-                )}
+                {service.message && <p className="text-xs text-gray-500 mt-2">{service.message}</p>}
               </div>
             </div>
           ))}
@@ -265,21 +262,27 @@ export default function SystemStatus() {
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Used</span>
               <span className="font-medium text-gray-900">
-                {formatBytes(status.metrics.memory.used)} / {formatBytes(status.metrics.memory.total)}
+                {formatBytes(status.metrics.memory.used)} /{' '}
+                {formatBytes(status.metrics.memory.total)}
               </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div 
+              <div
                 className={`h-2 rounded-full transition-all ${
-                  status.metrics.memory.percentage > 90 ? 'bg-red-500' :
-                  status.metrics.memory.percentage > 70 ? 'bg-yellow-500' : 'bg-green-500'
+                  status.metrics.memory.percentage > 90
+                    ? 'bg-red-500'
+                    : status.metrics.memory.percentage > 70
+                      ? 'bg-yellow-500'
+                      : 'bg-green-500'
                 }`}
                 style={{ width: `${status.metrics.memory.percentage}%` }}
               />
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Free</span>
-              <span className="font-medium text-gray-900">{formatBytes(status.metrics.memory.free)}</span>
+              <span className="font-medium text-gray-900">
+                {formatBytes(status.metrics.memory.free)}
+              </span>
             </div>
           </div>
         </div>
@@ -293,10 +296,15 @@ export default function SystemStatus() {
           <div className="space-y-3">
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Usage</span>
-              <span className={`font-medium ${
-                status.metrics.cpu.usage > 80 ? 'text-red-600' :
-                status.metrics.cpu.usage > 60 ? 'text-yellow-600' : 'text-green-600'
-              }`}>
+              <span
+                className={`font-medium ${
+                  status.metrics.cpu.usage > 80
+                    ? 'text-red-600'
+                    : status.metrics.cpu.usage > 60
+                      ? 'text-yellow-600'
+                      : 'text-green-600'
+                }`}
+              >
                 {status.metrics.cpu.usage}%
               </span>
             </div>
@@ -334,10 +342,15 @@ export default function SystemStatus() {
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-500">Error Rate</span>
-              <span className={`font-medium ${
-                status.metrics.performance.errorRate > 5 ? 'text-red-600' :
-                status.metrics.performance.errorRate > 2 ? 'text-yellow-600' : 'text-green-600'
-              }`}>
+              <span
+                className={`font-medium ${
+                  status.metrics.performance.errorRate > 5
+                    ? 'text-red-600'
+                    : status.metrics.performance.errorRate > 2
+                      ? 'text-yellow-600'
+                      : 'text-green-600'
+                }`}
+              >
                 {status.metrics.performance.errorRate.toFixed(2)}%
               </span>
             </div>
@@ -379,9 +392,11 @@ export default function SystemStatus() {
             <div className="space-y-2">
               {status.activity.recentErrors.map((error, index) => (
                 <div key={index} className="flex items-start gap-3 p-3 bg-red-50 rounded-lg">
-                  <AlertCircle className={`w-4 h-4 mt-0.5 ${
-                    error.level === 'error' ? 'text-red-500' : 'text-yellow-500'
-                  }`} />
+                  <AlertCircle
+                    className={`w-4 h-4 mt-0.5 ${
+                      error.level === 'error' ? 'text-red-500' : 'text-yellow-500'
+                    }`}
+                  />
                   <div className="flex-1">
                     <p className="text-sm text-gray-900">{error.message}</p>
                     <div className="flex items-center gap-4 mt-1">

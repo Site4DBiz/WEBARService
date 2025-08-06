@@ -65,10 +65,12 @@ export default function UserDetailsPage() {
   const params = useParams()
   const router = useRouter()
   const userId = params.id as string
-  
+
   const [user, setUser] = useState<UserDetails | null>(null)
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'activity' | 'settings'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'content' | 'activity' | 'settings'>(
+    'overview'
+  )
 
   const supabase = createClient()
 
@@ -81,7 +83,8 @@ export default function UserDetailsPage() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select(`
+        .select(
+          `
           *,
           auth_users:auth.users!profiles_id_fkey (
             email,
@@ -108,7 +111,8 @@ export default function UserDetailsPage() {
             view_count,
             created_at
           )
-        `)
+        `
+        )
         .eq('id', userId)
         .single()
 
@@ -195,23 +199,31 @@ export default function UserDetailsPage() {
                     <h1 className="text-3xl font-bold">
                       {user.full_name || user.username || 'Unnamed User'}
                     </h1>
-                    {user.username && (
-                      <p className="text-white/80">@{user.username}</p>
-                    )}
+                    {user.username && <p className="text-white/80">@{user.username}</p>}
                     <div className="flex items-center gap-3 mt-2">
-                      <span className={`px-3 py-1 text-xs font-medium rounded-full border ${getRoleBadgeColor(user.role)}`}>
+                      <span
+                        className={`px-3 py-1 text-xs font-medium rounded-full border ${getRoleBadgeColor(user.role)}`}
+                      >
                         <Shield className="w-3 h-3 inline mr-1" />
                         {user.role}
                       </span>
-                      <span className={`px-3 py-1 text-xs font-medium rounded-full ${
-                        user.is_public
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
+                      <span
+                        className={`px-3 py-1 text-xs font-medium rounded-full ${
+                          user.is_public
+                            ? 'bg-green-100 text-green-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}
+                      >
                         {user.is_public ? (
-                          <><Unlock className="w-3 h-3 inline mr-1" />Public</>
+                          <>
+                            <Unlock className="w-3 h-3 inline mr-1" />
+                            Public
+                          </>
                         ) : (
-                          <><Lock className="w-3 h-3 inline mr-1" />Private</>
+                          <>
+                            <Lock className="w-3 h-3 inline mr-1" />
+                            Private
+                          </>
                         )}
                       </span>
                     </div>
@@ -270,7 +282,12 @@ export default function UserDetailsPage() {
                         </dt>
                         <dd className="text-sm text-gray-900">
                           {user.website ? (
-                            <a href={user.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                            <a
+                              href={user.website}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:underline"
+                            >
                               {user.website}
                             </a>
                           ) : (
@@ -335,7 +352,10 @@ export default function UserDetailsPage() {
                         <div className="flex items-center justify-between">
                           <Eye className="w-8 h-8 text-purple-600" />
                           <span className="text-2xl font-bold text-purple-900">
-                            {user.user_ar_contents?.reduce((sum, content) => sum + content.view_count, 0) || 0}
+                            {user.user_ar_contents?.reduce(
+                              (sum, content) => sum + content.view_count,
+                              0
+                            ) || 0}
                           </span>
                         </div>
                         <p className="text-sm text-purple-700 mt-2">Total Views</p>
@@ -371,11 +391,13 @@ export default function UserDetailsPage() {
                                   <Calendar className="w-4 h-4" />
                                   {new Date(content.created_at).toLocaleDateString()}
                                 </span>
-                                <span className={`px-2 py-1 rounded-full text-xs ${
-                                  content.is_public
-                                    ? 'bg-green-100 text-green-800'
-                                    : 'bg-gray-100 text-gray-800'
-                                }`}>
+                                <span
+                                  className={`px-2 py-1 rounded-full text-xs ${
+                                    content.is_public
+                                      ? 'bg-green-100 text-green-800'
+                                      : 'bg-gray-100 text-gray-800'
+                                  }`}
+                                >
                                   {content.is_public ? 'Public' : 'Private'}
                                 </span>
                               </div>
@@ -415,11 +437,13 @@ export default function UserDetailsPage() {
                       <h4 className="font-medium text-gray-900 mb-2">Account Status</h4>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">Profile Visibility</span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          user.is_public
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-gray-100 text-gray-800'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            user.is_public
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-gray-100 text-gray-800'
+                          }`}
+                        >
                           {user.is_public ? 'Public' : 'Private'}
                         </span>
                       </div>
@@ -428,11 +452,13 @@ export default function UserDetailsPage() {
                       <h4 className="font-medium text-gray-900 mb-2">Email Verification</h4>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600">Email Status</span>
-                        <span className={`px-3 py-1 rounded-full text-xs font-medium ${
-                          user.auth_users?.email_confirmed_at
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-yellow-100 text-yellow-800'
-                        }`}>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-medium ${
+                            user.auth_users?.email_confirmed_at
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}
+                        >
                           {user.auth_users?.email_confirmed_at ? 'Verified' : 'Unverified'}
                         </span>
                       </div>

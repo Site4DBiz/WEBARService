@@ -18,19 +18,19 @@ export default function ExportButton({ data, onExport }: ExportButtonProps) {
       // Flatten the data structure for CSV export
       const csvData = flattenData(data)
       const csv = convertToCSV(csvData)
-      
+
       // Create blob and download
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' })
       const link = document.createElement('a')
       const url = URL.createObjectURL(blob)
-      
+
       link.setAttribute('href', url)
       link.setAttribute('download', `analytics-${new Date().toISOString().split('T')[0]}.csv`)
       link.style.visibility = 'hidden'
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      
+
       if (onExport) onExport('csv')
     } catch (error) {
       console.error('Export failed:', error)
@@ -54,12 +54,12 @@ export default function ExportButton({ data, onExport }: ExportButtonProps) {
       const htmlContent = generatePDFHTML(data)
       printWindow.document.write(htmlContent)
       printWindow.document.close()
-      
+
       // Trigger print dialog after content loads
       printWindow.onload = () => {
         printWindow.print()
       }
-      
+
       if (onExport) onExport('pdf')
     } catch (error) {
       console.error('Export failed:', error)
@@ -83,10 +83,7 @@ export default function ExportButton({ data, onExport }: ExportButtonProps) {
 
       {isOpen && (
         <>
-          <div 
-            className="fixed inset-0 z-10" 
-            onClick={() => setIsOpen(false)}
-          ></div>
+          <div className="fixed inset-0 z-10" onClick={() => setIsOpen(false)}></div>
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-20">
             <button
               onClick={handleExportCSV}
@@ -113,43 +110,43 @@ export default function ExportButton({ data, onExport }: ExportButtonProps) {
 
 function flattenData(data: any): any[] {
   if (!data) return []
-  
+
   const flattened: any[] = []
-  
+
   // Overview metrics
   if (data.overview) {
     flattened.push({
       category: 'Overview',
       metric: 'Total Users',
-      value: data.overview.users?.total || 0
+      value: data.overview.users?.total || 0,
     })
     flattened.push({
       category: 'Overview',
       metric: 'New Users',
-      value: data.overview.users?.new || 0
+      value: data.overview.users?.new || 0,
     })
     flattened.push({
       category: 'Overview',
       metric: 'Active Users',
-      value: data.overview.users?.active || 0
+      value: data.overview.users?.active || 0,
     })
     flattened.push({
       category: 'Overview',
       metric: 'Total Contents',
-      value: data.overview.contents?.total || 0
+      value: data.overview.contents?.total || 0,
     })
     flattened.push({
       category: 'Overview',
       metric: 'Total Views',
-      value: data.overview.views?.total || 0
+      value: data.overview.views?.total || 0,
     })
     flattened.push({
       category: 'Overview',
       metric: 'Total Sessions',
-      value: data.overview.sessions?.total || 0
+      value: data.overview.sessions?.total || 0,
     })
   }
-  
+
   // Time series data
   if (data.timeSeries) {
     data.timeSeries.forEach((point: any) => {
@@ -160,38 +157,40 @@ function flattenData(data: any): any[] {
         users: point.users,
         views: point.views,
         sessions: point.sessions,
-        contents: point.contents
+        contents: point.contents,
       })
     })
   }
-  
+
   return flattened
 }
 
 function convertToCSV(data: any[]): string {
   if (data.length === 0) return ''
-  
+
   const headers = Object.keys(data[0])
   const csvHeaders = headers.join(',')
-  
-  const csvRows = data.map(row => {
-    return headers.map(header => {
-      const value = row[header]
-      // Escape quotes and wrap in quotes if contains comma
-      if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
-        return `"${value.replace(/"/g, '""')}"`
-      }
-      return value
-    }).join(',')
+
+  const csvRows = data.map((row) => {
+    return headers
+      .map((header) => {
+        const value = row[header]
+        // Escape quotes and wrap in quotes if contains comma
+        if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+          return `"${value.replace(/"/g, '""')}"`
+        }
+        return value
+      })
+      .join(',')
   })
-  
+
   return [csvHeaders, ...csvRows].join('\n')
 }
 
 function generatePDFHTML(data: any): string {
   const date = new Date().toLocaleDateString()
   const time = new Date().toLocaleTimeString()
-  
+
   return `
     <!DOCTYPE html>
     <html>
@@ -274,7 +273,9 @@ function generatePDFHTML(data: any): string {
         </div>
       </div>
       
-      ${data?.timeSeries ? `
+      ${
+        data?.timeSeries
+          ? `
         <h2>Time Series Data</h2>
         <table>
           <thead>
@@ -287,7 +288,9 @@ function generatePDFHTML(data: any): string {
             </tr>
           </thead>
           <tbody>
-            ${data.timeSeries.map((point: any) => `
+            ${data.timeSeries
+              .map(
+                (point: any) => `
               <tr>
                 <td>${point.date}</td>
                 <td>${point.users || 0}</td>
@@ -295,12 +298,18 @@ function generatePDFHTML(data: any): string {
                 <td>${point.sessions || 0}</td>
                 <td>${point.contents || 0}</td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </tbody>
         </table>
-      ` : ''}
+      `
+          : ''
+      }
       
-      ${data?.demographics?.devices ? `
+      ${
+        data?.demographics?.devices
+          ? `
         <h2>Device Distribution</h2>
         <table>
           <thead>
@@ -310,15 +319,21 @@ function generatePDFHTML(data: any): string {
             </tr>
           </thead>
           <tbody>
-            ${Object.entries(data.demographics.devices.devices || {}).map(([device, percentage]) => `
+            ${Object.entries(data.demographics.devices.devices || {})
+              .map(
+                ([device, percentage]) => `
               <tr>
                 <td>${device}</td>
                 <td>${percentage}%</td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join('')}
           </tbody>
         </table>
-      ` : ''}
+      `
+          : ''
+      }
     </body>
     </html>
   `

@@ -44,7 +44,9 @@ export default function ARContentsListPage() {
   }, [contentTypeFilter, sortBy, currentPage])
 
   const checkUser = async () => {
-    const { data: { session } } = await supabase.auth.getSession()
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
     setUserId(session?.user?.id || null)
   }
 
@@ -53,7 +55,8 @@ export default function ARContentsListPage() {
     try {
       let query = supabase
         .from('user_ar_contents')
-        .select(`
+        .select(
+          `
           *,
           profiles:user_id (
             username,
@@ -61,7 +64,9 @@ export default function ARContentsListPage() {
             avatar_url
           ),
           user_favorites (id)
-        `, { count: 'exact' })
+        `,
+          { count: 'exact' }
+        )
         .eq('is_public', true)
 
       if (contentTypeFilter !== 'all') {
@@ -78,7 +83,7 @@ export default function ARContentsListPage() {
 
       const from = (currentPage - 1) * itemsPerPage
       const to = from + itemsPerPage - 1
-      
+
       const { data, error, count } = await query.range(from, to)
 
       if (error) {
@@ -110,9 +115,7 @@ export default function ARContentsListPage() {
         .eq('user_id', userId)
         .eq('content_id', contentId)
     } else {
-      await supabase
-        .from('user_favorites')
-        .insert({ user_id: userId, content_id: contentId })
+      await supabase.from('user_favorites').insert({ user_id: userId, content_id: contentId })
     }
 
     fetchContents()
@@ -122,9 +125,10 @@ export default function ARContentsListPage() {
     await supabase.rpc('increment_view_count', { content_id: contentId })
   }
 
-  const filteredContents = contents.filter(content =>
-    content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    content.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredContents = contents.filter(
+    (content) =>
+      content.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      content.description?.toLowerCase().includes(searchQuery.toLowerCase())
   )
 
   return (
@@ -132,7 +136,9 @@ export default function ARContentsListPage() {
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">AR Contents Gallery</h1>
-          <p className="text-gray-600 text-lg">Explore public AR experiences created by our community</p>
+          <p className="text-gray-600 text-lg">
+            Explore public AR experiences created by our community
+          </p>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-6 mb-8">
@@ -202,8 +208,10 @@ export default function ARContentsListPage() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredContents.map((content) => {
-                  const isFavorited = userId ? content.user_favorites.some(fav => fav.id === userId) : false
-                  
+                  const isFavorited = userId
+                    ? content.user_favorites.some((fav) => fav.id === userId)
+                    : false
+
                   return (
                     <div
                       key={content.id}
@@ -233,7 +241,7 @@ export default function ARContentsListPage() {
                         <h3 className="font-semibold text-lg text-gray-900 mb-2 truncate">
                           {content.title}
                         </h3>
-                        
+
                         {content.description && (
                           <p className="text-gray-600 text-sm mb-3 line-clamp-2">
                             {content.description}
@@ -263,7 +271,9 @@ export default function ARContentsListPage() {
                               <User className="w-6 h-6 text-gray-400" />
                             )}
                             <span className="text-sm text-gray-600">
-                              {content.profiles.username || content.profiles.full_name || 'Anonymous'}
+                              {content.profiles.username ||
+                                content.profiles.full_name ||
+                                'Anonymous'}
                             </span>
                           </div>
                         )}
@@ -299,16 +309,16 @@ export default function ARContentsListPage() {
             {totalPages > 1 && (
               <div className="mt-8 flex justify-center items-center gap-2">
                 <button
-                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                   disabled={currentPage === 1}
                   className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
-                
+
                 <div className="flex gap-1">
                   {Array.from({ length: totalPages }, (_, i) => i + 1)
-                    .filter(page => {
+                    .filter((page) => {
                       const distance = Math.abs(page - currentPage)
                       return distance === 0 || distance === 1 || page === 1 || page === totalPages
                     })
@@ -332,7 +342,7 @@ export default function ARContentsListPage() {
                 </div>
 
                 <button
-                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
                   disabled={currentPage === totalPages}
                   className="p-2 rounded-lg border border-gray-300 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >

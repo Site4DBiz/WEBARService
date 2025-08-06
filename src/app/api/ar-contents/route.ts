@@ -194,16 +194,14 @@ export async function POST(request: NextRequest) {
 
     // マーカー情報も作成（もし提供されていれば）
     if (body.marker_image_url && data) {
-      const { error: markerError } = await supabase
-        .from('ar_markers')
-        .insert({
-          content_id: data.id,
-          marker_type: 'image',
-          marker_image_url: body.marker_image_url,
-          is_active: true,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        })
+      const { error: markerError } = await supabase.from('ar_markers').insert({
+        content_id: data.id,
+        marker_type: 'image',
+        marker_image_url: body.marker_image_url,
+        is_active: true,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      })
 
       if (markerError) {
         console.error('Error creating AR marker:', markerError)

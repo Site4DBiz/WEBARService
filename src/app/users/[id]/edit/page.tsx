@@ -39,12 +39,12 @@ export default function UserEditPage() {
   const params = useParams()
   const router = useRouter()
   const userId = params.id as string
-  
+
   const [user, setUser] = useState<UserEditData | null>(null)
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
-  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null)
-  
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null)
+
   const [formData, setFormData] = useState({
     username: '',
     full_name: '',
@@ -65,12 +65,14 @@ export default function UserEditPage() {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select(`
+        .select(
+          `
           *,
           auth_users:auth.users!profiles_id_fkey (
             email
           )
-        `)
+        `
+        )
         .eq('id', userId)
         .single()
 
@@ -129,16 +131,16 @@ export default function UserEditPage() {
       }
 
       setMessage({ type: 'success', text: 'User updated successfully' })
-      
+
       // Redirect after 2 seconds
       setTimeout(() => {
         router.push(`/users/${userId}`)
       }, 2000)
     } catch (error) {
       console.error('Error updating user:', error)
-      setMessage({ 
-        type: 'error', 
-        text: error instanceof Error ? error.message : 'Failed to update user' 
+      setMessage({
+        type: 'error',
+        text: error instanceof Error ? error.message : 'Failed to update user',
       })
     } finally {
       setSaving(false)
@@ -193,11 +195,13 @@ export default function UserEditPage() {
 
             <form onSubmit={handleSubmit} className="p-6">
               {message && (
-                <div className={`mb-6 p-4 rounded-lg flex items-center gap-2 ${
-                  message.type === 'success' 
-                    ? 'bg-green-50 text-green-800 border border-green-200' 
-                    : 'bg-red-50 text-red-800 border border-red-200'
-                }`}>
+                <div
+                  className={`mb-6 p-4 rounded-lg flex items-center gap-2 ${
+                    message.type === 'success'
+                      ? 'bg-green-50 text-green-800 border border-green-200'
+                      : 'bg-red-50 text-red-800 border border-red-200'
+                  }`}
+                >
                   {message.type === 'success' ? (
                     <Check className="w-5 h-5" />
                   ) : (
@@ -287,7 +291,9 @@ export default function UserEditPage() {
                     </label>
                     <select
                       value={formData.role}
-                      onChange={(e) => setFormData({ ...formData, role: e.target.value as UserRole })}
+                      onChange={(e) =>
+                        setFormData({ ...formData, role: e.target.value as UserRole })
+                      }
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="viewer">Viewer</option>

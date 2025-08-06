@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createServerClient } from '@/lib/supabase-server'
 
 // GET: 個別のARコンテンツを取得
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const supabase = createServerClient()
     const { id } = params
@@ -58,10 +55,7 @@ export async function GET(
 }
 
 // PUT: ARコンテンツを更新
-export async function PUT(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const supabase = createServerClient()
     const { id } = params
@@ -167,10 +161,7 @@ export async function PUT(
 }
 
 // DELETE: ARコンテンツを削除（ソフトデリート）
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const supabase = createServerClient()
     const { id } = params
@@ -215,9 +206,9 @@ export async function DELETE(
     // ソフトデリート
     const { error } = await supabase
       .from('ar_contents')
-      .update({ 
+      .update({
         status: 'deleted',
-        updated_at: new Date().toISOString()
+        updated_at: new Date().toISOString(),
       })
       .eq('id', id)
 

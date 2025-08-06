@@ -29,7 +29,7 @@ export default function EngagementMetrics({ data }: EngagementMetricsProps) {
       change: '+12%',
       icon: Clock,
       color: 'blue',
-      description: 'Time users spend per session'
+      description: 'Time users spend per session',
     },
     {
       label: 'Bounce Rate',
@@ -38,7 +38,7 @@ export default function EngagementMetrics({ data }: EngagementMetricsProps) {
       icon: MousePointer,
       color: 'green',
       description: 'Users who leave after one page',
-      isInverse: true
+      isInverse: true,
     },
     {
       label: 'Pages per Session',
@@ -46,7 +46,7 @@ export default function EngagementMetrics({ data }: EngagementMetricsProps) {
       change: '+8%',
       icon: Target,
       color: 'purple',
-      description: 'Average pages viewed per visit'
+      description: 'Average pages viewed per visit',
     },
     {
       label: 'Active Users',
@@ -54,7 +54,7 @@ export default function EngagementMetrics({ data }: EngagementMetricsProps) {
       change: `+${data.overview?.users?.growthRate || 15}%`,
       icon: Users,
       color: 'yellow',
-      description: 'Currently active users'
+      description: 'Currently active users',
     },
     {
       label: 'Engagement Rate',
@@ -62,7 +62,7 @@ export default function EngagementMetrics({ data }: EngagementMetricsProps) {
       change: '+3%',
       icon: Activity,
       color: 'indigo',
-      description: 'Users who actively interact'
+      description: 'Users who actively interact',
     },
     {
       label: 'Return Rate',
@@ -70,32 +70,37 @@ export default function EngagementMetrics({ data }: EngagementMetricsProps) {
       change: '+7%',
       icon: TrendingUp,
       color: 'pink',
-      description: 'Users who return within 7 days'
-    }
+      description: 'Users who return within 7 days',
+    },
   ]
 
   return (
     <div className="space-y-6">
       <div className="bg-white rounded-lg shadow p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-6">Engagement Metrics</h3>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {metrics.map((metric, index) => {
             const Icon = metric.icon
             const isPositive = metric.change.startsWith('+')
-            const changeColor = metric.isInverse 
-              ? (isPositive ? 'text-red-600' : 'text-green-600')
-              : (isPositive ? 'text-green-600' : 'text-red-600')
-            
+            const changeColor = metric.isInverse
+              ? isPositive
+                ? 'text-red-600'
+                : 'text-green-600'
+              : isPositive
+                ? 'text-green-600'
+                : 'text-red-600'
+
             return (
-              <div key={index} className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors">
+              <div
+                key={index}
+                className="bg-gray-50 rounded-lg p-4 hover:bg-gray-100 transition-colors"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className={`p-2 rounded-lg bg-${metric.color}-100`}>
                     <Icon className={`h-5 w-5 text-${metric.color}-600`} />
                   </div>
-                  <span className={`text-sm font-medium ${changeColor}`}>
-                    {metric.change}
-                  </span>
+                  <span className={`text-sm font-medium ${changeColor}`}>{metric.change}</span>
                 </div>
                 <div className="mb-2">
                   <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
@@ -117,7 +122,7 @@ export default function EngagementMetrics({ data }: EngagementMetricsProps) {
             { stage: 'Interactions', value: 6800, percentage: 68 },
             { stage: 'AR Sessions', value: 4200, percentage: 42 },
             { stage: 'Completions', value: 2100, percentage: 21 },
-            { stage: 'Shares', value: 840, percentage: 8.4 }
+            { stage: 'Shares', value: 840, percentage: 8.4 },
           ].map((stage, index) => (
             <div key={index} className="relative">
               <div className="flex items-center justify-between mb-1">
@@ -127,18 +132,22 @@ export default function EngagementMetrics({ data }: EngagementMetricsProps) {
                 </span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-8">
-                <div 
+                <div
                   className="bg-gradient-to-r from-blue-500 to-blue-600 h-8 rounded-full flex items-center justify-end pr-3"
                   style={{ width: `${stage.percentage}%` }}
                 >
-                  <span className="text-xs text-white font-medium">
-                    {stage.percentage}%
-                  </span>
+                  <span className="text-xs text-white font-medium">{stage.percentage}%</span>
                 </div>
               </div>
               {index < 4 && (
                 <div className="text-xs text-gray-500 mt-1">
-                  Drop-off: {((stage.value - (index < 4 ? [6800, 4200, 2100, 840][index] : 0)) / stage.value * 100).toFixed(1)}%
+                  Drop-off:{' '}
+                  {(
+                    ((stage.value - (index < 4 ? [6800, 4200, 2100, 840][index] : 0)) /
+                      stage.value) *
+                    100
+                  ).toFixed(1)}
+                  %
                 </div>
               )}
             </div>
