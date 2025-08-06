@@ -46,7 +46,7 @@ function calculatePasswordStrength(password: string): PasswordStrength {
   return strengthMap[score] || strengthMap[0]
 }
 
-export default function AuthForm({ mode, onSubmit, error, success }: AuthFormProps) {
+export default function AuthForm({ mode, onSubmit, error }: AuthFormProps) {
   const [formData, setFormData] = useState<AuthFormData>({
     email: '',
     password: '',
@@ -119,59 +119,8 @@ export default function AuthForm({ mode, onSubmit, error, success }: AuthFormPro
     }
   }
   
-  if (success && mode === 'signup') {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full">
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mx-auto mb-4">
-              <Check className="w-8 h-8 text-green-600" />
-            </div>
-            <h2 className="text-2xl font-bold text-center text-gray-900 mb-4">
-              Account Created Successfully!
-            </h2>
-            <p className="text-center text-gray-600 mb-6">
-              Please check your email to confirm your account before signing in.
-            </p>
-            <Link
-              href="/auth/login"
-              className="block w-full text-center py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-            >
-              Go to Login
-            </Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
-        <div className="bg-white rounded-2xl shadow-xl p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              {mode === 'login' ? 'Welcome Back' : 'Create Account'}
-            </h2>
-            <p className="text-gray-600">
-              {mode === 'login' ? (
-                <>
-                  Don't have an account?{' '}
-                  <Link href="/auth/signup" className="text-blue-600 hover:text-blue-700 font-medium">
-                    Sign up
-                  </Link>
-                </>
-              ) : (
-                <>
-                  Already have an account?{' '}
-                  <Link href="/auth/login" className="text-blue-600 hover:text-blue-700 font-medium">
-                    Sign in
-                  </Link>
-                </>
-              )}
-            </p>
-          </div>
+    <div className="w-full">
           
           {/* Error Alert */}
           {error && (
@@ -366,8 +315,6 @@ export default function AuthForm({ mode, onSubmit, error, success }: AuthFormPro
               </p>
             )}
           </form>
-        </div>
-      </div>
     </div>
   )
 }

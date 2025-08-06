@@ -38,5 +38,12 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
+  // Add authentication status to response headers for middleware to check
+  if (user) {
+    supabaseResponse.headers.set('x-user-authenticated', 'true')
+  } else {
+    supabaseResponse.headers.set('x-user-authenticated', 'false')
+  }
+
   return supabaseResponse
 }
