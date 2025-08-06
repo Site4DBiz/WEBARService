@@ -4,7 +4,7 @@ import Link from 'next/link'
 import UserProfile from '@/components/dashboard/UserProfile'
 import SignOutButton from '@/components/dashboard/SignOutButton'
 import { UserRole } from '@/types/database'
-import { Shield, Upload, Settings, Users, Activity, Eye, BarChart3, FileText } from 'lucide-react'
+import { Shield, Upload, Settings, Users, Activity, Eye, BarChart3, FileText, Monitor } from 'lucide-react'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -176,6 +176,20 @@ export default async function DashboardPage() {
                         <div>
                           <dt className="text-sm font-medium text-gray-500">Users</dt>
                           <dd className="mt-1 text-lg font-semibold text-gray-900">Manage</dd>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link href="/system-status" className="block">
+                  <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="px-4 py-5 sm:p-6">
+                      <div className="flex items-center">
+                        <Monitor className="h-8 w-8 text-cyan-500 mr-3" />
+                        <div>
+                          <dt className="text-sm font-medium text-gray-500">System Status</dt>
+                          <dd className="mt-1 text-lg font-semibold text-gray-900">Monitor</dd>
                         </div>
                       </div>
                     </div>
