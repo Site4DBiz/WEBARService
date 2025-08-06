@@ -15,6 +15,10 @@ import {
   FileText,
   Monitor,
   UserCircle,
+  Package,
+  CheckCircle,
+  Tag,
+  Folder,
 } from 'lucide-react'
 
 export default async function DashboardPage() {
@@ -247,6 +251,48 @@ export default async function DashboardPage() {
                         <div>
                           <dt className="text-sm font-medium text-gray-500">Analytics</dt>
                           <dd className="mt-1 text-lg font-semibold text-gray-900">Insights</dd>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link href="/batch-jobs" className="block">
+                  <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="px-4 py-5 sm:p-6">
+                      <div className="flex items-center">
+                        <Package className="h-8 w-8 text-amber-500 mr-3" />
+                        <div>
+                          <dt className="text-sm font-medium text-gray-500">Batch Jobs</dt>
+                          <dd className="mt-1 text-lg font-semibold text-gray-900">Process</dd>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link href="/approval" className="block">
+                  <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="px-4 py-5 sm:p-6">
+                      <div className="flex items-center">
+                        <CheckCircle className="h-8 w-8 text-emerald-500 mr-3" />
+                        <div>
+                          <dt className="text-sm font-medium text-gray-500">Approvals</dt>
+                          <dd className="mt-1 text-lg font-semibold text-gray-900">Review</dd>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link href="/tags-categories" className="block">
+                  <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="px-4 py-5 sm:p-6">
+                      <div className="flex items-center">
+                        <Tag className="h-8 w-8 text-teal-500 mr-3" />
+                        <div>
+                          <dt className="text-sm font-medium text-gray-500">Tags & Categories</dt>
+                          <dd className="mt-1 text-lg font-semibold text-gray-900">Organize</dd>
                         </div>
                       </div>
                     </div>

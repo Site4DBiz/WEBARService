@@ -57,17 +57,24 @@ export async function processMarkerOptimization(job: BatchJob): Promise<JobResul
         const buffer = Buffer.from(await fileData.arrayBuffer())
 
         // Process the image
+        const qualityValue = config.quality === 'high' ? 95 : config.quality === 'low' ? 70 : 85
         const result = await processMarkerImage(buffer, {
-          quality: config.quality || 'medium',
-          resize: config.resize !== false,
-          enhance: config.enhance !== false,
+          quality: qualityValue,
+          maxWidth: config.resize !== false ? 1024 : undefined,
+          maxHeight: config.resize !== false ? 1024 : undefined,
+          sharpen: config.enhance !== false,
+          contrast: config.enhance !== false ? 1.1 : 1.0,
         })
+
+        // Calculate quality score
+        const { calculateMarkerQualityScore } = await import('@/lib/utils/marker-processor')
+        const qualityScore = await calculateMarkerQualityScore(result.buffer)
 
         // Upload optimized image
         const optimizedPath = `optimized/${marker.id}-optimized.jpg`
         const { error: uploadError } = await supabase.storage
           .from('ar-markers')
-          .upload(optimizedPath, result.optimized, {
+          .upload(optimizedPath, result.buffer, {
             upsert: true,
             contentType: 'image/jpeg',
           })
@@ -79,7 +86,7 @@ export async function processMarkerOptimization(job: BatchJob): Promise<JobResul
           .from('ar_markers')
           .update({
             optimized_url: optimizedPath,
-            quality_score: result.quality,
+            quality_score: qualityScore,
             metadata: {
               ...marker.metadata,
               optimized_at: new Date().toISOString(),
@@ -94,7 +101,7 @@ export async function processMarkerOptimization(job: BatchJob): Promise<JobResul
           .update({
             status: 'completed',
             completed_at: new Date().toISOString(),
-            processing_data: { quality_score: result.quality },
+            processing_data: { quality_score: qualityScore },
           })
           .eq('id', queueItem?.id)
 
