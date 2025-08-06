@@ -4,6 +4,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { useMindAR } from '@/hooks/useMindAR'
 import { ModelLoader, ModelConfig, createBasicShapes } from './ModelLoader'
+import { MarkerDetectionHandler, MarkerDetectionState } from './MarkerDetectionHandler'
+import { MultiMarkerManager, MarkerConfig } from './MultiMarkerManager'
 
 export type ARContentType = 'basic-cube' | 'basic-sphere' | 'custom-model' | 'particle' | 'text'
 
@@ -19,33 +21,50 @@ interface EnhancedMindARViewerProps {
   type: 'image' | 'face'
   targetUrl?: string
   content?: ARContent
-  onTargetFound?: () => void
-  onTargetLost?: () => void
+  markerConfigs?: MarkerConfig[]
+  onTargetFound?: (state?: MarkerDetectionState) => void
+  onTargetLost?: (state?: MarkerDetectionState) => void
+  onMarkerDetected?: (marker: MarkerConfig, state: MarkerDetectionState) => void
+  onMarkerLost?: (marker: MarkerConfig, state: MarkerDetectionState) => void
   showStats?: boolean
   enableLighting?: boolean
+  debugMode?: boolean
+  multiMarkerMode?: boolean
 }
 
 export const EnhancedMindARViewer: React.FC<EnhancedMindARViewerProps> = ({
   type,
   targetUrl,
   content = { type: 'basic-cube' },
+  markerConfigs = [],
   onTargetFound,
   onTargetLost,
+  onMarkerDetected,
+  onMarkerLost,
   showStats = false,
   enableLighting = true,
+  debugMode = false,
+  multiMarkerMode = false,
 }) => {
   const [isStarted, setIsStarted] = useState(false)
   const [loadingProgress, setLoadingProgress] = useState(0)
   const [targetStatus, setTargetStatus] = useState<'searching' | 'found' | 'lost'>('searching')
   const sceneRef = useRef<THREE.Scene | null>(null)
   const anchorRef = useRef<any>(null)
+  const anchorsRef = useRef<any[]>([])
   const modelLoaderRef = useRef<ModelLoader | null>(null)
   const animationRef = useRef<any>(null)
+
+  const maxTrack = multiMarkerMode ? Math.min(markerConfigs.length || 1, 5) : 1
 
   const { containerRef, mindAR, isLoading, isReady, error, start, stop, addAnchor } = useMindAR({
     type,
     imageTargetSrc: targetUrl,
-    maxTrack: 1,
+    maxTrack,
+    filterMinCF: 0.0001,
+    filterBeta: 1000,
+    warmupTolerance: 5,
+    missTolerance: 5,
   })
 
   useEffect(() => {
@@ -106,15 +125,34 @@ export const EnhancedMindARViewer: React.FC<EnhancedMindARViewerProps> = ({
           animationRef.current = arObject
         }
 
-        // Setup target event handlers
-        anchor.onTargetFound = () => {
-          setTargetStatus('found')
-          onTargetFound?.()
+        // Setup target event handlers for single marker mode
+        if (!multiMarkerMode) {
+          anchor.onTargetFound = () => {
+            setTargetStatus('found')
+            onTargetFound?.()
+          }
+
+          anchor.onTargetLost = () => {
+            setTargetStatus('lost')
+            onTargetLost?.()
+          }
         }
 
-        anchor.onTargetLost = () => {
-          setTargetStatus('lost')
-          onTargetLost?.()
+        // Store anchors for multi-marker mode
+        if (multiMarkerMode) {
+          anchorsRef.current = []
+          markerConfigs.forEach((config, index) => {
+            const markerAnchor = addAnchor(config.targetIndex)
+            if (markerAnchor) {
+              anchorsRef.current.push(markerAnchor)
+              // Add content to each marker
+              const markerContent = createBasicShapes.cube(
+                0.15,
+                config.targetIndex === 0 ? 0x00ff00 : 0xff0000
+              )
+              markerAnchor.group.add(markerContent)
+            }
+          })
         }
 
         // Animation loop
@@ -156,8 +194,19 @@ export const EnhancedMindARViewer: React.FC<EnhancedMindARViewerProps> = ({
       if (modelLoaderRef.current) {
         modelLoaderRef.current.dispose()
       }
+      anchorsRef.current = []
     }
-  }, [isReady, mindAR, content, enableLighting, addAnchor, onTargetFound, onTargetLost])
+  }, [
+    isReady,
+    mindAR,
+    content,
+    enableLighting,
+    addAnchor,
+    onTargetFound,
+    onTargetLost,
+    multiMarkerMode,
+    markerConfigs,
+  ])
 
   const handleStart = async () => {
     if (!isReady) return
@@ -241,6 +290,29 @@ export const EnhancedMindARViewer: React.FC<EnhancedMindARViewerProps> = ({
         </div>
       )}
 
+      {/* Marker Detection Handlers */}
+      {isStarted && multiMarkerMode && markerConfigs.length > 0 && (
+        <MultiMarkerManager
+          anchors={anchorsRef.current}
+          markerConfigs={markerConfigs}
+          onMarkerDetected={onMarkerDetected}
+          onMarkerLost={onMarkerLost}
+          debugMode={debugMode}
+          maxSimultaneous={maxTrack}
+        />
+      )}
+
+      {/* Single Marker Detection Handler */}
+      {isStarted && !multiMarkerMode && anchorRef.current && (
+        <MarkerDetectionHandler
+          anchor={anchorRef.current}
+          targetIndex={0}
+          onTargetFound={onTargetFound}
+          onTargetLost={onTargetLost}
+          debugMode={debugMode}
+        />
+      )}
+
       {isStarted && (
         <>
           <div className="absolute top-4 left-4 right-4 z-10 flex justify-between items-start">
@@ -279,6 +351,8 @@ export const EnhancedMindARViewer: React.FC<EnhancedMindARViewerProps> = ({
                 <div>Type: {type}</div>
                 <div>Content: {content.type}</div>
                 <div>Status: {targetStatus}</div>
+                <div>Mode: {multiMarkerMode ? `Multi (${maxTrack} max)` : 'Single'}</div>
+                {debugMode && <div>Debug: Enabled</div>}
               </div>
             </div>
           )}

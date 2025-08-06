@@ -65,7 +65,9 @@ export async function middleware(request: NextRequest) {
     )
 
     // Get user and their role
-    const { data: { user } } = await supabase.auth.getUser()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
     if (user) {
       const { data: profile } = await supabase
         .from('profiles')
@@ -86,7 +88,12 @@ export async function middleware(request: NextRequest) {
       }
 
       // Check creator routes (creator, moderator, and admin can access)
-      if (isCreatorRoute && userRole !== 'creator' && userRole !== 'moderator' && userRole !== 'admin') {
+      if (
+        isCreatorRoute &&
+        userRole !== 'creator' &&
+        userRole !== 'moderator' &&
+        userRole !== 'admin'
+      ) {
         return NextResponse.redirect(new URL('/dashboard?error=unauthorized', request.url))
       }
     }

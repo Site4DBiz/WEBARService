@@ -64,19 +64,23 @@ export default async function DashboardPage() {
                 <UserProfile user={user} />
               </div>
             </div>
-            
+
             <div className="bg-white overflow-hidden shadow rounded-lg">
               <div className="px-4 py-5 sm:p-6">
                 <h2 className="text-lg font-medium text-gray-900 mb-4">Your Access Level</h2>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600">Role:</span>
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(userRole as UserRole)}`}>
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold ${getRoleBadgeColor(userRole as UserRole)}`}
+                    >
                       {userRole.toUpperCase()}
                     </span>
                   </div>
                   <div className="border-t pt-3">
-                    <h3 className="text-xs font-medium text-gray-500 uppercase mb-2">Permissions</h3>
+                    <h3 className="text-xs font-medium text-gray-500 uppercase mb-2">
+                      Permissions
+                    </h3>
                     <ul className="space-y-1 text-sm">
                       {userRole === 'admin' && (
                         <>
