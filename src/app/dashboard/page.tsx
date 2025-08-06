@@ -185,19 +185,35 @@ export default async function DashboardPage() {
             )}
 
             {(canAccessAdmin || userRole === 'moderator') && (
-              <Link href="/statistics" className="block">
-                <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
-                  <div className="px-4 py-5 sm:p-6">
-                    <div className="flex items-center">
-                      <BarChart3 className="h-8 w-8 text-purple-500 mr-3" />
-                      <div>
-                        <dt className="text-sm font-medium text-gray-500">Statistics</dt>
-                        <dd className="mt-1 text-lg font-semibold text-gray-900">Dashboard</dd>
+              <>
+                <Link href="/statistics" className="block">
+                  <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="px-4 py-5 sm:p-6">
+                      <div className="flex items-center">
+                        <BarChart3 className="h-8 w-8 text-purple-500 mr-3" />
+                        <div>
+                          <dt className="text-sm font-medium text-gray-500">Statistics</dt>
+                          <dd className="mt-1 text-lg font-semibold text-gray-900">Dashboard</dd>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+                
+                <Link href="/analytics" className="block">
+                  <div className="bg-white overflow-hidden shadow rounded-lg hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="px-4 py-5 sm:p-6">
+                      <div className="flex items-center">
+                        <Activity className="h-8 w-8 text-orange-500 mr-3" />
+                        <div>
+                          <dt className="text-sm font-medium text-gray-500">Analytics</dt>
+                          <dd className="mt-1 text-lg font-semibold text-gray-900">Insights</dd>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              </>
             )}
 
             {canCreateContent && (
