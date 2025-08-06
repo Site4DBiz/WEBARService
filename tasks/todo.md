@@ -35,7 +35,7 @@ NextJS、Supabase、MindARを使用したWeb ARサービスの構築
 - [x] Row Level Security (RLS)ポリシーの設定
 
 ### 2.2 Supabase Functions
-- [ ] ARコンテンツアップロード処理
+- [x] ARコンテンツアップロード処理
 - [ ] マーカー画像処理関数
 - [ ] アナリティクス集計関数
 - [ ] 画像最適化処理
